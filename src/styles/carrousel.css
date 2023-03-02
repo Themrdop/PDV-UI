@@ -1,0 +1,51 @@
+.buttonBack {
+  border: none;
+  color:#000;
+  padding: 10x;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  outline: none;
+  background: #F8F8F7;
+  border-radius: 20px;
+  /* margin: 0 -25px; */
+  position: absolute;
+  top: 30%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.buttonNext {
+  border: none;
+  color:#000;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  outline: none;
+  background: #F8F8F7;
+  border-radius: 20px;
+  /* margin: 0 -25px; */
+  position: absolute;
+  top: 30%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 1900px) {
+  .buttonNext {
+    top: 50%;
+  }
+}
+
+@media (min-width: 1900px) {
+  .buttonBack {
+    top: 50%;
+  }
+}
