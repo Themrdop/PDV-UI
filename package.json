@@ -19,6 +19,7 @@
     "polished": "^3.6.5",
     "pure-react-carousel": "^1.27.1",
     "react": "^16.14.0",
+    "react-bootstrap": "^2.7.2",
     "react-dom": "^16.14.0",
     "react-hot-toast": "^2.4.0",
     "react-icons": "^4.7.1",
