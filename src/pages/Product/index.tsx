@@ -20,7 +20,7 @@ const ProductInput: React.FC = () => {
     event.preventDefault();
     console.log(inputs);
 
-    const response = await api.post<Product>(
+    await api.post<Product>(
       '/AddProduct', {title: inputs.title, price: inputs.price, image: inputs.image}
     );
   }

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import {FiSearch,
 } from 'react-icons/fi';
@@ -16,11 +16,7 @@ import api from '../../service/api';
 import { formatPrice } from '../../utils/formatPrice';
 import { ProductList } from '../../components/ProductList';
 
-import { Fab } from 'react-tiny-fab';
-import { MdPayment } from "react-icons/md";
-import PaymentModal from '../../components/Modal/PaymentModal';
-
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 
 export interface Stock {
   id: number;
@@ -71,35 +67,8 @@ const Dashboard: React.FC = () => {
     setFilter(query)
   }
 
-  async function handlePay(){
-    if (cart.length > 0) {
-      console.log(cart);
-      setShow(true)
-    }
-  }
-
-  function clean() {
-    dispatch({ type: 'CLEAN', payload: cart })
-  }
-
-  const showToastMessage = (success:boolean) => {
-    let messages: string;
-    if(success){
-      toast.success('El pago se realizó con exito');
-    }else{
-      toast.error('Problema con el pago');
-    }
-    
-  };
-
-  const [show, setShow] = React.useState(false);
-
   const current = new Date();
   const date = `${current.getDate()}/${current.getMonth()+1}/${current.getFullYear()}`;
-
-  const cart = useSelector((state: Cart) => state.cart.map((product) => ({
-    ...product,
-  })));
 
   return (
     <Layout>
@@ -114,21 +83,6 @@ const Dashboard: React.FC = () => {
           </span>
         </s.Info>
       </s.Header>
-      <s.CardContainer>
-        <s.Card>
-          <header>
-            <p>Total</p>
-          </header>
-          <section>
-            <p>₡</p>
-            <h1>
-              {
-                cart.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0)
-              }
-            </h1>
-          </section>
-        </s.Card>
-      </s.CardContainer>
       <s.Search>
         <FiSearch size="24px" color="grey" />
         <s.SearchInput placeholder="Buscar producto" onChange={(event) => handleSearch(event.target.value) } />
@@ -147,22 +101,6 @@ const Dashboard: React.FC = () => {
                     </li>
         ))}
       </ProductList>
-      {cart.length > 0 && <Fab
-        alwaysShowTitle={true}
-        text="Pagar"
-        icon={<MdPayment />}
-        onClick={() => handlePay()}
-      />}
-      <PaymentModal products={cart} onClose={(result: boolean) => 
-          {setShow(false);
-            showToastMessage(result);
-            if(result){
-              clean();
-            }
-          }
-        } show={show}>
-        <p>This is modal body</p>
-      </PaymentModal>
       <Toaster />
     </Layout>
   );

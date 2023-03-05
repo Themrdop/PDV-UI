@@ -4,14 +4,12 @@ import media from 'styled-media-query';
 import { Props } from '.';
 
 export const SidebarWrapper = styled.aside`
-  align-items: center;
   border-right: 1px solid #edf0f3;
   background: #f9fafb;
   display: flex;
   flex-direction: column;
   height: 100vh;
   padding: 2rem;
-  text-align: center;
   width: 400px;
 
   ${media.lessThan('large')`
@@ -98,4 +96,46 @@ export const Item = styled.li`
     margin-bottom: 20px;
     letter-spacing: -0.34px;
   }
+`;
+
+export const Total = styled.div`
+  display: inline-box;
+  flex-direction: column;
+  justify-content: space-evenly;
+  flex: 1;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 28px;
+  align-items: left;
+  text-align: left;
+  letter-spacing: -0.34px;
+  color: #de0000;
+  margin-top: 20px;
+  justify-content: space-between;
+
+  p {
+    text-align: right;
+  }
+`;
+
+export const Button = styled.button`
+  background-color: transparent;
+  border: none;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  margin: 4px 2px;
+  border-radius: 50%;
+  height: 75px;
+  width: 75px;
+`;
+
+export const ButtonWrapper = styled.div`
+  display: inline-box;
+  justify-content: space-between;
+  margin-top: 20px;
 `;

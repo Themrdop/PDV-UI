@@ -1,11 +1,16 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Product from '../../pages/Product';
-import Profile from '../Profile';
+import { MdPayment} from "react-icons/md";
+import { TbDiscount } from "react-icons/tb";
+import { FcCancel } from "react-icons/fc";
 
 import * as s from './styled';
+import PaymentModal from '../Modal/PaymentModal';
+
+import toast from 'react-hot-toast';
 
 export interface Props {
   isSmall?: boolean;
@@ -20,8 +25,9 @@ export interface Product {
   id: number;
   title: string;
   price: number;
-  image: string;
   amount: number;
+  image: string;
+  priceFormatted: string;
 }
 
 export interface Cart {
@@ -30,6 +36,7 @@ export interface Cart {
 
 const Sidebar: React.FC<Props> = ({ isSmall }) => {
   const dispatch = useDispatch();
+  const [show, setShow] = useState(false);
 
   const cart = useSelector((state: Cart) => state.cart.map((product) => ({
     ...product,
@@ -39,9 +46,27 @@ const Sidebar: React.FC<Props> = ({ isSmall }) => {
     dispatch({ type: 'DELETE_FROM_CART', payload: product });
   }
 
+  async function handlePay(){
+    if (cart.length > 0) {
+      console.log(cart);
+      setShow(true)
+    }
+  }
+
+  function clean() {
+    dispatch({ type: 'CLEAN', payload: cart })
+  }
+
+  const showToastMessage = (success:boolean) => {
+    if(success){
+      toast.success('El pago se realizó con exito');
+    }else{
+      toast.error('Problema con el pago');
+    }    
+  };
+
   return (
     <s.SidebarWrapper>
-      <Profile />
       <s.Receipt>
         <s.Item>
           <div>Descripción</div>
@@ -56,6 +81,33 @@ const Sidebar: React.FC<Props> = ({ isSmall }) => {
           </s.Item>
         ))}
       </s.Receipt>
+      <s.Total>
+        Total <p>{cart.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0)}</p>
+      </s.Total>
+      <s.ButtonWrapper>
+        <s.Button onClick={() => handlePay()}>
+          <MdPayment size={35}/>
+          Pagar
+        </s.Button>
+        <s.Button onClick={() => clean()}>
+          <TbDiscount size={35}/>
+          Descuento
+        </s.Button>
+        <s.Button onClick={() => clean()}>
+          <FcCancel size={35}/>
+          Cancelar
+        </s.Button>
+      </s.ButtonWrapper>
+      <PaymentModal products={cart} onClose={(result: boolean) => 
+          {setShow(false);
+            showToastMessage(result);
+            if(result){
+              clean();
+            }
+          }
+        } show={show}>
+        <p>This is modal body</p>
+      </PaymentModal>
     </s.SidebarWrapper>
   );
 };

@@ -22,11 +22,11 @@ export interface Props {
 
 const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   
-  const closeOnEscapeKeyDown = (e: { charCode: any; keyCode: any; }) => {
+  function closeOnEscapeKeyDown (e: { charCode: any; keyCode: any; }){
     if ((e.charCode || e.keyCode) === 27) {
       onClose(false);
     }
-  };
+  }
 
   useEffect(() => {
     document.body.addEventListener("keydown", closeOnEscapeKeyDown);
@@ -45,10 +45,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
     }
   }
 
-  function printDocument() {
+  /*function printDocument() {
      
     
-    /*const doc = new jsPDF();
+    const doc = new jsPDF();
    
     //get html
     const pdfTable = document.getElementById('divToPrint');
@@ -57,9 +57,9 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   
     const documentDefinition = { content: html };
     pdfMake.vfs = pdfFonts.pdfMake.vfs;
-    pdfMake.createPdf(documentDefinition).open();*/
+    pdfMake.createPdf(documentDefinition).open();
   
-  }
+  }*/
 
   const total = products.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0);
 
