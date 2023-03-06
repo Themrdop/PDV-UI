@@ -134,6 +134,19 @@ export const Button = styled.button`
   width: 75px;
 `;
 
+export const SmallButton = styled.button`
+  background-color: transparent;
+  border: none;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 16px;
+  margin: 4px 2px;
+  height: 100%;
+  width: 65px;
+`;
+
 export const ButtonWrapper = styled.div`
   display: inline-box;
   justify-content: space-between;

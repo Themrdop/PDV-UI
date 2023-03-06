@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -35,10 +35,12 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
     };
   }, []);
 
+  const [Cedula, setCedula] = useState<string>('');
+
   async function handlePay(){
     console.log(products);
     const response = await api.post<Product[]>(
-      '/SaveBill',products
+      '/SaveBill', products
     );
     if(response.status === 200){
       onClose(true);
@@ -61,6 +63,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   
   }*/
 
+  const divStyle = {
+    display: 'flex',
+  };
+
   const total = products.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0);
 
   return ReactDOM.createPortal(
@@ -73,11 +79,11 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
           <div className="modal-header">
             <h4 className="modal-title">Factura</h4>
           </div>
-          <div className="App container mt-5">
-            <label>Cedula juridica 
-              <input type="text"/>
-            </label>
-            <br />
+          <div className="App container mt-1">
+            <div className="mb-1" style={divStyle}>
+              <label className="form-label">Cedula juridica:</label>
+              <input type="text" className="form-control" onChange={(e) => setCedula(e.target.value) }/>
+            </div>
             <div id="divToPrint" className="m-1">
             <div className="row d-flex justify-content-center">
               <div className="col-md-8">

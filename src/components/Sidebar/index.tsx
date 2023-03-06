@@ -77,7 +77,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }) => {
           <s.Item>
             <div>{p.title}</div>
             <span>{p.amount}</span>
-            <button onClick={(e) => handlerDelete(p)}>x</button>
+            <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>
           </s.Item>
         ))}
       </s.Receipt>
