@@ -42,20 +42,20 @@ const Dashboard: React.FC = () => {
 
   const dispatch = useDispatch();
 
+  async function loadProducts() {
+    const response = await api.get<Product[]>(
+      '/GetAllProducts',
+    );
+
+    const data = response.data.map((product) => ({
+      ...product,
+      priceFormatted: formatPrice(product.price),
+    }));
+
+    setProducts(data);
+  }
+
   useEffect(() => {
-    async function loadProducts() {
-      const response = await api.get<Product[]>(
-        '/GetAllProducts',
-      );
-
-      const data = response.data.map((product) => ({
-        ...product,
-        priceFormatted: formatPrice(product.price),
-      }));
-
-      setProducts(data);
-    }
-
     loadProducts();
   }, []);
 

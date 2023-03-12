@@ -77,7 +77,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
       <div className="modal">
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <div className="modal-header">
-            <h4 className="modal-title">Factura</h4>
+            <h2 className="h2">Factura</h2>
           </div>
           <div className="App container mt-1">
             <div className="mb-1" style={divStyle}>

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Product from '../../pages/Product';
 import { MdPayment} from "react-icons/md";
@@ -11,6 +11,8 @@ import * as s from './styled';
 import PaymentModal from '../Modal/PaymentModal';
 
 import toast from 'react-hot-toast';
+import { CommerceInfo } from '../../pages/Configuration';
+import api from '../../service/api';
 
 export interface Props {
   isSmall?: boolean;
@@ -37,6 +39,7 @@ export interface Cart {
 const Sidebar: React.FC<Props> = ({ isSmall }) => {
   const dispatch = useDispatch();
   const [show, setShow] = useState(false);
+  const [CommerceInfo, setCommerceInfo] = useState<CommerceInfo>({} as CommerceInfo);
 
   const cart = useSelector((state: Cart) => state.cart.map((product) => ({
     ...product,
@@ -65,9 +68,26 @@ const Sidebar: React.FC<Props> = ({ isSmall }) => {
     }    
   };
 
+  async function loadCommerceInfo() {
+    const response = await api.get<CommerceInfo>(
+        '/GetCommerceInformation',
+    );
+    setCommerceInfo(response.data);
+  }
+
+  useEffect(() => {
+    loadCommerceInfo();
+  }, []);
+
   return (
     <s.SidebarWrapper>
       <s.Receipt>
+        <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
+        <s.BillHeader>{CommerceInfo.cedula}</s.BillHeader>
+        <s.BillHeader>{CommerceInfo.phone}</s.BillHeader>
+        <s.BillHeader>{CommerceInfo.email}</s.BillHeader>
+        <s.BillHeader>{CommerceInfo.address}</s.BillHeader>
+        <br/>
         <s.Item>
           <div>Descripción</div>
           <div>Cantidad</div>
@@ -106,7 +126,6 @@ const Sidebar: React.FC<Props> = ({ isSmall }) => {
             }
           }
         } show={show}>
-        <p>This is modal body</p>
       </PaymentModal>
     </s.SidebarWrapper>
   );

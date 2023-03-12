@@ -98,6 +98,20 @@ export const Item = styled.li`
   }
 `;
 
+export const BillHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  flex: 1;
+  font-family: Roboto Mono;
+  font-style: bold;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  margin-top: 1px;
+  justify-content: space-between;
+`;
+
 export const Total = styled.div`
   display: inline-box;
   flex-direction: column;
