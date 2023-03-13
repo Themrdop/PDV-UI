@@ -93,8 +93,8 @@ const Sidebar: React.FC<Props> = ({ isSmall }) => {
           <div>Cantidad</div>
           <div>Eliminar</div>
         </s.Item>
-        {cart.map((p) => (
-          <s.Item>
+        {cart.map((p, index) => (
+          <s.Item key={index}>
             <div>{p.title}</div>
             <span>{p.amount}</span>
             <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>

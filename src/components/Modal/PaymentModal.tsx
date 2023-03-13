@@ -36,6 +36,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   }, []);
 
   const [Cedula, setCedula] = useState<string>('');
+  const [telefono, setTelefono] = useState<string>('');
 
   async function handlePay(){
     console.log(products);
@@ -98,8 +99,8 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                                       <td className="text-center">Total</td>
                                   </tr>
                                   {
-                                    products.map((p) => {
-                                      return <tr className="content">
+                                    products.map((p,index) => {
+                                      return <tr className="content" key={index}>
                                         <td>{p.title}</td>
                                         <td>{p.amount}</td>
                                         <td>{p.price}</td>
@@ -132,6 +133,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                   </div>
               </div>
           </div>
+        </div>
+        <div className="mb-1" style={divStyle}>
+          <label className="form-label">Telefono de cliente:</label>
+          <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value) }/>
         </div>
       </div>
           <div className="modal-footer">

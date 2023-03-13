@@ -4,6 +4,8 @@ import api from '../../service/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button } from 'react-bootstrap';
 import { Toaster, toast } from 'react-hot-toast';
+import { HiDocumentReport } from 'react-icons/hi';
+import BillReport from '../../components/Modal/BillReport';
 
 export interface CommerceInfo {
     name: string;
@@ -15,9 +17,13 @@ export interface CommerceInfo {
 }
 
 const Commerce: React.FC = () => {
+    const divStyle = {
+        borderTop: '2px solid #999',
+      };
 
     const [inputs, setInputs] = useState<CommerceInfo>({
     name: '', address: '', phone: '', email: '', logo: '', cedula: ''});
+    const [show, setShow] = useState(false);
 
     const handleChange = (event: { target: { name: any; value: any; }; }) => {
         const name = event.target.name;
@@ -51,9 +57,20 @@ const Commerce: React.FC = () => {
         setInputs(response.data);
     }
 
+    async function handlePay(){
+        setShow(true);
+      }
+
     return (
         <Layout>
-            <h1 className='h1'>Información comercio</h1>
+            <Button onClick={handlePay}>
+                <HiDocumentReport/>
+                Generar Informe de facturacion
+            </Button>
+            <br/>
+            <br/>
+            <hr style={divStyle}></hr>
+            <h1 className='h1'>Información de comercio</h1>
             <form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Nombre de comercio:</Form.Label>
@@ -66,7 +83,7 @@ const Commerce: React.FC = () => {
             <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>Cedula juridica:</Form.Label>
                 <Form.Control type="text" 
-                placeholder="" 
+                placeholder="1234" 
                 onChange={handleChange} 
                 name="cedula" 
                 value={inputs.cedula || ""} />
@@ -97,6 +114,9 @@ const Commerce: React.FC = () => {
             </Form.Group>
             <Button type="submit" variant="primary">Guardar</Button>
             </form>
+            <BillReport onClose={(result: boolean) => 
+                {setShow(false);}
+                } show={show}></BillReport>
             <Toaster />
         </Layout>
     )
