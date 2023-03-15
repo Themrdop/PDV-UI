@@ -17,10 +17,7 @@ const ProductInput: React.FC = () => {
     borderTop: '2px solid #999',
   };
 
-  const [inputs, setInputs] = useState<Product>({
-    id: 0, title: '', price: 0, image: '', amount: 0,
-    priceFormatted: ''
-  });
+  const [inputs, setInputs] = useState<Product>({} as Product);
   const [products, setProducts] = useState<Product[]>([]);
 
   const handleChange = (event: { target: { name: any; value: any; }; }) => {
@@ -51,6 +48,21 @@ const ProductInput: React.FC = () => {
     });
   }
 
+  async function selectProduct(id: number) {
+    const response = await api.get<Product[]>(
+        '/GetAllProducts', { params: { ProductId: id } }
+      );
+
+    if(response.status !== 200){
+      toast.error('Error al cargar el producto');
+      return;
+    }
+
+    const data = response.data.pop();
+    if(data !== undefined)
+        setInputs(data);
+  }
+
   useEffect(() => {
     loadProducts();
   }, []);
@@ -60,12 +72,30 @@ const ProductInput: React.FC = () => {
       '/GetAllProducts',
     );
 
+    if(response.status !== 200){
+      toast.error('Error al cargar los productos');
+      return;
+    }
+
     const data = response.data.map((product) => ({
       ...product,
       priceFormatted: formatPrice(product.price),
     }));
 
     setProducts(data);
+  }
+
+  async function deleteProduct(id: number) {
+    const response = await api.delete<Product>(
+      '/DeleteProduct', { params: { ProductId: id } }
+    );
+
+    if(response.status === 200){
+        console.log(response.data);
+        toast.success('El producto se elimino con exito');
+        loadProducts();
+        clear();
+    }
   }
 
   return(
@@ -102,10 +132,11 @@ const ProductInput: React.FC = () => {
     <hr style={divStyle}></hr>
     <ProductList>
         {
-        products.map((product) => (
-                      <ListGroup defaultActiveKey={product.id}>
-                        <ListGroup.Item action >
+        products.map((product, index) => (
+                      <ListGroup>
+                        <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
                           {product.title}
+                          <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>
                         </ListGroup.Item>
                       </ListGroup>
         ))}
