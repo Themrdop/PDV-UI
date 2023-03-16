@@ -61,6 +61,11 @@ export const Search = styled.div`
 
 `;
 
+export const ProductItemContainer = styled.div`
+  Max-He: 50px;
+  scroll-behavior: smooth;
+`;
+
 export const SearchInput = styled.input`
   font-size: 24px;
   line-height: 24px;

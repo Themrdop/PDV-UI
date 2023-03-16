@@ -1,19 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-param-reassign */
 import produce from 'immer';
-
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  amount: number;
-  image: string;
-  priceFormatted: string;
-}
-
-export interface Cart {
-  cart: Product[];
-}
+import { Product } from '../../../../models/models';
 
 export interface Action {
   type: string;

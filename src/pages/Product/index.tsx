@@ -139,7 +139,7 @@ const ProductInput: React.FC = () => {
     <ProductList>
         {
         products.map((product, index) => (
-                      <ListGroup>
+                      <ListGroup key={index}>
                         <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
                           {product.title}
                           <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>

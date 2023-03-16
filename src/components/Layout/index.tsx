@@ -12,7 +12,6 @@ const Layout: React.FC<{name?:string}> = ({children, name}) => (
     <GlobalStyles />
     <MenuBar />
     <s.LayoutMain>{children}</s.LayoutMain>
-    {console.log(name)}
     {name === 'Dashboard' && <Sidebar />}
   </s.LayoutWrapper>
 );

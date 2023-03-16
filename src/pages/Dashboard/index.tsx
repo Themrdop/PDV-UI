@@ -60,6 +60,10 @@ const Dashboard: React.FC = () => {
     dispatch({ type: 'ADD_TO_CART', payload: product });
   }
 
+  function handleAddCombo(combo: Combo) {
+    dispatch({ type: 'ADD_TO_CART', payload: combo });
+  }
+
   function handleSearch(query: string) {
     setFilter(query)
   }
@@ -94,10 +98,11 @@ const Dashboard: React.FC = () => {
           infinite>
           <Slider>
             {
-              combos.map((combo,index) => (
-                <Slide index={index}>
+              combos.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()))
+              .map((combo,index) => (
+                <Slide index={combo.id} key={index}>
                   <s.CategoryItem>
-                    <header>
+                    <header onClick={() => handleAddCombo(combo)}>
                       <p>{combo.name}</p>
                       <img src={combo.image} alt="" />
                     </header>
@@ -110,20 +115,21 @@ const Dashboard: React.FC = () => {
           <ButtonNext className="buttonNext"><FiChevronRight size="24px" color="grey" /></ButtonNext>
         </CarouselProvider>
       </s.CategoryContainer>
-
-      <ProductList>
-        {
-        products.filter(f => f.title.toLowerCase().includes(filter.toLowerCase()))
-                .map((product) => (
-                    <li key={product.id} onClick={() => handleAddProduct(product)}>
-                      <img src={product.image} alt={product.title} />
-                      <span>
-                        <strong>{product.title}</strong>
-                        <p>{product.priceFormatted}</p>
-                      </span>
-                    </li>
-        ))}
-      </ProductList>
+      <s.ProductItemContainer>
+        <ProductList>
+          {
+          products.filter(f => f.title.toLowerCase().includes(filter.toLowerCase()))
+                  .map((product) => (
+                      <li key={product.id} onClick={() => handleAddProduct(product)}>
+                        <img src={product.image} alt={product.title} />
+                        <span>
+                          <strong>{product.title}</strong>
+                          <p>{product.priceFormatted}</p>
+                        </span>
+                      </li>
+          ))}
+        </ProductList>
+      </s.ProductItemContainer>
       <Toaster />
     </Layout>
   );
