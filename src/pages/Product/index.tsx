@@ -42,10 +42,7 @@ const ProductInput: React.FC = () => {
   }
 
   function clear() {
-    setInputs({
-      id: 0, title: '', price: 0, image: '', amount: 0,
-      priceFormatted: ''
-    });
+    setInputs({} as Product);
   }
 
   async function selectProduct(id: number) {
@@ -127,6 +124,7 @@ const ProductInput: React.FC = () => {
         value={inputs.image || ""} />
       </Form.Group>
       <Button type="submit" variant="primary">Guardar</Button>
+      <Button disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
     </form>
     <br/>
     <hr style={divStyle}></hr>
