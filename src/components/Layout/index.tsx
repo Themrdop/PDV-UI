@@ -7,12 +7,13 @@ import * as s from './styled';
 
 import GlobalStyles from '../../styles/global';
 
-const Layout: React.FC = ({ children }) => (
+const Layout: React.FC<{name?:string}> = ({children, name}) => (
   <s.LayoutWrapper>
     <GlobalStyles />
     <MenuBar />
     <s.LayoutMain>{children}</s.LayoutMain>
-    <Sidebar />
+    {console.log(name)}
+    {name === 'Dashboard' && <Sidebar />}
   </s.LayoutWrapper>
 );
 

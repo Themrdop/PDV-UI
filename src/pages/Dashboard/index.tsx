@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import {
   FiSearch, FiChevronRight, FiChevronLeft
@@ -16,40 +16,14 @@ import '../../styles/carrousel.css';
 import * as s from './styled';
 import Layout from '../../components/Layout';
 
-import bebidas from '../../assets/images/bebidas-icon.svg';
-import frios from '../../assets/images/frios-icon.svg';
-import salgados from '../../assets/images/salgados-icon.svg';
-import sorvetes from '../../assets/images/sorvetes-icon.svg';
-import delicatessen from '../../assets/images/delicatessen-ico.svg';
-import sanduiche from '../../assets/images/sanduiche-ico.svg';
 import api from '../../service/api';
 import { formatPrice } from '../../utils/formatPrice';
 import { ProductList } from '../../components/ProductList';
 
 import { Toaster } from 'react-hot-toast';
+import { Combo, Product } from '../../models/models';
 
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  amount: number;
-  image: string;
-  priceFormatted: string;
-}
 
-export interface Cart {
-  cart: Product[];
-}
-
-export interface Combo {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  products: Product[];
-  price: number;
-  active: boolean;
-}
 
 const Dashboard: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -94,7 +68,7 @@ const Dashboard: React.FC = () => {
   const date = `${current.getDate()}/${current.getMonth()+1}/${current.getFullYear()}`;
 
   return (
-    <Layout>
+    <Layout name='Dashboard'>
       <s.Header>
         <s.Title>Panel</s.Title>
         <s.Info>

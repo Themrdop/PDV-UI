@@ -2,41 +2,22 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import Product from '../../pages/Product';
 import { MdPayment} from "react-icons/md";
 import { TbDiscount } from "react-icons/tb";
 import { FcCancel } from "react-icons/fc";
 
 import * as s from './styled';
 import PaymentModal from '../Modal/PaymentModal';
+import {Cart, CommerceInfo, Product} from '../../models/models';
 
 import toast from 'react-hot-toast';
-import { CommerceInfo } from '../../pages/Configuration';
 import api from '../../service/api';
 
 export interface Props {
   isSmall?: boolean;
 }
 
-export interface Stock {
-  id: number;
-  amount: number;
-}
-
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  amount: number;
-  image: string;
-  priceFormatted: string;
-}
-
-export interface Cart {
-  cart: Product[];
-}
-
-const Sidebar: React.FC<Props> = ({ isSmall }) => {
+const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
   const dispatch = useDispatch();
   const [show, setShow] = useState(false);
   const [CommerceInfo, setCommerceInfo] = useState<CommerceInfo>({} as CommerceInfo);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../service/api';
-import { Product } from '../Dashboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button } from 'react-bootstrap';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -10,6 +9,7 @@ import { formatPrice } from '../../utils/formatPrice';
 import { ProductList } from '../../components/ProductList';
 
 import { Toaster, toast } from 'react-hot-toast';
+import { Product } from '../../models/models';
 
 const ProductInput: React.FC = () => {
   
@@ -97,6 +97,14 @@ const ProductInput: React.FC = () => {
 
   return(
   <Layout>
+    <ul className="nav nav-tabs">
+        <li className="nav-item">
+            <a className="nav-link active" aria-current="page" href="/product">Productos</a>
+        </li>
+        <li className="nav-item">
+            <a className="nav-link" href="/combo">Combos</a>
+        </li>
+    </ul>
     <h1 className='h1'>Producto</h1>
     <form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="formBasicEmail">

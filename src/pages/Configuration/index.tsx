@@ -6,15 +6,7 @@ import { Form, Button } from 'react-bootstrap';
 import { Toaster, toast } from 'react-hot-toast';
 import { HiDocumentReport } from 'react-icons/hi';
 import BillReport from '../../components/Modal/BillReport';
-
-export interface CommerceInfo {
-    name: string;
-    address: string;
-    phone: string;
-    email: string;
-    logo: string;
-    cedula: string;
-}
+import { CommerceInfo } from '../../models/models';
 
 const Commerce: React.FC = () => {
     const divStyle = {
