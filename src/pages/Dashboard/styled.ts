@@ -62,8 +62,7 @@ export const Search = styled.div`
 `;
 
 export const ProductItemContainer = styled.div`
-  Max-He: 50px;
-  scroll-behavior: smooth;
+  overflow-y: scroll;
 `;
 
 export const SearchInput = styled.input`

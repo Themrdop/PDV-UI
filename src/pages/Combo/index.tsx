@@ -9,7 +9,7 @@ import { formatPrice } from '../../utils/formatPrice';
 import { ProductList } from '../../components/ProductList';
 
 import { Toaster, toast } from 'react-hot-toast';
-import { Product } from '../../models/models';
+import { Combo, Product } from '../../models/models';
 
 const ProductInput: React.FC = () => {
   
@@ -17,8 +17,9 @@ const ProductInput: React.FC = () => {
     borderTop: '2px solid #999',
   };
 
-  const [inputs, setInputs] = useState<Product>({} as Product);
+  const [inputs, setInputs] = useState<Combo>({products: [] as Product[]} as Combo);
   const [products, setProducts] = useState<Product[]>([]);
+  const [ComboList, setComboList] = useState<Combo[]>([]);
 
   const handleChange = (event: { target: { name: any; value: any; }; }) => {
     const name = event.target.name;
@@ -30,38 +31,41 @@ const ProductInput: React.FC = () => {
     event.preventDefault();
     console.log(inputs);
 
-    let response = await api.post<Product>(
-      '/AddProduct', {title: inputs.title, price: inputs.price, image: inputs.image}
+    let response = await api.post<Combo>(
+      '/AddCombo', {name: inputs.name, description: inputs.description, price: inputs.price, image: inputs.image, products: inputs.products} as Combo
     );
 
     if(response.status === 200){
       toast.success('El producto se guardo con exito');
       loadProducts();
+      loadCombos();
       clear();
     }
   }
 
   function clear() {
-    setInputs({} as Product);
+    setInputs({products: [] as Product[]} as Combo);
   }
 
   async function selectProduct(id: number) {
-    const response = await api.get<Product[]>(
-        '/GetAllProducts', { params: { ProductId: id } }
-      );
+    let prod = inputs.products?.find(p => p.id === id);
 
-    if(response.status !== 200){
-      toast.error('Error al cargar el producto');
-      return;
+    if(prod === undefined) {
+      setInputs(com => {
+        let newProductList = [...com.products, {id: id} as Product];
+        return {...com, products: newProductList};
+      });
+    }else{
+      setInputs(com => {
+        let newproductList = com.products.filter(p => p.id !== id)
+        return {...com, products: newproductList};
+      });
     }
-
-    const data = response.data.pop();
-    if(data !== undefined)
-        setInputs(data);
   }
 
   useEffect(() => {
     loadProducts();
+    loadCombos();
   }, []);
 
   async function loadProducts() {
@@ -82,17 +86,49 @@ const ProductInput: React.FC = () => {
     setProducts(data);
   }
 
-  async function deleteProduct(id: number) {
-    const response = await api.delete<Product>(
-      '/DeleteProduct', { params: { ProductId: id } }
+  async function loadCombos(){
+    const response = await api.get<Combo[]>(
+      '/GetAllCombos',
+    );
+
+    if(response.status !== 200){
+      toast.error('Error al cargar los combos');
+      return;
+    }
+
+    const data = response.data.map((combo) => ({
+      ...combo,
+      priceFormatted: formatPrice(combo.price),
+    }));
+
+    setComboList(data);
+  }
+
+  async function deleteCombo(id: number) {
+    const response = await api.delete<Combo>(
+      '/DeleteCombo', { params: { id: id } }
     );
 
     if(response.status === 200){
-        console.log(response.data);
-        toast.success('El producto se elimino con exito');
-        loadProducts();
-        clear();
+      toast.success('El combo se elimino con exito');
+      loadCombos();
+      clear();
     }
+  }
+
+  async function selectCombo(id: number) {
+    const response = await api.get<Combo>(
+      '/GetComboById', { params: { id: id } }
+    );
+
+    console.log(response.data);
+
+    if(response.status !== 200){
+      toast.error('Error al cargar el producto');
+      return;
+    }
+
+    setInputs(response.data);
   }
 
   return(
@@ -105,15 +141,36 @@ const ProductInput: React.FC = () => {
             <a className="nav-link active" href="/combo">Combos</a>
         </li>
     </ul>
-    <h1 className='h1'>Combos</h1>
+    <ProductList>
+        {
+        ComboList.map((combo, index) => (
+                      <ListGroup key={index}>
+                        <ListGroup.Item action key={index} onClick={() => {selectCombo(combo.id);}}>
+                          {combo.name}
+                          <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteCombo(combo.id)}}>x</button>
+                        </ListGroup.Item>
+                      </ListGroup>
+        ))}
+      </ProductList>
+      <br/>
+      <hr style={divStyle}></hr>
+      <br/>
     <form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
+    <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Nombre:</Form.Label>
         <Form.Control type="text" 
-        placeholder="Rice and Beans o algo asi" 
+        placeholder="Combo 1" 
         onChange={handleChange} 
-        name="title" 
-        value={inputs.title || ""} />
+        name="name" 
+        value={inputs.name || ""} />
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label>Description:</Form.Label>
+        <Form.Control type="text" 
+        placeholder="Lo que sea" 
+        onChange={handleChange} 
+        name="description" 
+        value={inputs.description || ""} />
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Precio:</Form.Label>
@@ -124,15 +181,15 @@ const ProductInput: React.FC = () => {
         value={inputs.price || ""} />
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Direccion de la imagen:</Form.Label>
+        <Form.Label>Imagen:</Form.Label>
         <Form.Control type="text" 
-        placeholder="htttp://algo.com/algo.jpg" 
+        placeholder="3000" 
         onChange={handleChange} 
         name="image" 
         value={inputs.image || ""} />
       </Form.Group>
       <Button type="submit" variant="primary">Guardar</Button>
-      <Button disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
+      <Button disabled={inputs.description === undefined && inputs.price === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
     </form>
     <br/>
     <hr style={divStyle}></hr>
@@ -140,12 +197,12 @@ const ProductInput: React.FC = () => {
         {
         products.map((product, index) => (
                       <ListGroup>
-                        <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
+                        <ListGroup.Item active= {inputs.products?.find(p => p.id === product.id) !== undefined ? true : false} action key={index} onClick={() => {selectProduct(product.id);}}>
                           {product.title}
-                          <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>
                         </ListGroup.Item>
                       </ListGroup>
-        ))}
+        ))
+        }
       </ProductList>
       <Toaster />
   </Layout>

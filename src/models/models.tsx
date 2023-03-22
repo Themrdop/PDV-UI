@@ -34,7 +34,3 @@ export interface Product {
     id: number;
     amount: number;
   }
-  
-  export interface Cart {
-    cart: Product[];
-  }
