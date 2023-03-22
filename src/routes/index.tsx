@@ -6,6 +6,7 @@ import Product from '../pages/Product';
 import About from '../pages/About';
 import Configuration from '../pages/Configuration';
 import Combo from '../pages/Combo';
+import UserAdministration from '../pages/User';
 
 const Routes: React.FC = () => (
   <Switch>
@@ -14,6 +15,7 @@ const Routes: React.FC = () => (
     <Route path="/combo" component={Combo} />
     <Route path="/about" component={About} />
     <Route path="/configuration" component={Configuration} />
+    <Route path="/user" component={UserAdministration} />
 
   </Switch>
 );
