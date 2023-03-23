@@ -1,0 +1,56 @@
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+    {
+        builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+    }));
+
+builder.Services.AddCors();
+
+builder.Host.ConfigureLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+});
+
+builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
+builder.Services.AddSingleton<IBillRepository, BillRepository>();
+builder.Services.AddSingleton<ICommerceInformationRepository, CommerceInformationRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IComboRepository, ComboRepository>();
+
+builder.Configuration.AddJsonFile("appsettings.json", false, true);
+
+if (!string.IsNullOrWhiteSpace(builder.Configuration["MongoUri"])){
+    builder.Services.AddSingleton<DataBaseImplementation>(new DataBaseImplementation(builder.Configuration["MongoUri"]));
+}
+string userName = builder.Configuration["userName"], 
+password = builder.Configuration["password"], 
+identificationNumber = builder.Configuration["identificationNumber"];
+
+if (!string.IsNullOrWhiteSpace(userName) && 
+    !string.IsNullOrWhiteSpace(password) && 
+    !string.IsNullOrWhiteSpace(identificationNumber)
+    )
+{
+    builder.Services.AddSingleton<IElectronicBill>(new Products.API.ElectronicBill.ElectronicBill(userName, password, identificationNumber));
+}
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen( c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Products API", Version = "v1" });
+});
+
+var app = builder.Build();
+
+app.MapGet("/", () => "I'm alive!");
+
+app.ConfigureApi();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseCors("corsapp");
+
+app.Run();

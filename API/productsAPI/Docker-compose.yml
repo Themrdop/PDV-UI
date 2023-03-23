@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+ mongodb:
+   container_name: mongodb
+   image: mongo
+   restart: always
+   volumes:
+   - ${WEBAPP_STORAGE_HOME}/site:/data/db
+   ports:
+   - "27017:27017"
+ userpoints:
+  build: ./src
+  container_name: userpoints
+  depends_on:
+  - mongodb
+  ports:
+  - "8081:80"
