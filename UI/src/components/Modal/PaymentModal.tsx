@@ -4,15 +4,7 @@ import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
-
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  amount: number;
-  image: string;
-  priceFormatted: string;
-}
+import { Product } from "../../models/models";
 
 export interface Props {
   show: boolean;
@@ -101,7 +93,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                                   {
                                     products.map((p,index) => {
                                       return <tr className="content" key={index}>
-                                        <td>{p.title}</td>
+                                        <td>{p.name}</td>
                                         <td>{p.amount}</td>
                                         <td>{p.price}</td>
                                         <td className="text-center">₡{p.price * p.amount}</td>

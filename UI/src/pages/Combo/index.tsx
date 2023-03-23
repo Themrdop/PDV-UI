@@ -17,6 +17,10 @@ const ProductInput: React.FC = () => {
     borderTop: '2px solid #999',
   };
 
+  const buttonMargin = {
+    marginLeft: '10px',
+  };
+
   const [inputs, setInputs] = useState<Combo>({products: [] as Product[]} as Combo);
   const [products, setProducts] = useState<Product[]>([]);
   const [ComboList, setComboList] = useState<Combo[]>([]);
@@ -189,7 +193,7 @@ const ProductInput: React.FC = () => {
         value={inputs.image || ""} />
       </Form.Group>
       <Button type="submit" variant="primary">Guardar</Button>
-      <Button disabled={inputs.description === undefined && inputs.price === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
+      <Button style={buttonMargin} disabled={inputs.description === undefined && inputs.price === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
     </form>
     <br/>
     <hr style={divStyle}></hr>
@@ -198,7 +202,7 @@ const ProductInput: React.FC = () => {
         products.map((product, index) => (
                       <ListGroup>
                         <ListGroup.Item active= {inputs.products?.find(p => p.id === product.id) !== undefined ? true : false} action key={index} onClick={() => {selectProduct(product.id);}}>
-                          {product.title}
+                          {product.name}
                         </ListGroup.Item>
                       </ListGroup>
         ))

@@ -36,7 +36,7 @@ const Dashboard: React.FC = () => {
     const response = await api.get<Product[]>(
       '/GetAllProducts',
     );
-
+    console.log(response.data);
     const data = response.data.map((product) => ({
       ...product,
       priceFormatted: formatPrice(product.price),
@@ -118,12 +118,12 @@ const Dashboard: React.FC = () => {
       <s.ProductItemContainer>
         <ProductList>
           {
-          products.filter(f => f.title.toLowerCase().includes(filter.toLowerCase()))
+          products.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()))
                   .map((product) => (
                       <li key={product.id} onClick={() => handleAddProduct(product)}>
-                        <img src={product.image} alt={product.title} />
+                        <img src={product.image} alt={product.name} />
                         <span>
-                          <strong>{product.title}</strong>
+                          <strong>{product.name}</strong>
                           <p>{product.priceFormatted}</p>
                         </span>
                       </li>

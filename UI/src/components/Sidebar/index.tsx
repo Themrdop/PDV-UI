@@ -32,7 +32,6 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
 
   async function handlePay(){
     if (cart.length > 0) {
-      console.log(cart);
       setShow(true)
     }
   }
@@ -76,7 +75,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
         </s.Item>
         {cart.map((p, index) => (
           <s.Item key={index}>
-            <div>{p.title}</div>
+            <div>{p.name}</div>
             <span>{p.amount}</span>
             <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>
           </s.Item>

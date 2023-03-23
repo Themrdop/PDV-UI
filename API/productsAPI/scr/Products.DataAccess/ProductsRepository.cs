@@ -62,7 +62,7 @@ namespace Products.DataAccess
             var filter = Builders<Product>.Filter.Eq(p => p.id, product.id);
 
             var updateDefinition = Builders<Product>.Update
-                .Set(p => p.title, product.title)
+                .Set(p => p.name, product.name)
                 .Set(p => p.price, product.price)
                 .Set(p => p.amount, product.amount)
                 .Set(p => p.image, product.image);

@@ -17,6 +17,10 @@ const ProductInput: React.FC = () => {
     borderTop: '2px solid #999',
   };
 
+  const buttonMargin = {
+    marginLeft: '10px',
+  };
+
   const [inputs, setInputs] = useState<Product>({} as Product);
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -31,7 +35,7 @@ const ProductInput: React.FC = () => {
     console.log(inputs);
 
     let response = await api.post<Product>(
-      '/AddProduct', {title: inputs.title, price: inputs.price, image: inputs.image}
+      '/AddProduct', {name: inputs.name, price: inputs.price, image: inputs.image}
     );
 
     if(response.status === 200){
@@ -112,8 +116,8 @@ const ProductInput: React.FC = () => {
         <Form.Control type="text" 
         placeholder="Rice and Beans o algo asi" 
         onChange={handleChange} 
-        name="title" 
-        value={inputs.title || ""} />
+        name="name" 
+        value={inputs.name || ""} />
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Precio:</Form.Label>
@@ -132,7 +136,7 @@ const ProductInput: React.FC = () => {
         value={inputs.image || ""} />
       </Form.Group>
       <Button type="submit" variant="primary">Guardar</Button>
-      <Button disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
+      <Button style={buttonMargin} disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
     </form>
     <br/>
     <hr style={divStyle}></hr>
@@ -141,7 +145,7 @@ const ProductInput: React.FC = () => {
         products.map((product, index) => (
                       <ListGroup key={index}>
                         <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
-                          {product.title}
+                          {product.name}
                           <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>
                         </ListGroup.Item>
                       </ListGroup>
