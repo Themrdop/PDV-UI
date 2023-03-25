@@ -5,8 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
 
-import "react-datepicker/dist/react-datepicker.css";
-
 export interface Bill {
   consecutive: number;
   date: string;

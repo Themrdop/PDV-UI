@@ -21,6 +21,14 @@ const ProductInput: React.FC = () => {
     marginLeft: '10px',
   };
 
+  const remote = window.require("@electron/remote")
+  const dialog = remote.dialog
+  const { ipcRenderer } = window.require('electron');
+
+  const path = require('path')
+
+  const protocol = 'media-loader://';
+
   const [inputs, setInputs] = useState<Combo>({products: [] as Product[]} as Combo);
   const [products, setProducts] = useState<Product[]>([]);
   const [ComboList, setComboList] = useState<Combo[]>([]);
@@ -35,9 +43,17 @@ const ProductInput: React.FC = () => {
     event.preventDefault();
     console.log(inputs);
 
-    let response = await api.post<Combo>(
-      '/AddCombo', {name: inputs.name, description: inputs.description, price: inputs.price, image: inputs.image, products: inputs.products} as Combo
-    );
+    let response;
+
+    if(inputs.id !== undefined){
+      response = await api.put<Combo>(
+        '/UpdateCombo', {id: inputs.id, name: inputs.name, description: inputs.description, price: inputs.price, image: protocol + inputs.image, products: inputs.products} as Combo
+      );
+    }else{
+      response = await api.post<Combo>(
+        '/AddCombo', {name: inputs.name, description: inputs.description, price: inputs.price, image: protocol + inputs.image, products: inputs.products} as Combo
+      );
+    }
 
     if(response.status === 200){
       toast.success('El producto se guardo con exito');
@@ -135,6 +151,24 @@ const ProductInput: React.FC = () => {
     setInputs(response.data);
   }
 
+  function handleDialog() {
+    dialog.showOpenDialog(
+      { 
+        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif', 'webp'] }],
+        properties: ['openFile'] 
+      }).then((result: { canceled: any; filePaths: any[]; }) => {
+        if(!result.canceled){
+          let file = result.filePaths[0];
+
+          let fileName = path.basename(file);
+        
+          ipcRenderer.send('open-file-dialog', {src: file});
+
+          setInputs(values => ({...values, image: fileName}));
+      }
+    });
+  }
+
   return(
   <Layout>
     <ul className="nav nav-tabs">
@@ -185,12 +219,16 @@ const ProductInput: React.FC = () => {
         value={inputs.price || ""} />
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Imagen:</Form.Label>
-        <Form.Control type="text" 
-        placeholder="3000" 
-        onChange={handleChange} 
-        name="image" 
-        value={inputs.image || ""} />
+        <Form.Label>Direccion de la imagen:</Form.Label>
+        <div className='input-group'>
+          <Form.Control type="text" 
+            placeholder="htttp://algo.com/algo.jpg" 
+            onChange={handleChange} 
+            name="image" 
+            disabled={true}
+            value={inputs.image?.replace(protocol,'') || ""} />
+          <Button type="button" variant="primary" onClick={handleDialog}>Buscar</Button>
+        </div>
       </Form.Group>
       <Button type="submit" variant="primary">Guardar</Button>
       <Button style={buttonMargin} disabled={inputs.description === undefined && inputs.price === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>

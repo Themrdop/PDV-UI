@@ -11,6 +11,14 @@ import { ProductList } from '../../components/ProductList';
 import { Toaster, toast } from 'react-hot-toast';
 import { Product } from '../../models/models';
 
+const path = require('path')
+
+const remote = window.require("@electron/remote")
+const dialog = remote.dialog
+const { ipcRenderer } = window.require('electron');
+
+const protocol = 'media-loader://';
+
 const ProductInput: React.FC = () => {
   
   const divStyle = {
@@ -32,11 +40,18 @@ const ProductInput: React.FC = () => {
   
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-    console.log(inputs);
 
-    let response = await api.post<Product>(
-      '/AddProduct', {name: inputs.name, price: inputs.price, image: inputs.image}
-    );
+    let response;
+
+    if(inputs.id !== undefined){
+      response = await api.put<Product>(
+        '/UpdateProduct', {id: inputs.id, name: inputs.name, price: inputs.price, image: protocol + inputs.image}
+      );
+    }else{
+      response = await api.post<Product>(
+        '/AddProduct', {name: inputs.name, price: inputs.price, image: protocol + inputs.image}
+      );
+    }
 
     if(response.status === 200){
       toast.success('El producto se guardo con exito');
@@ -99,6 +114,24 @@ const ProductInput: React.FC = () => {
     }
   }
 
+  function handleDialog() {
+    dialog.showOpenDialog(
+      { 
+        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif'] }],
+        properties: ['openFile'] 
+      }).then((result: { canceled: any; filePaths: any[]; }) => {
+        if(!result.canceled){
+          let file = result.filePaths[0];
+
+          let fileName = path.basename(file);
+        
+          ipcRenderer.send('open-file-dialog', {src: file});
+
+          setInputs(values => ({...values, image: fileName}));
+      }
+    });
+  }
+
   return(
   <Layout>
     <ul className="nav nav-tabs">
@@ -129,11 +162,15 @@ const ProductInput: React.FC = () => {
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Direccion de la imagen:</Form.Label>
-        <Form.Control type="text" 
-        placeholder="htttp://algo.com/algo.jpg" 
-        onChange={handleChange} 
-        name="image" 
-        value={inputs.image || ""} />
+        <div className='input-group'>
+          <Form.Control type="text" 
+            placeholder="htttp://algo.com/algo.jpg" 
+            onChange={handleChange} 
+            name="image" 
+            disabled={true}
+            value={inputs.image?.replace(protocol,'') || ""} />
+          <Button type="button" variant="primary" onClick={handleDialog}>Buscar</Button>
+        </div>
       </Form.Group>
       <Button type="submit" variant="primary">Guardar</Button>
       <Button style={buttonMargin} disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>

@@ -2,6 +2,7 @@ public static class EndPointConfiguration{
     public static void ConfigureApi(this WebApplication app){
         app.MapGet("/GetAllProducts",ProductsAPI.GetAllProducts);
         app.MapPost("/AddProduct",ProductsAPI.AddProducts);
+        app.MapPut("/UpdateProduct",ProductsAPI.UpdateProduct);
         app.MapDelete("/DeleteProduct",ProductsAPI.DeleteProduct);
         app.MapPost("/SaveBill",BillAPI.Billing);
         app.MapGet("/GetAllBills", BillAPI.GetAllBills);
