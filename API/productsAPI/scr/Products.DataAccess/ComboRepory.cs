@@ -36,10 +36,10 @@ namespace Products.DataAccess{
             return combo;
         }
 
-        public async Task<Combo> DeleteCombo(string id, CancellationToken cancellationToken){
+        public async Task<bool> DeleteCombo(string id, CancellationToken cancellationToken){
             var filter = Builders<Combo>.Filter.Eq(p => p.id, id);
             var result = await _database.Combos.DeleteOneAsync(filter, null, cancellationToken);
-            return result.DeletedCount > 0 ? new Combo() : null;
+            return result.DeletedCount > 0;
         }
 
     }

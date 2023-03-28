@@ -33,9 +33,6 @@ namespace Products.DataAccess
 
             var product = dataBasePoints.FirstOrDefault();
 
-            if (product is null)
-                return null;
-
             return product;
         }
 
@@ -72,6 +69,28 @@ namespace Products.DataAccess
             var result = await _database.Products.UpdateOneAsync(filter, updateDefinition, updateOptions, cancellationToken);
 
             return product;
+        }
+
+        public async Task<bool> RemoveProductsFromInventary(IEnumerable<Product> products, CancellationToken cancellationToken)
+        {
+            foreach (var product in products)
+            {
+                var p = await ProductById(product.id, cancellationToken);
+
+                if (p is null || p.amount <= 0)
+                    continue;
+
+                var filter = Builders<Product>.Filter.Eq(p => p.id, product.id);
+
+                var updateDefinition = Builders<Product>.Update
+                    .Inc(p => p.amount, -product.amount);
+
+                var updateOptions = new UpdateOptions { IsUpsert = true };
+
+                var result = await _database.Products.UpdateOneAsync(filter, updateDefinition, updateOptions, cancellationToken);
+            }
+
+            return true;
         }
     }
 }

@@ -77,8 +77,9 @@ public static class ProductsAPI{
             IEnumerable<Product>? response = null;
 
             if (ProductId is not null){
-                response = new List<Product>() {await products.ProductById(ProductId, cancellationToken)};
-                logger?.LogInformation("Se consulto el producto {ProductId}", ProductId);
+                var product = await products.ProductById(ProductId, cancellationToken);
+                response = product is not null ? new List<Product>() { product } : new List<Product>();
+                logger?.LogInformation("Producto con id: {ProductId} fue consultado", ProductId);
             }else{
                 response = await products.GetAllProducts(cancellationToken);
                 logger?.LogInformation("Todos los productos fueron consultados");

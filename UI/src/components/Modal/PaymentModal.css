@@ -51,7 +51,7 @@ hr {
   }
   
   .modal-content {
-    width: 500px;
+    width: 900px;
     background-color: #fff;
     transition: all 0.3s ease-in-out;
     transform: translateY(-200px);

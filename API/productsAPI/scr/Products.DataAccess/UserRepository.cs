@@ -55,13 +55,13 @@ namespace Products.DataAccess
             return user;
         }
 
-        public async Task<User> DeleteUser(string id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteUser(string id, CancellationToken cancellationToken)
         {
             var filter = Builders<User>.Filter.Eq(p => p.Id, id);
 
             var result = await _database.Users.DeleteOneAsync(filter, null, cancellationToken);
 
-            return result.DeletedCount > 0 ? new User() : null;
+            return result.DeletedCount > 0;
         }
     }
 }

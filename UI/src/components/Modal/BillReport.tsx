@@ -69,7 +69,7 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
             </div>
             <div id="divToPrint" className="m-1">
             <div className="row d-flex justify-content-center">
-              <div className="col-md-8">
+              <div className="col-md-3">
                   <div className="card">
                       <div className="products p-2">
                       <input type="date" onChange={(e) => setStartDate(new Date(e.target.value))} />
@@ -94,10 +94,6 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
                                   })}
                               </tbody>
                           </table>
-                      </div>
-                      <hr />
-                      <div className="products p-2">
-                          
                       </div>
                   </div>
               </div>

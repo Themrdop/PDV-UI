@@ -1,20 +1,31 @@
 public class BillAPI
 {
-    internal static async Task<IResult> Billing(List<Product> products, 
+    internal static async Task<IResult> Billing(LocalBill localBill, 
                                                 IBillRepository billRepository,
                                                 IElectronicBill electronicBill,
+                                                IProductsRepository productsRepository,
+                                                ICommerceInformationRepository commerceInformationRepository,
                                                 ILogger<Product> logger,
                                                 CancellationToken cancellationToken)
     {
-        if(products is null || !products.Any())
+        if (localBill is null || localBill.products is null || !localBill.products.Any())
             return Results.BadRequest();
         
         try
         {
-            Bill bill = CreateBill(products);
-            bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
+            var commers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
+
+            Bill bill = CreateBill(localBill.products, localBill.recipient, new Person(){name = commers.name, numeroIdentificacion = commers.cedula, tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA});
+            
+            if (localBill.recipient is not null && !string.IsNullOrEmpty(localBill.recipient.numeroIdentificacion))
+            {
+                logger?.LogInformation("Enviando factura electronica");
+                bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
+            }
 
             var responce = await billRepository.SaveBill(bill, cancellationToken);
+
+            await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
             logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", responce.consecutive);
 
@@ -41,9 +52,20 @@ public class BillAPI
         return Results.Ok(bills);                                                   
     }
 
-    private static Bill CreateBill(IEnumerable<Product> products)
+    private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter)
     {
-        return new Bill(){total = products.Sum(x => x.price),
+        var bill = new Bill(){total = products.Sum(x => x.price),
                           products = products.ToList()};
+
+        if(recipient is not null && emmiter is not null)
+            bill.electronicBill = new ElectronicBill(){recepient = recipient,
+                                                       emitter = emmiter};
+
+        return bill;
+    }
+
+    public class LocalBill{
+        public List<Product> products { get; set; } = new();
+        public Person? recipient { get; set; } = new();
     }
 }

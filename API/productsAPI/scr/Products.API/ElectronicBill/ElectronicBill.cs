@@ -19,7 +19,7 @@ namespace Products.API.ElectronicBill
         private readonly string _userName;
         private readonly string _password;
         private readonly string _identificationNumber;
-        private SignatureDocument _signatureDocument;
+        private SignatureDocument? _signatureDocument;
 
         public ElectronicBill(string userName, string password, string identificationNumber)
         {
@@ -103,11 +103,16 @@ namespace Products.API.ElectronicBill
             var content = new FormUrlEncodedContent(values);
             var response = await httpClient.PostAsync(JWT_ENDPOINT, content);
             var responseString = await response.Content.ReadAsStringAsync();
-            JsonNode jObject = JsonObject.Parse(responseString);
-            return (string)jObject["access_token"];
+            return parseToken(responseString);
         }
 
-        private string singXML(string xmlDoc)
+    private string parseToken(string responseString)
+    {
+        var jObject = System.Text.Json.JsonSerializer.Deserialize<Token>(responseString);
+        return jObject?.access_token ?? string.Empty;
+    }
+
+    private string singXML(string xmlDoc)
         {
             XadesService xadesService = new XadesService();
             SignatureParameters parametri = new SignatureParameters();
@@ -155,5 +160,13 @@ namespace Products.API.ElectronicBill
             byte[] encbuff = System.Text.Encoding.UTF8.GetBytes(str);
             return Convert.ToBase64String(encbuff);
         }
+    }
+
+    internal class Token
+    {
+        public string access_token { get; set; } = string.Empty;
+        public string token_type { get; set; } = string.Empty;
+        public int expires_in { get; set; }
+        public string refresh_token { get; set; } = string.Empty;
     }
 }

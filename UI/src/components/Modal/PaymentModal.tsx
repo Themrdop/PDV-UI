@@ -5,6 +5,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
 import { Product } from "../../models/models";
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import { Form } from "react-bootstrap";
 
 export interface Props {
   show: boolean;
@@ -29,11 +32,12 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
 
   const [Cedula, setCedula] = useState<string>('');
   const [telefono, setTelefono] = useState<string>('');
+  const [tipoIdentificacion, setTipoIdentificacion] = useState<string>('01');
 
   async function handlePay(){
-    console.log(products);
+    
     const response = await api.post<Product[]>(
-      '/SaveBill', products
+      '/SaveBill', {products: products, recipient: {numeroIdentificacion: Cedula, tipoIdentificacion: tipoIdentificacion }}
     );
     if(response.status === 200){
       onClose(true);
@@ -73,39 +77,49 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
             <h2 className="h2">Factura</h2>
           </div>
           <div className="App container mt-1">
-            <div className="mb-1" style={divStyle}>
-              <label className="form-label">Cedula juridica:</label>
-              <input type="text" className="form-control" onChange={(e) => setCedula(e.target.value) }/>
-            </div>
-            <div id="divToPrint" className="m-1">
-            <div className="row d-flex justify-content-center">
-              <div className="col-md-8">
-                  <div className="card">
-                      <div className="products p-2">
-                          <table className="table table-borderless">
-                              <tbody>
-                                  <tr className="add">
-                                      <td>Producto</td>
-                                      <td>Cantidad</td>
-                                      <td>Precio</td>
-                                      <td className="text-center">Total</td>
-                                  </tr>
-                                  {
-                                    products.map((p,index) => {
-                                      return <tr className="content" key={index}>
-                                        <td>{p.name}</td>
-                                        <td>{p.amount}</td>
-                                        <td>{p.price}</td>
-                                        <td className="text-center">₡{p.price * p.amount}</td>
-                                      </tr>
-                                    })
-                                  }
-                              </tbody>
-                          </table>
-                      </div>
-                      <hr />
-                      <div className="products p-2">
-                          <table className="table table-borderless">
+          <Row>
+              <Col>
+                <Row>
+                  <label className="form-label">Tipo Cedula:</label>
+                  <Form.Select onChange={(e) => setTipoIdentificacion(e.target.value)}>
+                    <option value="01">Fisica</option>
+                    <option value="02">Juridica</option>
+                  </Form.Select>
+                </Row>
+                <Row>
+                  <label className="form-label">Cedula juridica:</label>
+                  <input type="text" className="form-control" onChange={(e) => setCedula(e.target.value) }/>
+                </Row>
+                <Row>
+                  <label className="form-label">Telefono de cliente:</label>
+                  <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value) }/>
+                </Row>
+              </Col>
+              <Col>
+                <Row>
+                  <table className="table table-borderless">
+                    <tbody>
+                      <tr className="add">
+                          <td>Producto</td>
+                          <td>Cantidad</td>
+                          <td>Precio</td>
+                          <td className="text-center">Total</td>
+                      </tr>
+                      {
+                        products.map((p,index) => {
+                          return <tr className="content" key={index}>
+                            <td>{p.name}</td>
+                            <td>{p.amount}</td>
+                            <td>{p.price}</td>
+                            <td className="text-center">₡{p.price * p.amount}</td>
+                          </tr>
+                        })
+                      }
+                    </tbody>
+                  </table>
+                </Row>
+                <Row>
+                <table className="table table-borderless">
                               <tbody>
                                   <tr className="add">
                                       <td>Subtotal</td>
@@ -121,16 +135,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                                   </tr>
                               </tbody>
                           </table>
-                      </div>
-                  </div>
-              </div>
+                </Row>
+              </Col>
+            </Row>
           </div>
-        </div>
-        <div className="mb-1" style={divStyle}>
-          <label className="form-label">Telefono de cliente:</label>
-          <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value) }/>
-        </div>
-      </div>
           <div className="modal-footer">
           <button onClick={handlePay} className="btn btn-primary">
               Pagar

@@ -4,7 +4,7 @@ namespace Products.Models
     {
         public const string TIPO_IDENTIFICACION_FISICA = "01";
         public const string TIPO_IDENTIFICACION_JURIDICA = "02";
-        public string name;
+        public string name = string.Empty;
 
         public string tipoIdentificacion {get; set;} = TIPO_IDENTIFICACION_FISICA;
         public string numeroIdentificacion { get; set; } = string.Empty;

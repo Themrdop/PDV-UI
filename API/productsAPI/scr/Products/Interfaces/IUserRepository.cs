@@ -3,7 +3,7 @@ using Products.Models;
 namespace Products.Interfaces{
     public interface IUserRepository
     {
-        Task<User> DeleteUser(string id, CancellationToken cancellationToken);
+        Task<bool> DeleteUser(string id, CancellationToken cancellationToken);
         Task<User> GetUserById(string id, CancellationToken cancellationToken);
         Task<IEnumerable<User>> GetUsers(CancellationToken cancellationToken);
         Task<User> SaveUser(User user, CancellationToken cancellationToken);
