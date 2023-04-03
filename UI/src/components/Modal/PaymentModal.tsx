@@ -4,11 +4,13 @@ import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
-import { CommerceInfo, Product } from "../../models/models";
+import { CommerceInfo, PersonFromHacienda, Product } from "../../models/models";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import { Form } from "react-bootstrap";
+import { Button, Form, Toast } from "react-bootstrap";
 import { formatPrice } from "../../utils/formatPrice";
+import haciendaApi from "../../service/haciendaApi";
+import { Toaster, toast } from 'react-hot-toast';
 const { ipcRenderer } = window.require('electron');
 
 export interface Props {
@@ -36,6 +38,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   const [telefono, setTelefono] = useState<string>('');
   const [tipoIdentificacion, setTipoIdentificacion] = useState<string>('01');
   const [descuento, setDescuento] = useState<number>(0);
+  const [Nombre, setnombre] = useState<string>('');
 
   async function handlePay(){
     
@@ -43,6 +46,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
       '/SaveBill', {products: products, 
         recipient: 
           {
+            name: Nombre,
             numeroIdentificacion: Cedula, 
             tipoIdentificacion: tipoIdentificacion, 
             telefono: telefono,
@@ -52,10 +56,16 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
 
     if(response.status === 200){
       let commers = await loadCommerceInfo();
-      console.log(commers);
-      ipcRenderer.invoke('print-bill', {products: products, commers: commers});
+      ipcRenderer.invoke('print-bill', {bill: response.data, commers: commers});
+      clean();
       onClose(true);
     }
+  }
+
+  function clean() {
+    setCedula('');
+    setTelefono('');
+    setnombre('');
   }
 
   async function loadCommerceInfo() {
@@ -85,6 +95,32 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
       }
   }
 
+  async function handleSearch(){
+    let response = undefined;
+    try{
+      response = await haciendaApi.get<PersonFromHacienda>(
+        '', { params: { identificacion: Cedula } }
+      );
+    }catch (e){
+
+    }
+
+    if(response === undefined){
+      toast.error('No se pudo obtener la informacion de la cedula');
+      return;
+    }
+
+    if(response.status !== 200){
+      console.log(response.data);
+      toast.error('No se pudo obtener la informacion de la cedula');
+    }
+
+    setTipoIdentificacion(response.data.tipoIdentificacion);
+    setnombre(response.data.nombre);
+
+    
+  }
+
   return ReactDOM.createPortal(
     <CSSTransition
       in={show}
@@ -98,20 +134,27 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
           <div className="App container mt-1">
           <Row>
               <Col>
+              <Row>
+                  <div className='input-group'>
+                    <label className="form-label">Cedula juridica:</label>
+                    <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value) }/>
+                    <Button type="button" variant="primary" onClick={handleSearch}>Consultar</Button>
+                  </div>
+                </Row>
+                <Row>
+                  <label className="form-label">Nombre:</label>
+                  <input type="text" disabled={true} value={Nombre || ""} className="form-control" onChange={(e) => setnombre(e.target.value) }/>
+                </Row>
                 <Row>
                   <label className="form-label">Tipo Cedula:</label>
-                  <Form.Select onChange={(e) => setTipoIdentificacion(e.target.value)}>
+                  <Form.Select onChange={(e) => setTipoIdentificacion(e.target.value)} value={tipoIdentificacion || ""}>
+                  <option value="02">Juridica</option>
                     <option value="01">Fisica</option>
-                    <option value="02">Juridica</option>
                   </Form.Select>
                 </Row>
                 <Row>
-                  <label className="form-label">Cedula juridica:</label>
-                  <input type="text" className="form-control" onChange={(e) => setCedula(e.target.value) }/>
-                </Row>
-                <Row>
                   <label className="form-label">Telefono de cliente:</label>
-                  <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value) }/>
+                  <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value) } value={telefono || ""}/>
                 </Row>
               </Col>
               <Col>
@@ -162,11 +205,12 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
           <button onClick={handlePay} className="btn btn-primary">
               Pagar
             </button>
-            <button onClick={() => onClose(false)} className="btn btn-primary">
+            <button onClick={() => {onClose(false); clean();}} className="btn btn-primary">
               Cerrar
             </button>
           </div>
         </div>
+        <Toaster/>
       </div>
     </CSSTransition>,
     document.getElementById("root")!
