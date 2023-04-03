@@ -1,10 +1,10 @@
 const path = require('path')
 const fs = require('fs');
 
-const remoteMain = require('@electron/remote/main');
-remoteMain.initialize();
+//const remoteMain = require('@electron/remote/main');
+//remoteMain.initialize();
 
-const { app, BrowserWindow, protocol, ipcMain, ipcRenderer } = require('electron');
+const { app, BrowserWindow, protocol, ipcMain, dialog } = require('electron');
 const isDev = require('electron-is-dev');
 
 function createWindow() {
@@ -32,7 +32,7 @@ function createWindow() {
     win.webContents.openDevTools({ mode: 'detach' });
   }
 
-  remoteMain.enable(win.webContents)
+  //remoteMain.enable(win.webContents)
 }
 
 // This method will be called when Electron has finished
@@ -98,3 +98,34 @@ ipcMain.on('open-file-dialog', (event, arg) => {
 
     fs.copyFileSync(arg.src, destFile, fs.constants.COPYFILE_EXCL);
 });
+
+ipcMain.handle("showDialog", async () => {
+    const result = await dialog.showOpenDialog(
+      { 
+        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif'] }],
+        properties: ['openFile'] 
+      });
+
+      if(!result.canceled){
+        let file = result.filePaths[0];
+
+        let fileName = path.basename(file);
+
+        copyFileSync(file);
+
+        return fileName;
+
+        //setInputs(values => ({...values, image: fileName}));
+    }
+});
+
+function copyFileSync(src){
+  let fileName = path.basename(src);
+    let destFile = path.join(getPath(), fileName)
+
+    if(!fs.existsSync(destFile)){
+      fs.mkdirSync(getPath(), { recursive: true });
+    }
+
+    fs.copyFileSync(src, destFile, fs.constants.COPYFILE_EXCL);
+}

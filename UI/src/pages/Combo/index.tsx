@@ -21,8 +21,7 @@ const ProductInput: React.FC = () => {
     marginLeft: '10px',
   };
 
-  const remote = window.require("@electron/remote")
-  const dialog = remote.dialog
+  const { dialog } = window.require('electron').dialog;
   const { ipcRenderer } = window.require('electron');
 
   const path = require('path')
@@ -151,22 +150,9 @@ const ProductInput: React.FC = () => {
     setInputs(response.data);
   }
 
-  function handleDialog() {
-    dialog.showOpenDialog(
-      { 
-        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif', 'webp'] }],
-        properties: ['openFile'] 
-      }).then((result: { canceled: any; filePaths: any[]; }) => {
-        if(!result.canceled){
-          let file = result.filePaths[0];
-
-          let fileName = path.basename(file);
-        
-          ipcRenderer.send('open-file-dialog', {src: file});
-
-          setInputs(values => ({...values, image: fileName}));
-      }
-    });
+  async function handleDialog() {
+    let fileName = await ipcRenderer.invoke("showDialog");
+    setInputs(values => ({...values, image: fileName}));
   }
 
   return(

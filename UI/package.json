@@ -16,7 +16,7 @@
     "@types/react-router-dom": "^5.1.5",
     "axios": "^0.20.0",
     "bootstrap": "^5.2.3",
-    "electron": "^23.1.2",
+    "electron": "^23.2.1",
     "electron-is-dev": "^2.0.0",
     "immer": "^7.0.7",
     "notistack": "^1.0.10",
