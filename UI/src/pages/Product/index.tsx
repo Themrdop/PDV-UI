@@ -11,8 +11,6 @@ import { ProductList } from '../../components/ProductList';
 import { Toaster, toast } from 'react-hot-toast';
 import { Product } from '../../models/models';
 
-const path = require('path')
-
 const { ipcRenderer } = window.require("electron");
 
 const protocol = 'media-loader://';

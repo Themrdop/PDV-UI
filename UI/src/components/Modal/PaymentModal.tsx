@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -28,16 +28,24 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
     return function cleanup() {
       document.body.removeEventListener("keydown", closeOnEscapeKeyDown);
     };
-  }, []);
+  });
 
   const [Cedula, setCedula] = useState<string>('');
   const [telefono, setTelefono] = useState<string>('');
   const [tipoIdentificacion, setTipoIdentificacion] = useState<string>('01');
+  const [descuento, setDescuento] = useState<number>(0);
 
   async function handlePay(){
     
     const response = await api.post<Product[]>(
-      '/SaveBill', {products: products, recipient: {numeroIdentificacion: Cedula, tipoIdentificacion: tipoIdentificacion }}
+      '/SaveBill', {products: products, 
+        recipient: 
+          {
+            numeroIdentificacion: Cedula, 
+            tipoIdentificacion: tipoIdentificacion, 
+            telefono: telefono,
+            descuento: descuento 
+          }}
     );
     if(response.status === 200){
       onClose(true);
@@ -60,11 +68,26 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   
   }*/
 
-  const divStyle = {
-    display: 'flex',
-  };
+  const total = useRef(0);
 
-  const total = products.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0);
+  useEffect(() => {
+    total.current = products.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0);
+  }, [products]);
+
+  function handleDescuento(e: any){
+    let input = e.target.value;
+      if(input === ""){
+        input = "0";
+      }
+
+      let descuento = parseInt(input);
+      setDescuento(descuento);
+      if(descuento === 0 || Number.isNaN(descuento) || descuento >= 100){
+        total.current = products.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0);
+      }else{
+        total.current = total.current - (total.current * (descuento/100));
+      }
+  }
 
   return ReactDOM.createPortal(
     <CSSTransition
@@ -128,10 +151,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                                       <td className="text-center">Total</td>
                                   </tr>
                                   <tr className="content">
-                                      <td>₡{total*(1-0.13)}</td>
-                                      <td>₡{total*0.13}</td>
-                                      <td>0</td>
-                                      <td className="text-center">₡{total}</td>
+                                      <td>₡{total.current*(1-0.13)}</td>
+                                      <td>₡{total.current*0.13}</td>
+                                      <td><input type="text" onChange={(e) => handleDescuento(e)}/></td>
+                                      <td className="text-center">₡{total.current}</td>
                                   </tr>
                               </tbody>
                           </table>

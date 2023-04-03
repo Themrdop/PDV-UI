@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { MdPayment} from "react-icons/md";
-import { TbDiscount } from "react-icons/tb";
 import { FcCancel } from "react-icons/fc";
 
 import * as s from './styled';
@@ -88,10 +87,6 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
         <s.Button onClick={() => handlePay()}>
           <MdPayment size={35}/>
           Pagar
-        </s.Button>
-        <s.Button onClick={() => clean()}>
-          <TbDiscount size={35}/>
-          Descuento
         </s.Button>
         <s.Button onClick={() => clean()}>
           <FcCancel size={35}/>

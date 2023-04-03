@@ -21,10 +21,7 @@ const ProductInput: React.FC = () => {
     marginLeft: '10px',
   };
 
-  const { dialog } = window.require('electron').dialog;
   const { ipcRenderer } = window.require('electron');
-
-  const path = require('path')
 
   const protocol = 'media-loader://';
 
