@@ -4,10 +4,12 @@ import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
-import { Product } from "../../models/models";
+import { CommerceInfo, Product } from "../../models/models";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { Form } from "react-bootstrap";
+import { formatPrice } from "../../utils/formatPrice";
+const { ipcRenderer } = window.require('electron');
 
 export interface Props {
   show: boolean;
@@ -47,27 +49,21 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
             descuento: descuento 
           }}
     );
+
     if(response.status === 200){
+      let commers = await loadCommerceInfo();
+      console.log(commers);
+      ipcRenderer.invoke('print-bill', {products: products, commers: commers});
       onClose(true);
     }
   }
 
-  /*function printDocument() {
-     
-    
-    const doc = new jsPDF();
-   
-    //get html
-    const pdfTable = document.getElementById('divToPrint');
-    //html to pdf format
-    var html = htmlToPdfmake(pdfTable.innerHTML);
-  
-    const documentDefinition = { content: html };
-    pdfMake.vfs = pdfFonts.pdfMake.vfs;
-    pdfMake.createPdf(documentDefinition).open();
-  
-  }*/
-
+  async function loadCommerceInfo() {
+    const response = await api.get<CommerceInfo>(
+        '/GetCommerceInformation',
+    );
+    return response.data;
+  }
   const total = useRef(0);
 
   useEffect(() => {
@@ -133,8 +129,8 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                           return <tr className="content" key={index}>
                             <td>{p.name}</td>
                             <td>{p.amount}</td>
-                            <td>{p.price}</td>
-                            <td className="text-center">₡{p.price * p.amount}</td>
+                            <td>{formatPrice(p.price)}</td>
+                            <td className="text-center">{formatPrice(p.price * p.amount)}</td>
                           </tr>
                         })
                       }
@@ -151,10 +147,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                                       <td className="text-center">Total</td>
                                   </tr>
                                   <tr className="content">
-                                      <td>₡{total.current*(1-0.13)}</td>
-                                      <td>₡{total.current*0.13}</td>
+                                      <td>{formatPrice(total.current*(1-0.13))}</td>
+                                      <td>{formatPrice(total.current*0.13)}</td>
                                       <td><input type="text" onChange={(e) => handleDescuento(e)}/></td>
-                                      <td className="text-center">₡{total.current}</td>
+                                      <td className="text-center">{formatPrice(total.current)}</td>
                                   </tr>
                               </tbody>
                           </table>

@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs');
+const {PosPrinter} = require("electron-pos-printer");
 
 //const remoteMain = require('@electron/remote/main');
 //remoteMain.initialize();
@@ -114,9 +115,76 @@ ipcMain.handle("showDialog", async () => {
         copyFileSync(file);
 
         return fileName;
-
-        //setInputs(values => ({...values, image: fileName}));
     }
+});
+
+const data = [
+  {
+    type: 'table',
+    // style the table
+    style: {border: '0px solid #ddd'},
+    // multi dimensional array depicting the rows and columns of the table body
+    tableBody: [],
+    // custom style for the table header
+    tableHeaderStyle: { backgroundColor: 'white', color: '#000'},
+    // custom style for the table body
+    tableBodyStyle: {'border': '0px solid #ddd'},
+    // custom style for the table footer
+    tableFooterStyle: {backgroundColor: '#000', color: 'white'},
+  }
+]
+
+const options = {
+  preview: true,
+  margin: '0 0 0 0',    
+  copies: 1,
+  printerName: 'XP-80C',
+  timeOutPerLine: 400,
+  pageSize: '80mm' // page size
+}
+
+ipcMain.handle("print-bill", async (event, arg) => {
+  data.unshift({
+    type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+    value: arg.commers.address,
+    style: {fontWeight: "700", textAlign: 'center', fontSize: "24px"}
+  });
+
+  data.unshift({
+    type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+    value: arg.commers.email,
+    style: {fontWeight: "700", textAlign: 'center', fontSize: "24px"}
+  });
+
+  data.unshift({
+    type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+    value: arg.commers.phone,
+    style: {fontWeight: "700", textAlign: 'center', fontSize: "24px"}
+  });
+
+  data.unshift({
+    type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+    value: arg.commers.cedula,
+    style: {fontWeight: "700", textAlign: 'center', fontSize: "24px"}
+  });
+
+  data.unshift({
+    type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+    value: arg.commers.name,
+    style: {fontWeight: "700", textAlign: 'center', fontSize: "24px"}
+  });
+
+ console.log(data);
+  arg.products.map(p => {
+    data[5].tableBody.push([p.name, p.amount, p.price, p.price * p.amount]);
+  });
+
+  try {
+    await PosPrinter.print(data, options)
+  } catch (error) {
+    console.error(error);
+  }
+  
 });
 
 function copyFileSync(src){
