@@ -26,15 +26,10 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["MongoUri"])){
 }
 string userName = builder.Configuration["userName"], 
 password = builder.Configuration["password"], 
-identificationNumber = builder.Configuration["identificationNumber"];
+identificationNumber = builder.Configuration["identificationNumber"],
+thumbprintCertificado = builder.Configuration["thumbprintCertificado"];
 
-if (!string.IsNullOrWhiteSpace(userName) && 
-    !string.IsNullOrWhiteSpace(password) && 
-    !string.IsNullOrWhiteSpace(identificationNumber)
-    )
-{
-    builder.Services.AddSingleton<IElectronicBill>(new Products.API.ElectronicBill.ElectronicBill(userName, password, identificationNumber));
-}
+builder.Services.AddSingleton<IElectronicBill>(new Products.API.ElectronicBill.ElectronicBill(userName, password, identificationNumber, thumbprintCertificado));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen( c =>

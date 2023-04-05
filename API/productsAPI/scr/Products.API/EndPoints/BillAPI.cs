@@ -17,19 +17,21 @@ public class BillAPI
 
             Bill bill = CreateBill(localBill.products, localBill.recipient, new Person(){name = commers.name, numeroIdentificacion = commers.cedula, tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA});
             
-            if (localBill.recipient is not null && !string.IsNullOrEmpty(localBill.recipient.numeroIdentificacion))
-            {
-                logger?.LogInformation("Enviando factura electronica");
-                bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
-            }
+            //if (localBill.recipient is not null && !string.IsNullOrEmpty(localBill.recipient.numeroIdentificacion))
+            //{
+                
+            //}
 
-            var responce = await billRepository.SaveBill(bill, cancellationToken);
+            bill = await billRepository.SaveBill(bill, cancellationToken);
+
+            logger?.LogInformation("Enviando factura electronica");
+            bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
 
             await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-            logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", responce.consecutive);
+            logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", bill.consecutive);
 
-            return Results.Ok(responce);
+            return Results.Ok(bill);
         }
         catch (Exception ex)
         {

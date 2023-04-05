@@ -1,10 +1,9 @@
 using System.Text;
 using FirmaXadesNet;
 using FirmaXadesNet.Signature.Parameters;
-using FirmaXadesNet.Crypto;
-using FirmaXadesNet.Utils;
 using FirmaXadesNet.Signature;
 using System.Xml.Serialization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Products.API.ElectronicBill
 {
@@ -18,19 +17,22 @@ namespace Products.API.ElectronicBill
         private readonly string _userName;
         private readonly string _password;
         private readonly string _identificationNumber;
+        private readonly string _thumbprintCertificado;
         private SignatureDocument? _signatureDocument;
 
-        public ElectronicBill(string userName, string password, string identificationNumber)
+        public ElectronicBill(string userName, string password, string identificationNumber, string thumbprintCertificado)
         {
             _userName = userName;
             _password = password;
             _identificationNumber = identificationNumber;
+            _thumbprintCertificado = thumbprintCertificado;
         }
 
         public async Task<Bill> SendElectronicBill(Bill bill, CancellationToken cancellationToken)
         {
             string haciendaKey = generateKey(bill);
-            string singedXML = singXML(GetXMLDocument(haciendaKey, bill));
+            string xmlDocument = GetXMLDocument(haciendaKey, bill);
+            string singedXML = singXML(xmlDocument, _thumbprintCertificado);
             string singedXMLInBase64 = Base64_Encode(singedXML);
             HaciendaMessage haciendaMessage = creatMessage(haciendaKey,bill.electronicBill.emitter, bill.electronicBill.recepient, singedXMLInBase64);
             HttpResponseMessage result = await sendToHacienda(haciendaMessage, cancellationToken);
@@ -71,21 +73,27 @@ namespace Products.API.ElectronicBill
                 TotalFactura = bill.total,
             };
 
-            using(var stringwriter = new System.IO.StringWriter())
-            { 
-                var serializer = new XmlSerializer(typeof(MensajeHacienda));
-                serializer.Serialize(stringwriter, msjHacienda);
-                xmlDocument = stringwriter.ToString();
-            }
+            using var stringwriter = new Utf8StringWriter();
+            var serializer = new XmlSerializer(typeof(MensajeHacienda));
+            serializer.Serialize(stringwriter, msjHacienda);
+            xmlDocument = stringwriter.ToString();
 
             return xmlDocument;
+        }
+
+        private class Utf8StringWriter : StringWriter
+        {
+            // Use UTF8 encoding but write no BOM to the wire
+            public override Encoding Encoding
+            {
+                get { return new UTF8Encoding(false); } // in real code I'll cache this encoding.
+            }
         }
 
         private async Task<HttpResponseMessage> sendToHacienda(HaciendaMessage haciendaMessage, CancellationToken cancellationToken)
         {
             string token = await getToken(cancellationToken);
-            httpClient.DefaultRequestHeaders.Add("content-type", "application/javascript");
-            httpClient.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+            httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + token);
             return await httpClient.PostAsJsonAsync<HaciendaMessage>(ENDPOINT + "/recepcion",haciendaMessage,cancellationToken: cancellationToken);
         }
 
@@ -98,7 +106,7 @@ namespace Products.API.ElectronicBill
             values.Add("scope", "");
             values.Add("username", _userName);
             values.Add("password", _password);
-            httpClient.DefaultRequestHeaders.Add("content-type", "application/x-www-form-urlencoded");
+            //httpClient.DefaultRequestHeaders.Add("content-type", "application/x-www-form-urlencoded");
             var content = new FormUrlEncodedContent(values);
             var response = await httpClient.PostAsync(JWT_ENDPOINT, content);
             var responseString = await response.Content.ReadAsStringAsync();
@@ -111,24 +119,35 @@ namespace Products.API.ElectronicBill
         return jObject?.access_token ?? string.Empty;
     }
 
-    private string singXML(string xmlDoc)
+    private string singXML(string xmlDoc, string thumbprintCertificado)
     {
-        XadesService xadesService = new XadesService();
-        SignatureParameters parametri = new SignatureParameters();
-        parametri.SignatureMethod = SignatureMethod.RSAwithSHA512;
-        parametri.SigningDate = DateTime.Now;
-
-        var sc = new SignatureCommitment(SignatureCommitmentType.ProofOfOrigin);
-        parametri.SignatureCommitments.Add(sc);
-
-        parametri.SignaturePackaging = SignaturePackaging.ENVELOPED;
-
-        using (parametri.Signer = new Signer(CertUtil.SelectCertificate()))
+        X509Certificate2? cert = null;
+        
+        if(string.IsNullOrEmpty(thumbprintCertificado))
         {
-            _signatureDocument = xadesService.Sign(xmlDoc, parametri);
+            cert = new X509Certificate2(Environment.CurrentDirectory + "/client-identity.p12","123456789");
+        }else{
+            cert = GetCertificateByThumbprint(thumbprintCertificado);
         }
 
-        return _signatureDocument.Document.OuterXml;
+        XadesService xadesService = new XadesService();
+        SignatureParameters parametros = new SignatureParameters();
+
+        parametros.SignaturePolicyInfo = new SignaturePolicyInfo();
+        parametros.SignaturePolicyInfo.PolicyIdentifier = "https://tribunet.hacienda.go.cr/docs/esquemas/2016/v4.1/Resolucion_Comprobantes_Electronicos_DGT-R-48-2016.pdf";
+        //La propiedad PolicyHash es la misma para todos, es un cálculo en base al archivo pdf indicado en PolicyIdentifier
+        parametros.SignaturePolicyInfo.PolicyHash = "Ohixl6upD6av8N7pEvDABhEL6hM=";
+        parametros.SignaturePackaging = SignaturePackaging.ENVELOPED;
+        parametros.DataFormat = new DataFormat();
+        parametros.Signer = new FirmaXadesNet.Crypto.Signer(cert);
+
+        FirmaXadesNet.Signature.SignatureDocument docFirmado = xadesService.Sign(xmlDoc, parametros);
+        return docFirmado.Document.OuterXml;
+    }
+
+    private X509Certificate2 GetCertificateByThumbprint(object thumbprintCertificado)
+    {
+      throw new NotImplementedException();
     }
 
     private HaciendaMessage creatMessage(string haciendaKey, Person emitter, Person recepient, string singedXMLInBase64)
@@ -163,110 +182,110 @@ namespace Products.API.ElectronicBill
                                 .Append(consecutive.ToString().PadLeft(10,'0')).ToString();
     }
 
-public static string CreaCodigoSeguridad(string consecutivo)
+    public static string CreaCodigoSeguridad(string consecutivo)
+    {
+        try
         {
-            try
+            var currentDate = DateTime.Now;
+
+            string concatenado = new StringBuilder().Append("001")
+                                .Append("01")
+                                .Append("01")
+                                .Append(currentDate.ToString("yyyyMMddHHmmss"))
+                                .Append(consecutivo.PadLeft(10, '0'))
+                                .ToString();
+
+            int calculo = 0;
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(0, 1)) * 3));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(1, 1)) * 2));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(2, 1)) * 9));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(3, 1)) * 8));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(4, 1)) * 7));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(5, 1)) * 6));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(6, 1)) * 5));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(7, 1)) * 4));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(8, 1)) * 3));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(9, 1)) * 2));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(10, 1)) * 9));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(11, 1)) * 8));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(12, 1)) * 7));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(13, 1)) * 6));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(14, 1)) * 5));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(15, 1)) * 4));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(16, 1)) * 3));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(17, 1)) * 2));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(18, 1)) * 9));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(19, 1)) * 8));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(20, 1)) * 7));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(21, 1)) * 6));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(22, 1)) * 5));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(23, 1)) * 4));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(24, 1)) * 3));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(25, 1)) * 2));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(26, 1)) * 9));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(27, 1)) * 8));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(28, 1)) * 7));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(29, 1)) * 6));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(30, 1)) * 5));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(31, 1)) * 4));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(32, 1)) * 3));
+            calculo = (calculo
+                        + (int.Parse(concatenado.Substring(33, 1)) * 2));
+            int mDV = 0;
+            int digitoMod = 0;
+            digitoMod = (calculo % 11);
+            if (((digitoMod == 0)
+                        || (digitoMod == 1)))
             {
-                var currentDate = DateTime.Now;
-
-                string concatenado = new StringBuilder().Append("001")
-                                    .Append("01")
-                                    .Append("01")
-                                    .Append(currentDate.ToString("yyyyMMddHHmmss"))
-                                    .Append(consecutivo.PadLeft(10, '0'))
-                                    .ToString();
-
-                int calculo = 0;
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(0, 1)) * 3));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(1, 1)) * 2));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(2, 1)) * 9));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(3, 1)) * 8));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(4, 1)) * 7));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(5, 1)) * 6));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(6, 1)) * 5));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(7, 1)) * 4));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(8, 1)) * 3));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(9, 1)) * 2));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(10, 1)) * 9));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(11, 1)) * 8));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(12, 1)) * 7));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(13, 1)) * 6));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(14, 1)) * 5));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(15, 1)) * 4));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(16, 1)) * 3));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(17, 1)) * 2));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(18, 1)) * 9));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(19, 1)) * 8));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(20, 1)) * 7));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(21, 1)) * 6));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(22, 1)) * 5));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(23, 1)) * 4));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(24, 1)) * 3));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(25, 1)) * 2));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(26, 1)) * 9));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(27, 1)) * 8));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(28, 1)) * 7));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(29, 1)) * 6));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(30, 1)) * 5));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(31, 1)) * 4));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(32, 1)) * 3));
-                calculo = (calculo
-                            + (int.Parse(consecutivo.Substring(33, 1)) * 2));
-                int mDV = 0;
-                int digitoMod = 0;
-                digitoMod = (calculo % 11);
-                if (((digitoMod == 0)
-                            || (digitoMod == 1)))
-                {
-                    mDV = 0;
-                }
-                else
-                {
-                    mDV = (11 - digitoMod);
-                }
-
-                return (consecutivo.Substring(7,2).PadLeft(2, '0')
-                            + (calculo.ToString().PadLeft(5, '0') + mDV.ToString()));
+                mDV = 0;
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
+                mDV = (11 - digitoMod);
             }
 
+            return (consecutivo.Substring(7,2).PadLeft(2, '0')
+                        + (calculo.ToString().PadLeft(5, '0') + mDV.ToString()));
         }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+    }
 
     public static string Base64_Encode(string str)
         {

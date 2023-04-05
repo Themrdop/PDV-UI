@@ -97,9 +97,9 @@ namespace FirmaXadesNet.Crypto
 
         private void SetSigningKey(X509Certificate2 certificate)
         {
-            var key = (RSACryptoServiceProvider)certificate.PrivateKey;
+            var key = certificate.GetRSAPrivateKey();
 
-            if (key.CspKeyContainerInfo.ProviderName == CryptoConst.MS_STRONG_PROV ||
+            /*if (key.CspKeyContainerInfo.ProviderName == CryptoConst.MS_STRONG_PROV ||
                 key.CspKeyContainerInfo.ProviderName == CryptoConst.MS_ENHANCED_PROV ||
                 key.CspKeyContainerInfo.ProviderName == CryptoConst.MS_DEF_PROV || 
                 key.CspKeyContainerInfo.ProviderName == CryptoConst.MS_DEF_RSA_SCHANNEL_PROV)
@@ -117,10 +117,10 @@ namespace FirmaXadesNet.Crypto
                 _disposeCryptoProvider = true;
             }
             else
-            {
+            {*/
                 _signingKey = key;
                 _disposeCryptoProvider = false;
-            }
+            //}
         }
 
         #endregion
