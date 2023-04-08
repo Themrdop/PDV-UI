@@ -1,73 +1,86 @@
 public class BillAPI
 {
-    internal static async Task<IResult> Billing(LocalBill localBill, 
-                                                IBillRepository billRepository,
-                                                IElectronicBill electronicBill,
-                                                IProductsRepository productsRepository,
-                                                ICommerceInformationRepository commerceInformationRepository,
-                                                ILogger<Product> logger,
-                                                CancellationToken cancellationToken)
+  internal static async Task<IResult> Billing(LocalBill localBill,
+                                              IBillRepository billRepository,
+                                              IElectronicBill electronicBill,
+                                              IProductsRepository productsRepository,
+                                              ICommerceInformationRepository commerceInformationRepository,
+                                              ILogger<Product> logger,
+                                              CancellationToken cancellationToken)
+  {
+    if (localBill is null || localBill.products is null || !localBill.products.Any())
+      return Results.BadRequest();
+
+    try
     {
-        if (localBill is null || localBill.products is null || !localBill.products.Any())
-            return Results.BadRequest();
-        
-        try
-        {
-            var commers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
+      var commers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
 
-            Bill bill = CreateBill(localBill.products, localBill.recipient, new Person(){name = commers.name, numeroIdentificacion = commers.cedula, tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA});
-            
-            //if (localBill.recipient is not null && !string.IsNullOrEmpty(localBill.recipient.numeroIdentificacion))
-            //{
-                
-            //}
+      Bill bill = CreateBill(localBill.products, localBill.recipient,
+                             new Person()
+                             {
+                               name = commers.name,
+                               numeroIdentificacion = commers.cedula,
+                               tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
+                               phone = commers.phone,
+                               email = commers.email
+                             });
 
-            bill = await billRepository.SaveBill(bill, cancellationToken);
+      bill = await billRepository.SaveBill(bill, cancellationToken);
 
-            logger?.LogInformation("Enviando factura electronica");
-            bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
+      logger?.LogInformation("Enviando factura electronica");
+      bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
 
-            await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
+      await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-            logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", bill.consecutive);
+      await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
 
-            return Results.Ok(bill);
-        }
-        catch (Exception ex)
-        {
-            logger?.LogError("Error creando factura, exception: {ex}", ex);
+      logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", bill.consecutive);
 
-            return Results.Problem(ex.Message);
-        }
+      return Results.Ok(bill);
     }
-
-    internal static async Task<IResult> GetAllBills(DateTime? dateBeginig,
-                                                    DateTime? dateEnd,
-                                                    IBillRepository billRepository,
-                                                    ILogger<Product> logger,
-                                                    CancellationToken cancellationToken){
-        
-        var bills = await billRepository
-            .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue),DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
-        logger?.LogInformation("Todos las facturas fueron consultados");
-
-        return Results.Ok(bills);                                                   
-    }
-
-    private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter)
+    catch (Exception ex)
     {
-        var bill = new Bill(){total = products.Sum(x => x.price),
-                          products = products.ToList()};
+      logger?.LogError("Error creando factura, exception: {ex}", ex);
 
-        if(recipient is not null && emmiter is not null)
-            bill.electronicBill = new ElectronicBill(){recepient = recipient,
-                                                       emitter = emmiter};
-
-        return bill;
+      return Results.Problem(ex.Message);
     }
+  }
 
-    public class LocalBill{
-        public List<Product> products { get; set; } = new();
-        public Person? recipient { get; set; } = new();
-    }
+  internal static async Task<IResult> GetAllBills(DateTime? dateBeginig,
+                                                  DateTime? dateEnd,
+                                                  IBillRepository billRepository,
+                                                  ILogger<Product> logger,
+                                                  CancellationToken cancellationToken)
+  {
+
+    var bills = await billRepository
+        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue), DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+    logger?.LogInformation("Todos las facturas fueron consultados");
+
+    return Results.Ok(bills);
+  }
+
+  private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter)
+  {
+    var bill = new Bill()
+    {
+      total = products.Sum(x => x.price),
+      products = products.ToList()
+    };
+
+    if (recipient is not null && emmiter is not null)
+      bill.electronicBill = new ElectronicBill()
+      {
+        recepient = recipient,
+        emitter = emmiter
+      };
+
+    return bill;
+  }
+
+  public class LocalBill
+  {
+    public List<Product> products { get; set; } = new();
+    public Person? recipient { get; set; } = new();
+  }
 }

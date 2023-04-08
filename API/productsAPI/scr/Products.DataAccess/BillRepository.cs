@@ -41,5 +41,13 @@ namespace Products.DataAccess{
 
             return bill;
         }
+
+    public Task UpdateAddElectronicBill(Bill bill, CancellationToken cancellationToken)
+    {
+        var filter = Builders<Bill>.Filter.Eq("consecutive", bill.consecutive);
+        var update = Builders<Bill>.Update.Set("electronicBill", bill.electronicBill);
+    
+        return _database.Bills.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }
+  }
 }
