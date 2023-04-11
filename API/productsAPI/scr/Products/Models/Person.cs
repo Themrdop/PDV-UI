@@ -8,7 +8,6 @@ namespace Products.Models
     public const string NITE = "04";
 
     public string name { get; set; } = string.Empty;
-
     public string tipoIdentificacion { get; set; } = TIPO_IDENTIFICACION_FISICA;
     public string numeroIdentificacion { get; set; } = string.Empty;
     public string phone { get; set; } = string.Empty;

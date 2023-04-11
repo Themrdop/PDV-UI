@@ -8,9 +8,9 @@ services:
    - ${WEBAPP_STORAGE_HOME}/site:/data/db
    ports:
    - "27017:27017"
- userpoints:
+ productAPI:
   build: ./src
-  container_name: userpoints
+  container_name: productAPI
   depends_on:
   - mongodb
   ports:

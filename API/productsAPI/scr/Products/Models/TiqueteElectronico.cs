@@ -2097,7 +2097,7 @@ namespace TiqueteElectronico
         
         [System.Xml.Serialization.XmlElementAttribute("Otros")]
         public TiqueteElectronicoOtros Otros { get; set; }
-    }
+  }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("XmlSchemaClassGenerator", "1.0.0.0")]
     [System.SerializableAttribute()]
@@ -2110,70 +2110,70 @@ namespace TiqueteElectronico
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Contado")]
         [System.Xml.Serialization.XmlEnumAttribute("01")]
-        Item01,
+        Contado,
         
         /// <summary>
         /// <para>Crédito</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Crédito")]
         [System.Xml.Serialization.XmlEnumAttribute("02")]
-        Item02,
+        Credito,
         
         /// <summary>
         /// <para>Consignación</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Consignación")]
         [System.Xml.Serialization.XmlEnumAttribute("03")]
-        Item03,
+        Consignacion,
         
         /// <summary>
         /// <para>Apartado</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Apartado")]
         [System.Xml.Serialization.XmlEnumAttribute("04")]
-        Item04,
+        Apartado,
         
         /// <summary>
         /// <para>Arrendamiento con opción de compra</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Arrendamiento con opción de compra")]
         [System.Xml.Serialization.XmlEnumAttribute("05")]
-        Item05,
+        ArrendamientoConOpcionDeCompra,
         
         /// <summary>
         /// <para>Arrendamiento en función financiera</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Arrendamiento en función financiera")]
         [System.Xml.Serialization.XmlEnumAttribute("06")]
-        Item06,
+        ArrendamientoEnFuncionFinanciera,
         
         /// <summary>
         /// <para>Cobro a favor de un tercero</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Cobro a favor de un tercero")]
         [System.Xml.Serialization.XmlEnumAttribute("07")]
-        Item07,
+        CobroAFavorDeUnTercero,
         
         /// <summary>
         /// <para>Servicios prestados al Estado a crédito</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Servicios prestados al Estado a crédito")]
         [System.Xml.Serialization.XmlEnumAttribute("08")]
-        Item08,
+        ServiciosPrestadosAlEstadoACredito,
         
         /// <summary>
         /// <para>Pago del servicios prestado al Estado</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Pago del servicios prestado al Estado")]
         [System.Xml.Serialization.XmlEnumAttribute("09")]
-        Item09,
+        PagoDelServiciosPrestadoAlEstado,
         
         /// <summary>
         /// <para>Otros</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Otros")]
         [System.Xml.Serialization.XmlEnumAttribute("99")]
-        Item99,
+        Otros,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("XmlSchemaClassGenerator", "1.0.0.0")]

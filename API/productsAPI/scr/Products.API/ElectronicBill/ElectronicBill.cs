@@ -6,6 +6,8 @@ using System.Xml.Serialization;
 using System.Security.Cryptography.X509Certificates;
 using TiqueteElectronico;
 using System.Collections.ObjectModel;
+using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Products.API.ElectronicBill
 {
@@ -14,7 +16,8 @@ namespace Products.API.ElectronicBill
     private const string COUNTRY_CODE = "506";
     public const string ENDPOINT = @"https://api.comprobanteselectronicos.go.cr/recepcion-sandbox/v1";
     public const string JWT_ENDPOINT = @"https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/openid-connect/token";
-    public const string CODIGO_ACTIVIDAD = "6332000000000";//Suministro de comida, servicio de restaurante sin mesero, con sitios para sentarse	13%
+    public const string CODIGO_ACTIVIDAD = "6332000000000";
+    public const string CODIGO_PRODUCTO = "6332000000000";//Suministro de comida, servicio de restaurante sin mesero, con sitios para sentarse	13%
 
     private readonly static HttpClient httpClient = new HttpClient();
     private readonly string _userName;
@@ -22,13 +25,20 @@ namespace Products.API.ElectronicBill
     private readonly string _identificationNumber;
     private readonly string _thumbprintCertificado;
     private SignatureDocument? _signatureDocument;
+    private string _token;
+    private IMemoryCache _cache;
 
-    public ElectronicBill(string userName, string password, string identificationNumber, string thumbprintCertificado)
+    public ElectronicBill(string userName,
+                          string password,
+                          string identificationNumber,
+                          string thumbprintCertificado,
+                          IMemoryCache cache)
     {
       _userName = userName;
       _password = password;
       _identificationNumber = identificationNumber;
       _thumbprintCertificado = thumbprintCertificado;
+      _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     }
 
     public async Task<Bill> SendElectronicBill(Bill bill, CancellationToken cancellationToken)
@@ -46,7 +56,7 @@ namespace Products.API.ElectronicBill
           bill.electronicBill.location = result.Headers.Location;
           bill.electronicBill.electronicBill = xmlDocument;
           bill.electronicBill.clave = haciendaKey;
-          
+
           break;
 
         case System.Net.HttpStatusCode.BadRequest:
@@ -108,14 +118,25 @@ namespace Products.API.ElectronicBill
           },
           CorreoElectronico = bill.electronicBill.recepient.email,
         },
-        CondicionVenta = bill.CondicionVenta,
+        CondicionVenta = bill,
         PlazoCredito = bill.PlazoCredito
       };
 
       int linea = 1;
+      decimal subtotal = 0;
+      decimal total = 0;
+      decimal impuesto = 0;
+      decimal sumaSubtotal = 0;
+      decimal sumaImpuesto = 0;
+      decimal sumaTotal = 0;
+
 
       foreach (var pro in bill.products)
       {
+        total = pro.price * pro.amount;
+        subtotal = total - (total * (bill.Descuento / 100));
+        impuesto = subtotal * 0.13M;
+
         msj.DetalleServicio.Add(new TiqueteElectronicoDetalleServicioLineaDetalle
         {
           NumeroLinea = linea.ToString(),
@@ -125,19 +146,41 @@ namespace Products.API.ElectronicBill
           UnidadMedidaComercial = string.Empty,
           Detalle = pro.name,
           PrecioUnitario = pro.price,
-          MontoTotal = pro.price * pro.amount,
-          SubTotal = pro.price * pro.amount,
-          MontoTotalLinea = pro.price * pro.amount,
+          MontoTotal = total,
+          SubTotal = subtotal,
+          MontoTotalLinea = subtotal,
           Impuesto = new Collection<ImpuestoType>{
             new ImpuestoType{
               Codigo = ImpuestoTypeCodigo.IVA,
               Tarifa = 13M,
-              Monto = pro.price * pro.amount * 0.13M
+              Monto = impuesto
             }
           }
         });
         linea++;
+        sumaSubtotal += subtotal;
+        sumaImpuesto += impuesto;
+        sumaTotal += total;
       }
+
+      msj.ResumenFactura = new TiqueteElectronicoResumenFactura
+      {
+        CodigoTipoMoneda = new CodigoMonedaType
+        {
+          CodigoMoneda = CodigoMonedaTypeCodigoMoneda.CRC,
+          TipoCambio = 1M
+        },
+        //TotalServGravados = bill.total,
+        //TotalServExentos = bill.TotalServExentos,
+        TotalMercanciasGravadas = sumaTotal,
+        TotalGravado = sumaTotal,
+        //TotalExento = bill.TotalExento,
+        TotalVenta = sumaTotal,
+        TotalDescuentos = bill.Descuento,
+        TotalVentaNeta = sumaTotal - (sumaTotal * (bill.Descuento / 100)),
+        TotalImpuesto = sumaImpuesto,
+        TotalComprobante = sumaTotal - (sumaTotal * (bill.Descuento / 100)) + sumaImpuesto
+      };
 
       using var stringwriter = new Utf8StringWriter();
       var serializer = new XmlSerializer(typeof(TiqueteElectronico.TiqueteElectronico));
@@ -166,6 +209,12 @@ namespace Products.API.ElectronicBill
 
     private async Task<string> getToken(CancellationToken cancellationToken)
     {
+      if (localStoreTokenIsValid())
+      {
+        _cache.TryGetValue("Token", out Token storedToken);
+        return storedToken.access_token;
+      }
+
       Dictionary<string, string> values = new();
       values.Add("grant_type", "password");
       values.Add("client_id", "api-stag");
@@ -177,13 +226,29 @@ namespace Products.API.ElectronicBill
       var content = new FormUrlEncodedContent(values);
       var response = await httpClient.PostAsync(JWT_ENDPOINT, content);
       var responseString = await response.Content.ReadAsStringAsync();
-      return parseToken(responseString);
+      var token = JsonSerializer.Deserialize<Token>(responseString);
+      saveToken(token);
+      return token?.access_token ?? string.Empty;
     }
 
-    private string parseToken(string responseString)
+    private void saveToken(Token? token)
     {
-      var jObject = System.Text.Json.JsonSerializer.Deserialize<Token>(responseString);
-      return jObject?.access_token ?? string.Empty;
+      var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(60))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(1024);
+
+      _cache.Set("Token", token, cacheEntryOptions);
+    }
+
+    private bool localStoreTokenIsValid()
+    {
+      if (_cache.TryGetValue("Token", out Token storedToken))
+      {
+        return DateTimeOffset.FromUnixTimeSeconds(storedToken.expires_in).UtcDateTime > DateTime.UtcNow;
+      }
+      return false;
     }
 
     private string singXML(string xmlDoc, string thumbprintCertificado)
