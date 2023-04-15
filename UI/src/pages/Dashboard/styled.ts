@@ -6,6 +6,8 @@ export const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  ${media.lessThan('large')`
+  display: none !important;`}
 `;
 
 export const Title = styled.h1`
@@ -46,7 +48,7 @@ export const Search = styled.div`
   min-height: 0px;
   height: 50px;
   flex-direction: row;
-  margin: 40px 0;
+  margin: 10px 0;
   padding-left: 24px;
   padding-right: 24px;
   border-width: 2px;
@@ -62,7 +64,11 @@ export const Search = styled.div`
 `;
 
 export const ProductItemContainer = styled.div`
-  overflow-y: scroll;
+${media.lessThan('large')`
+width: 100%;
+height: 300px;
+`}
+  overflow: scroll;
 `;
 
 export const SearchInput = styled.input`

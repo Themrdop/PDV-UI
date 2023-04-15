@@ -13,13 +13,7 @@ export const SidebarWrapper = styled.aside`
   width: 400px;
 
   ${media.lessThan('large')`
-  bottom: 0;
-flex-direction: row;
-height: 200px;
-padding: 0;
-position: fixed;
-width: 100%;
-justify-content: space-evenly;
+  margin-top: 3.2rem;
   `}
 `;
 
@@ -126,7 +120,7 @@ export const Total = styled.div`
   text-align: left;
   letter-spacing: -0.34px;
   color: #de0000;
-  margin-top: 20px;
+  margin-top: 10px;
   justify-content: space-between;
 
   p {
@@ -164,5 +158,5 @@ export const SmallButton = styled.button`
 export const ButtonWrapper = styled.div`
   display: inline-box;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 10px;
 `;

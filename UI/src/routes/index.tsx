@@ -8,7 +8,20 @@ import Configuration from '../pages/Configuration';
 import Combo from '../pages/Combo';
 import UserAdministration from '../pages/User';
 
-const Routes: React.FC = () => (
+function Routes() {
+  return (
+    <Switch>
+      <Route path="/" exact component={Dashboard} />
+      <Route path="/product" component={Product} />
+      <Route path="/combo" component={Combo} />
+      <Route path="/about" component={About} />
+      <Route path="/configuration" component={Configuration} />
+      <Route path="/user" component={UserAdministration} />
+    </Switch>
+  )
+};
+
+/*const Routes: React.FC = () => (
   <Switch>
     <Route path="/" exact component={Dashboard} />
     <Route path="/product" component={Product} />
@@ -16,8 +29,8 @@ const Routes: React.FC = () => (
     <Route path="/about" component={About} />
     <Route path="/configuration" component={Configuration} />
     <Route path="/user" component={UserAdministration} />
-
+ 
   </Switch>
-);
+);*/
 
 export default Routes;

@@ -23,9 +23,7 @@ import { ProductList } from '../../components/ProductList';
 import { Toaster } from 'react-hot-toast';
 import { Combo, Product } from '../../models/models';
 
-
-
-const Dashboard: React.FC = () => {
+function Dashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState('');
   const [combos, setCombos] = useState<Combo[]>([]);
@@ -73,17 +71,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout name='Dashboard'>
-      <s.Header>
-        <s.Title>Panel</s.Title>
-        <s.Info>
-          <span className="cashier">
-            CAJA ABIERTA
-          </span>
-          <span className="date">
-            {date}
-          </span>
-        </s.Info>
-      </s.Header>
       <s.Search>
         <FiSearch size="24px" color="grey" />
         <s.SearchInput placeholder="Buscar producto" onChange={(event) => handleSearch(event.target.value) } />
@@ -91,8 +78,8 @@ const Dashboard: React.FC = () => {
 
       <s.CategoryContainer>
         <CarouselProvider
-          naturalSlideWidth={100}
-          naturalSlideHeight={190}
+          naturalSlideWidth={50}
+          naturalSlideHeight={70}
           totalSlides={6}
           visibleSlides={5}
           infinite>
@@ -132,7 +119,6 @@ const Dashboard: React.FC = () => {
       </s.ProductItemContainer>
       <Toaster />
     </Layout>
-  );
-};
+  )};
 
 export default Dashboard;

@@ -41,11 +41,11 @@ const ProductInput: React.FC = () => {
 
     if(inputs.id !== undefined){
       response = await api.put<Product>(
-        '/UpdateProduct', {id: inputs.id, name: inputs.name, price: inputs.price, image: protocol + inputs.image}
+        '/UpdateProduct', {id: inputs.id, name: inputs.name, price: inputs.price, image: protocol + inputs.image, amount: inputs.amount}
       );
     }else{
       response = await api.post<Product>(
-        '/AddProduct', {name: inputs.name, price: inputs.price, image: protocol + inputs.image}
+        '/AddProduct', {name: inputs.name, price: inputs.price, image: protocol + inputs.image, amount: inputs.amount}
       );
     }
 
@@ -142,6 +142,14 @@ const ProductInput: React.FC = () => {
         onChange={handleChange} 
         name="price" 
         value={inputs.price || ""} />
+      </Form.Group>
+      <Form.Group className="mb-3" controlId="formBasicEmail">
+        <Form.Label>Cantidad:</Form.Label>
+        <Form.Control type="text" 
+        placeholder="3000" 
+        onChange={handleChange} 
+        name="price" 
+        value={inputs.amount || ""} />
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Direccion de la imagen:</Form.Label>

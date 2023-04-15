@@ -39,6 +39,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
   const [tipoIdentificacion, setTipoIdentificacion] = useState<string>('01');
   const [descuento, setDescuento] = useState<number>(0);
   const [Nombre, setnombre] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
 
   async function handlePay(){
     
@@ -50,7 +51,7 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
             numeroIdentificacion: Cedula, 
             tipoIdentificacion: tipoIdentificacion, 
             telefono: telefono,
-            descuento: descuento 
+            email: email
           }}
     );
 
@@ -156,6 +157,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                   <label className="form-label">Telefono de cliente:</label>
                   <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value) } value={telefono || ""}/>
                 </Row>
+                <Row>
+                  <label className="form-label">e-mail:</label>
+                  <input type="text" className="form-control" onChange={(e) => setEmail(e.target.value) } value={email || ""}/>
+                </Row>
               </Col>
               <Col>
                 <Row>
@@ -198,6 +203,10 @@ const PaymentModal: React.FC<Props> = ({show, onClose, products}) => {
                               </tbody>
                           </table>
                 </Row>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
               </Col>
             </Row>
           </div>

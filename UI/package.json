@@ -65,6 +65,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "wait-on http://127.0.0.1:3000 && electron .",
+    "dev": "concurrently -k \"BROWSER=none yarn start\" \"yarn:electron\"",
     "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.js",
    "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.js",
    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.js"

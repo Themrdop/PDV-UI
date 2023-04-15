@@ -7,5 +7,5 @@ export const LayoutMain = styled.main`
   background: #fff;
   min-height: 100vh;
   flex: 1;
-  padding: 100px 50px;
+  padding: 10px 10px;
 `;
