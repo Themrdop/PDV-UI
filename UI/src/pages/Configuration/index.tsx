@@ -9,8 +9,6 @@ import BillReport from '../../components/Modal/BillReport';
 import { Barrio, Canton, CommerceInfo, Distrito, OutCommerceMsj, Provincia, Provincias } from '../../models/models';
 import ubicaciones from '../../assets/data/localization.json';
 
-import DropdownTreeSelect from 'react-dropdown-tree-select'
-
 const Commerce: React.FC = () => {
     const divStyle = {
         borderTop: '2px solid #999',
@@ -68,15 +66,28 @@ const Commerce: React.FC = () => {
         const response = await api.get<OutCommerceMsj>(
             '/GetCommerceInformation',
         );
+        
+        let provincias2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())
+        let cantones2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones || [];
+        let Distritos2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones
+                                    .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos || [];
+        let barrios2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones
+                                    .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos
+                                    .filter((distrito: Distrito) => distrito.distrito === response.data.distrito.toString())[0].barrios || [];
+        
+        setCantones(cantones2);
+        setDistritos(Distritos2);
+        setBarrio(barrios2);
+        
+        selectedProvincia.current = {provincia: response.data.provincia.toString()} as Provincia;
+        selectedCanton.current = {canton: response.data.canton.toString()} as Canton;
+        selectedDistrito.current = {distrito: response.data.distrito.toString()} as Distrito;
+        selectedBarrio.current = {barrio: response.data.barrio.toString()} as Barrio;
 
-        setCantones(ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones || []);
-        setDistritos(ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones[0].distritos || []);
-        setBarrio(ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones[0].distritos[0].barrios || []);
-
-        selectedProvincia.current = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0];
-        selectedCanton.current = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones[0];
-        selectedDistrito.current = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones[0].distritos[0];
-        selectedBarrio.current = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0].cantones[0].distritos[0].barrios[0];
+        console.log(selectedProvincia.current);
+        console.log(selectedCanton.current);
+        console.log(selectedDistrito.current);
+        console.log(selectedBarrio.current);
 
         setInputs({
             name: response.data.name,
@@ -110,19 +121,23 @@ const Commerce: React.FC = () => {
 
     const handleSelectChange = (event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
+        selectedProvincia.current = {provincia: value} as Provincia;
         const cantones = ubicaciones.filter((provincia: Provincia) => provincia.provincia === value)[0].cantones || [];
-        setCantones(cantones);
-        setInputs(values => ({
-            ...values, provincia: {
-                provincia: value,
-                descripcion_Provincion: '',
-                cantones: cantones
-            }
-        }));
+        if (cantones !== undefined) {
+            setCantones(cantones);
+            setInputs(values => ({
+                ...values, provincia: {
+                    provincia: value,
+                    descripcion_Provincion: '',
+                    cantones: cantones
+                }
+            }));
+        }
     }
 
     const handleSelectChange2 = (event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
+        selectedCanton.current = {canton: value} as Canton;
         const canton = inputs.provincia.cantones.filter((canton: Canton) => canton.canton === value)[0];
         const distritos = canton.distritos || [];
         setDistritos(distritos);
@@ -137,9 +152,9 @@ const Commerce: React.FC = () => {
 
     const handleSelectChange3 = (event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
+        selectedDistrito.current = {distrito: value} as Distrito;
         const canton = cantones.filter((c: Canton) => c.canton === inputs.provincia.cantones[0].canton)[0];
         const distritos = canton.distritos.filter((distrito: Distrito) => distrito.distrito === value) || [];
-        console.log(distritos);
         const barrio = distritos[0].barrios || [];
         console.log(barrio);
         setBarrio(barrio);
@@ -205,7 +220,57 @@ const Commerce: React.FC = () => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Provincia:</Form.Label>
-                    <DropdownTreeSelect data={ubicaciones} />
+                    <Form.Select aria-label="Provincia"
+                        onChange={handleSelectChange}
+                        value={selectedProvincia.current.provincia || 1}
+                        name="provincia">
+                        {
+                            (ubicaciones as Provincias).map((item: Provincia) => {
+                                return (
+                                    <option value={item.provincia}>{item.descripcion_Provincion}</option>
+                                )
+                            })}
+                    </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Canton:</Form.Label>
+                    <Form.Select aria-label="canton"
+                        onChange={handleSelectChange2}
+                        value={selectedCanton.current.canton || 1}
+                        name="canton">
+                        {cantones &&
+                            cantones.length > 0 ?
+                            cantones?.map((item: Canton) => {
+                                return (
+                                    <option value={item.canton}>{item.descripcion_Canton}</option>
+                                )
+                            }) : <option value={1}>No hay cantones</option>}
+                    </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Distrito:</Form.Label>
+                    <Form.Select aria-label="distrito"
+                        onChange={handleSelectChange3}
+                        value={selectedDistrito.current.distrito || 1}
+                        name="canton">
+                        {distritos?.map((item: Distrito) => {
+                            return (
+                                <option value={item.distrito}>{item.descripcion_Distrito}</option>
+                            )
+                        })}
+                    </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Barrio:</Form.Label>
+                    <Form.Select aria-label="distrito"
+                        value={selectedBarrio.current.barrio || 1}
+                        name="barrio">
+                        {barrio?.map((item: Barrio) => {
+                            return (
+                                <option value={item.barrio}>{item.descripcion_Barrio}</option>
+                            )
+                        })}
+                    </Form.Select>
                 </Form.Group>
                 <Button type="submit" variant="primary">Guardar</Button>
             </form>
