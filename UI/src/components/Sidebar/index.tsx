@@ -62,10 +62,6 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
     <s.SidebarWrapper>
       <s.Receipt>
         <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
-        <s.BillHeader>{CommerceInfo.cedula}</s.BillHeader>
-        <s.BillHeader>{CommerceInfo.phone}</s.BillHeader>
-        <s.BillHeader>{CommerceInfo.email}</s.BillHeader>
-        <s.BillHeader>{CommerceInfo.address}</s.BillHeader>
         <br/>
         <s.Item>
           <div>Descripción</div>

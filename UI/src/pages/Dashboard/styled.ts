@@ -66,7 +66,8 @@ export const Search = styled.div`
 export const ProductItemContainer = styled.div`
 ${media.lessThan('large')`
 width: 100%;
-height: 300px;
+height: 220px;
+overflow-y: scroll;
 `}
   overflow: scroll;
 `;

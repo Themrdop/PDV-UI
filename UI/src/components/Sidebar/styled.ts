@@ -14,6 +14,7 @@ export const SidebarWrapper = styled.aside`
 
   ${media.lessThan('large')`
   margin-top: 3.2rem;
+  max-height: 95vh;
   `}
 `;
 

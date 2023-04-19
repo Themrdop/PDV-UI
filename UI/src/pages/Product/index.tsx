@@ -4,6 +4,7 @@ import api from '../../service/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button } from 'react-bootstrap';
 import ListGroup from 'react-bootstrap/ListGroup';
+import { Link } from 'react-router-dom';
 
 import { formatPrice } from '../../utils/formatPrice';
 import { ProductList } from '../../components/ProductList';
@@ -122,7 +123,7 @@ const ProductInput: React.FC = () => {
             <a className="nav-link active" aria-current="page" href="/product">Productos</a>
         </li>
         <li className="nav-item">
-            <a className="nav-link" href="/combo">Combos</a>
+          <Link className="nav-link" to="/combo">Combos</Link>
         </li>
     </ul>
     <h1 className='h1'>Producto</h1>
