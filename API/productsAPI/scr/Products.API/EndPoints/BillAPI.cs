@@ -23,7 +23,7 @@ public class BillAPI
                                tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
                                phone = commers.phone,
                                email = commers.email
-                             }, localBill.descuento);
+                             }, commers, localBill.descuento);
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
@@ -60,7 +60,7 @@ public class BillAPI
     return Results.Ok(bills);
   }
 
-  private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter, decimal descuento = 0M)
+  private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter, CommerceInformation commerce, decimal descuento = 0M)
   {
     var bill = new Bill()
     {
@@ -74,7 +74,8 @@ public class BillAPI
       bill.electronicBill = new ElectronicBill()
       {
         recepient = recipient,
-        emitter = emmiter
+        emitter = emmiter,
+        Comers = commerce
       };
 
     return bill;

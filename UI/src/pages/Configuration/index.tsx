@@ -84,11 +84,6 @@ const Commerce: React.FC = () => {
         selectedDistrito.current = {distrito: response.data.distrito.toString()} as Distrito;
         selectedBarrio.current = {barrio: response.data.barrio.toString()} as Barrio;
 
-        console.log(selectedProvincia.current);
-        console.log(selectedCanton.current);
-        console.log(selectedDistrito.current);
-        console.log(selectedBarrio.current);
-
         setInputs({
             name: response.data.name,
             address: response.data.address,

@@ -73,6 +73,7 @@ namespace Products.API.ElectronicBill
     private string GetXMLDocument(string haciendaKey, Bill bill)
     {
       string xmlDocument = string.Empty;
+      decimal phone = decimal.TryParse(bill.electronicBill.recepient.phone, out phone) ? phone : 0;
 
       var msj = new TiqueteElectronico.TiqueteElectronico
       {
@@ -114,7 +115,7 @@ namespace Products.API.ElectronicBill
           Telefono = new TelefonoType
           {
             CodigoPais = short.Parse(COUNTRY_CODE),
-            NumTelefono = decimal.Parse(bill.electronicBill.recepient.phone)
+            NumTelefono = phone
           },
           CorreoElectronico = bill.electronicBill.recepient.email,
         },
