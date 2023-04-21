@@ -32,12 +32,14 @@ password = builder.Configuration["password"],
 identificationNumber = builder.Configuration["identificationNumber"],
 thumbprintCertificado = builder.Configuration["thumbprintCertificado"];
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient();
 
 builder.Services.AddSingleton<IElectronicBill>(new Products.API.ElectronicBill.ElectronicBill(userName,
                                                                                               password,
                                                                                               identificationNumber,
                                                                                               thumbprintCertificado,
-                                                                                              builder.Services.BuildServiceProvider().GetService<IMemoryCache>()));
+                                                                                              builder.Services.BuildServiceProvider().GetService<IMemoryCache>(),
+                                                                                              builder.Services.BuildServiceProvider().GetService<IHttpClientFactory>()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

@@ -8,6 +8,7 @@ using TiqueteElectronico;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
+using Polly;
 
 namespace Products.API.ElectronicBill
 {
@@ -19,7 +20,10 @@ namespace Products.API.ElectronicBill
     public const string CODIGO_ACTIVIDAD = "6332000000000";
     public const string CODIGO_PRODUCTO = "6332000000000";//Suministro de comida, servicio de restaurante sin mesero, con sitios para sentarse	13%
 
-    private readonly static HttpClient httpClient = new HttpClient();
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IAsyncPolicy<HttpResponseMessage> _retryPolicy = Policy
+        .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
     private readonly string _userName;
     private readonly string _password;
     private readonly string _identificationNumber;
@@ -32,13 +36,15 @@ namespace Products.API.ElectronicBill
                           string password,
                           string identificationNumber,
                           string thumbprintCertificado,
-                          IMemoryCache cache)
+                          IMemoryCache cache,
+                          IHttpClientFactory httpClientFactory)
     {
       _userName = userName;
       _password = password;
       _identificationNumber = identificationNumber;
       _thumbprintCertificado = thumbprintCertificado;
       _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+      _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     }
 
     public async Task<Bill> SendElectronicBill(Bill bill, CancellationToken cancellationToken)
@@ -203,9 +209,11 @@ namespace Products.API.ElectronicBill
 
     private async Task<HttpResponseMessage> sendToHacienda(HaciendaMessage haciendaMessage, CancellationToken cancellationToken)
     {
+      var httpClient = _httpClientFactory.CreateClient();
+
       string token = await getToken(cancellationToken);
       httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + token);
-      return await httpClient.PostAsJsonAsync<HaciendaMessage>(ENDPOINT + "/recepcion", haciendaMessage, cancellationToken: cancellationToken);
+      return await _retryPolicy.ExecuteAsync(() => httpClient.PostAsJsonAsync<HaciendaMessage>(ENDPOINT + "/recepcion", haciendaMessage, cancellationToken: cancellationToken));
     }
 
     private async Task<string> getToken(CancellationToken cancellationToken)
@@ -216,6 +224,8 @@ namespace Products.API.ElectronicBill
         return storedToken.access_token;
       }
 
+      var httpClient = _httpClientFactory.CreateClient();
+
       Dictionary<string, string> values = new();
       values.Add("grant_type", "password");
       values.Add("client_id", "api-stag");
@@ -225,7 +235,7 @@ namespace Products.API.ElectronicBill
       values.Add("password", _password);
       //httpClient.DefaultRequestHeaders.Add("content-type", "application/x-www-form-urlencoded");
       var content = new FormUrlEncodedContent(values);
-      var response = await httpClient.PostAsync(JWT_ENDPOINT, content);
+      var response = await _retryPolicy.ExecuteAsync(() => httpClient.PostAsync(JWT_ENDPOINT, content));
       var responseString = await response.Content.ReadAsStringAsync();
       var token = JsonSerializer.Deserialize<Token>(responseString);
       saveToken(token);
