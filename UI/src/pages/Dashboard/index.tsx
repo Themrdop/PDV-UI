@@ -76,7 +76,7 @@ function Dashboard() {
         <s.SearchInput placeholder="Buscar producto" onChange={(event) => handleSearch(event.target.value) } />
       </s.Search>
 
-      <s.CategoryContainer>
+      {combos.length > 0 ??<s.CategoryContainer>
         <CarouselProvider
           naturalSlideWidth={50}
           naturalSlideHeight={70}
@@ -101,7 +101,7 @@ function Dashboard() {
           <ButtonBack className="buttonBack"><FiChevronLeft size="24px" color="grey" /></ButtonBack>
           <ButtonNext className="buttonNext"><FiChevronRight size="24px" color="grey" /></ButtonNext>
         </CarouselProvider>
-      </s.CategoryContainer>
+      </s.CategoryContainer>}
       <s.ProductItemContainer>
         <ProductList>
           {
