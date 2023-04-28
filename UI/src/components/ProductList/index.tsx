@@ -60,6 +60,10 @@ export const ProductList = styled.ul`
       }
     }
 
+    &:active{
+      background-color: orange;  
+    }
+
     button {
       border: 0;
       border-radius: 4px;

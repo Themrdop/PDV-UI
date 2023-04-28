@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using TiqueteElectronico;
 
 namespace Products.Models
@@ -39,7 +40,7 @@ namespace Products.Models
     public string PlazoCredito { get; set; } = string.Empty;
     public decimal Descuento { get; set; } = 0.0M;
 
-    public string MedioPago { get; set; } = string.Empty;
+    public IEnumerable<TipoPago> MedioPago { get; set; } = new List<TipoPago>();
 
     public override string ToString()
     {
@@ -64,18 +65,21 @@ namespace Products.Models
       };
     }
 
-    public static implicit operator TiqueteElectronicoMedioPago(Bill from)
+    public static implicit operator Collection<TiqueteElectronicoMedioPago>(Bill from)
     {
-      return from.MedioPago switch
+      var lstMedioPago = new Collection<TiqueteElectronicoMedioPago>();
+      foreach (var medioPago in from.MedioPago)
       {
-        "01" => TiqueteElectronicoMedioPago.Efectivo,
-        "02" => TiqueteElectronicoMedioPago.Tarjeta,
-        "03" => TiqueteElectronicoMedioPago.Cheque,
-        "04" => TiqueteElectronicoMedioPago.Transferencia_DepositoBancario,
-        "05" => TiqueteElectronicoMedioPago.RecaudadoPorTerceros,
-        "99" => TiqueteElectronicoMedioPago.Otros,
-        _ => throw new Exception("Medio de pago no soportado")
-      };
+        lstMedioPago.Add(medioPago switch
+        {
+          TipoPago.Efectivo => TiqueteElectronicoMedioPago.Efectivo,
+          TipoPago.Tarjeta => TiqueteElectronicoMedioPago.Tarjeta,
+          TipoPago.Transferencia_DepositoBancario => TiqueteElectronicoMedioPago.Transferencia_DepositoBancario,
+          _ => throw new Exception("Medio de pago no soportado")
+        });
+      }
+
+      return lstMedioPago;
     }
   }
 }

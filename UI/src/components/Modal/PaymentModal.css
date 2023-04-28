@@ -79,3 +79,25 @@ hr {
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
   }
+
+  .ButtonWrapper {
+    display: inline-box;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .paymentMethodButton {
+    background-color: transparent;
+    border: none;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    height: 100%;
+    width: 65px;
+  }
+
+  .paymentMethodButton:active{
+    background:olive;
+  }

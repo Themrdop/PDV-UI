@@ -7,5 +7,6 @@ public class Pago
 public enum TipoPago
 {
     Efectivo,
-    Tarjeta
+    Tarjeta,
+    Transferencia_DepositoBancario
 }

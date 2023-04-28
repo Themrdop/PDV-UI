@@ -128,10 +128,7 @@ namespace Products.API.ElectronicBill
           CorreoElectronico = bill.electronicBill.recepient.email,
         },
         CondicionVenta = bill,
-        MedioPago = new Collection<TiqueteElectronicoMedioPago>()
-        {
-          (TiqueteElectronicoMedioPago)bill
-        },
+        MedioPago = (Collection<TiqueteElectronicoMedioPago>)bill,
       };
 
       int linea = 1;
