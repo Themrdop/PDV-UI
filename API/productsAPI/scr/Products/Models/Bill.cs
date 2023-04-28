@@ -39,6 +39,8 @@ namespace Products.Models
     public string PlazoCredito { get; set; } = string.Empty;
     public decimal Descuento { get; set; } = 0.0M;
 
+    public string MedioPago { get; set; } = string.Empty;
+
     public override string ToString()
     {
       return $"Factura No. {consecutive} del {date.ToString("dd/MM/yyyy")} con un total de {total.ToString("C2")}";
@@ -59,6 +61,20 @@ namespace Products.Models
         CondicionVentaPagoDelServiciosPrestadoAlEstado => TiqueteElectronicoCondicionVenta.PagoDelServiciosPrestadoAlEstado,
         CondicionVentaOtros => TiqueteElectronicoCondicionVenta.Otros,
         _ => throw new Exception("Condicion de venta no soportada")
+      };
+    }
+
+    public static implicit operator TiqueteElectronicoMedioPago(Bill from)
+    {
+      return from.MedioPago switch
+      {
+        "01" => TiqueteElectronicoMedioPago.Efectivo,
+        "02" => TiqueteElectronicoMedioPago.Tarjeta,
+        "03" => TiqueteElectronicoMedioPago.Cheque,
+        "04" => TiqueteElectronicoMedioPago.Transferencia_DepositoBancario,
+        "05" => TiqueteElectronicoMedioPago.RecaudadoPorTerceros,
+        "99" => TiqueteElectronicoMedioPago.Otros,
+        _ => throw new Exception("Medio de pago no soportado")
       };
     }
   }

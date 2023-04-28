@@ -2187,42 +2187,42 @@ namespace TiqueteElectronico
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Efectivo")]
         [System.Xml.Serialization.XmlEnumAttribute("01")]
-        Item01,
+        Efectivo,
         
         /// <summary>
         /// <para>Tarjeta</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Tarjeta")]
         [System.Xml.Serialization.XmlEnumAttribute("02")]
-        Item02,
+        Tarjeta,
         
         /// <summary>
         /// <para>Cheque</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Cheque")]
         [System.Xml.Serialization.XmlEnumAttribute("03")]
-        Item03,
+        Cheque,
         
         /// <summary>
         /// <para>Transferencia - depósito bancario</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Transferencia - depósito bancario")]
         [System.Xml.Serialization.XmlEnumAttribute("04")]
-        Item04,
+        Transferencia_DepositoBancario,
         
         /// <summary>
         /// <para>Recaudado por terceros</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Recaudado por terceros")]
         [System.Xml.Serialization.XmlEnumAttribute("05")]
-        Item05,
+        RecaudadoPorTerceros,
         
         /// <summary>
         /// <para>Otros</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Otros")]
         [System.Xml.Serialization.XmlEnumAttribute("99")]
-        Item99,
+        Otros,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("XmlSchemaClassGenerator", "1.0.0.0")]

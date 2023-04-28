@@ -9,15 +9,16 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Polly;
+using System.Collections.Generic;
 
 namespace Products.API.ElectronicBill
 {
   public class ElectronicBill : IElectronicBill
   {
     private const string COUNTRY_CODE = "506";
-    public const string ENDPOINT = @"https://api.comprobanteselectronicos.go.cr/recepcion-sandbox/v1";
+    public const string ENDPOINT = @"https://api-sandbox.comprobanteselectronicos.go.cr/recepcion/v1";
     public const string JWT_ENDPOINT = @"https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/openid-connect/token";
-    public const string CODIGO_ACTIVIDAD = "6332000000000";
+    public const string CODIGO_ACTIVIDAD = "552004";
     public const string CODIGO_PRODUCTO = "6332000000000";//Suministro de comida, servicio de restaurante sin mesero, con sitios para sentarse	13%
 
     private readonly IHttpClientFactory _httpClientFactory;
@@ -58,9 +59,9 @@ namespace Products.API.ElectronicBill
 
       switch (result.StatusCode)
       {
-        case System.Net.HttpStatusCode.OK:
+        case System.Net.HttpStatusCode.Accepted:
           bill.electronicBill.location = result.Headers.Location;
-          bill.electronicBill.electronicBill = xmlDocument;
+          bill.electronicBill.electronicBill = singedXML;
           bill.electronicBill.clave = haciendaKey;
 
           break;
@@ -86,6 +87,7 @@ namespace Products.API.ElectronicBill
         Clave = haciendaKey,
         CodigoActividad = CODIGO_ACTIVIDAD,
         FechaEmision = DateTime.Now,
+        NumeroConsecutivo = bill.consecutive.ToString(),
         Emisor = new EmisorType
         {
           Nombre = bill.electronicBill.emitter.name,
@@ -115,7 +117,7 @@ namespace Products.API.ElectronicBill
           Nombre = bill.electronicBill.recepient.name,
           Identificacion = new IdentificacionType
           {
-            Tipo = IdentificacionTypeTipo.Cedula_Fisica,
+            Tipo = bill.electronicBill.recepient,
             Numero = bill.electronicBill.recepient.numeroIdentificacion
           },
           Telefono = new TelefonoType
@@ -126,7 +128,10 @@ namespace Products.API.ElectronicBill
           CorreoElectronico = bill.electronicBill.recepient.email,
         },
         CondicionVenta = bill,
-        PlazoCredito = bill.PlazoCredito
+        MedioPago = new Collection<TiqueteElectronicoMedioPago>()
+        {
+          (TiqueteElectronicoMedioPago)bill
+        },
       };
 
       int linea = 1;
@@ -159,6 +164,7 @@ namespace Products.API.ElectronicBill
           Impuesto = new Collection<ImpuestoType>{
             new ImpuestoType{
               Codigo = ImpuestoTypeCodigo.IVA,
+              CodigoTarifa = ImpuestoTypeCodigoTarifa.Item08,
               Tarifa = 13M,
               Monto = impuesto
             }
@@ -227,16 +233,20 @@ namespace Products.API.ElectronicBill
       var httpClient = _httpClientFactory.CreateClient();
 
       Dictionary<string, string> values = new();
-      values.Add("grant_type", "password");
       values.Add("client_id", "api-stag");
-      values.Add("client_secret", "");
-      values.Add("scope", "");
+      values.Add("grant_type", "password");
       values.Add("username", _userName);
       values.Add("password", _password);
-      //httpClient.DefaultRequestHeaders.Add("content-type", "application/x-www-form-urlencoded");
+
       var content = new FormUrlEncodedContent(values);
       var response = await _retryPolicy.ExecuteAsync(() => httpClient.PostAsync(JWT_ENDPOINT, content));
       var responseString = await response.Content.ReadAsStringAsync();
+
+      if ((response.StatusCode != System.Net.HttpStatusCode.OK))
+      {
+          throw new Exception(("Error: " + responseString));
+      }
+
       var token = JsonSerializer.Deserialize<Token>(responseString);
       saveToken(token);
       return token?.access_token ?? string.Empty;
