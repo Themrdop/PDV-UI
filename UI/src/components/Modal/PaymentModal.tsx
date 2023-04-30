@@ -46,7 +46,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [activeSINPE, setActive] = useState(false);
   const [activeTarjeta, setTarjeta] = useState(false);
   const [activeEfectivo, setEfectivo] = useState(false);
-  
+
   const handleSINPE = () => {
     setActive(!activeSINPE);
   };
@@ -140,6 +140,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
 
     setTipoIdentificacion(response.data.tipoIdentificacion);
     setnombre(response.data.nombre);
+    setTipoIdentificacion(response.data.tipoIdentificacion);
   }
 
   return ReactDOM.createPortal(
@@ -156,30 +157,23 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
             <Row>
               <Col>
                 <Row>
+                  <label className="form-label">Cedula juridica:</label>
                   <div className='input-group'>
-                    <label className="form-label">Cedula juridica:</label>
                     <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value)} />
                     <Button type="button" variant="primary" onClick={handleSearch}>Consultar</Button>
                   </div>
                 </Row>
                 <Row>
                   <label className="form-label">Nombre:</label>
-                  <input type="text" disabled={true} value={Nombre || ""} className="form-control" onChange={(e) => setnombre(e.target.value)} />
-                </Row>
-                <Row>
-                  <label className="form-label">Tipo Cedula:</label>
-                  <Form.Select onChange={(e) => setTipoIdentificacion(e.target.value)} value={tipoIdentificacion || ""}>
-                    <option value="02">Juridica</option>
-                    <option value="01">Fisica</option>
-                  </Form.Select>
+                  <input type="text" disabled={true} value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
                 </Row>
                 <Row>
                   <label className="form-label">Telefono de cliente:</label>
-                  <input type="text" className="form-control" onChange={(e) => setTelefono(e.target.value)} value={telefono || ""} />
+                  <input type="text" className="form-control space" onChange={(e) => setTelefono(e.target.value)} value={telefono || ""} />
                 </Row>
                 <Row>
-                  <label className="form-label">e-mail:</label>
-                  <input type="text" className="form-control" onChange={(e) => setEmail(e.target.value)} value={email || ""} />
+                  <label className="form-label">E-mail:</label>
+                  <input type="text" className="form-control space" onChange={(e) => setEmail(e.target.value)} value={email || ""} />
                 </Row>
               </Col>
               <Col>
@@ -227,32 +221,45 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                   <div>
                     <label className="form-label">Metodo de pago:</label>
                     <div className="ButtonWrapper">
-                      <button className="paymentMethodButton" 
-                      style={{ backgroundColor: activeEfectivo ? "orange" : "transparent" }} 
-                      onClick={() => handleEfectivo()}>
+                      <button className="paymentMethodButton"
+                        style={{ backgroundColor: activeEfectivo ? "orange" : "transparent" }}
+                        onClick={() => handleEfectivo()}>
                         <BsCashCoin size={35} />
                         Efectivo
                       </button>
                       <button className="paymentMethodButton"
-                      style={{ backgroundColor: activeTarjeta ? "orange" : "transparent" }} 
-                      onClick={() => handleTarjeta()}>
+                        style={{ backgroundColor: activeTarjeta ? "orange" : "transparent" }}
+                        onClick={() => handleTarjeta()}>
                         <MdPayment size={35} />
                         Tarjeta
                       </button>
-                      <button className="paymentMethodButton" 
-                            style={{ backgroundColor: activeSINPE ? "orange" : "transparent" }} 
-                            onClick={() => handleSINPE()}>
+                      <button className="paymentMethodButton"
+                        style={{ backgroundColor: activeSINPE ? "orange" : "transparent" }}
+                        onClick={() => handleSINPE()}>
                         <BsPhone size={35} />
                         SINPE
                       </button>
                     </div>
                   </div>
                 </Row>
-                { }
-              </Col>
-            </Row>
-            <Row>
-              <Col>
+                {activeEfectivo &&
+                  <div>
+                    <Row>
+                      <label className="form-label">Efectivo:</label>
+                      <input type="text" value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                    </Row>
+                    <Row>
+                      <label className="form-label">Cambio:</label>
+                      <input type="text" value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                    </Row>
+                  </div>
+                }
+                {activeTarjeta &&
+                  <Row>
+                    <label className="form-label">Numero voucher:</label>
+                    <input type="text" value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                  </Row>
+                }
               </Col>
             </Row>
           </div>

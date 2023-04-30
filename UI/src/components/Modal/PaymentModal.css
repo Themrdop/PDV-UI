@@ -101,3 +101,7 @@ hr {
   .paymentMethodButton:active{
     background:olive;
   }
+
+  .space {
+    margin: 5px;
+  }
