@@ -5,16 +5,16 @@ using Products.Models;
 namespace Products.DataAccess{
     public class CommerceInformationRepository : ICommerceInformationRepository
     {
-        private readonly DataBaseImplementation _database;
+        private IMongoCollection<CommerceInformation> CommerceInformation { get; set; }
         
-        public CommerceInformationRepository(DataBaseImplementation database)
+        public CommerceInformationRepository(DataBaseImplementation mongo)
         {
-            _database = database;
+            CommerceInformation = mongo.database.GetCollection<CommerceInformation>("CommerceInformation");
         }
         
         public async Task<CommerceInformation> GetCommerceInformation(CancellationToken cancellationToken)
         {
-            var commerceInformation = await _database.CommerceInformation.FindAsync(Builders<CommerceInformation>.Filter.Empty, null, cancellationToken);
+            var commerceInformation = await CommerceInformation.FindAsync(Builders<CommerceInformation>.Filter.Empty, null, cancellationToken);
 
             var commerceInformationresult = commerceInformation.FirstOrDefault();
 
@@ -28,10 +28,10 @@ namespace Products.DataAccess{
         {
             var filter = Builders<CommerceInformation>.Filter.Eq(p => p.name, commerceInformation.name);
 
-            var result = await _database.CommerceInformation.ReplaceOneAsync(filter, commerceInformation);
+            var result = await CommerceInformation.ReplaceOneAsync(filter, commerceInformation);
 
             if (result.ModifiedCount <= 0){
-                await _database.CommerceInformation.InsertOneAsync(commerceInformation);
+                await CommerceInformation.InsertOneAsync(commerceInformation);
             }
 
             return commerceInformation;

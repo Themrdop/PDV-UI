@@ -6,16 +6,16 @@ namespace Products.DataAccess
 {
     public class UserRepository : IUserRepository
     {
-        private readonly DataBaseImplementation _database;
+        private IMongoCollection<User> Users;
 
-        public UserRepository(DataBaseImplementation database)
+        public UserRepository(DataBaseImplementation mongo)
         {
-            _database = database;
+            Users = mongo.database.GetCollection<User>("Users");
         }
 
         public async Task<IEnumerable<User>> GetUsers(CancellationToken cancellationToken)
         {
-            var baseUsers = await _database.Users.FindAsync(Builders<User>.Filter.Empty, null, cancellationToken);
+            var baseUsers = await Users.FindAsync(Builders<User>.Filter.Empty, null, cancellationToken);
 
             var users = baseUsers.ToList();
 
@@ -27,7 +27,7 @@ namespace Products.DataAccess
         
         public async Task<User> GetUserById(string id, CancellationToken cancellationToken)
         {
-            var user = await _database.Users.FindAsync(Builders<User>.Filter.Eq(p => p.Id, id), null, cancellationToken);
+            var user = await Users.FindAsync(Builders<User>.Filter.Eq(p => p.Id, id), null, cancellationToken);
 
             return user.FirstOrDefault();
         }
@@ -36,7 +36,7 @@ namespace Products.DataAccess
         {
             user.Id = Guid.NewGuid().ToString();
 
-            await _database.Users.InsertOneAsync(user, null, cancellationToken);
+            await Users.InsertOneAsync(user, null, cancellationToken);
 
             return user;
         }
@@ -45,11 +45,11 @@ namespace Products.DataAccess
         {
             var filter = Builders<User>.Filter.Eq(p => p.Id, user.Id);
 
-            var result = await _database.Users.ReplaceOneAsync(filter, user);
+            var result = await Users.ReplaceOneAsync(filter, user);
 
             if (result.ModifiedCount == 0)
             {
-                await _database.Users.InsertOneAsync(user);
+                await Users.InsertOneAsync(user);
             }
 
             return user;
@@ -59,7 +59,7 @@ namespace Products.DataAccess
         {
             var filter = Builders<User>.Filter.Eq(p => p.Id, id);
 
-            var result = await _database.Users.DeleteOneAsync(filter, null, cancellationToken);
+            var result = await Users.DeleteOneAsync(filter, null, cancellationToken);
 
             return result.DeletedCount > 0;
         }

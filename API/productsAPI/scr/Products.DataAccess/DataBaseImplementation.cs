@@ -12,29 +12,18 @@ namespace Products.DataAccess
     public class DataBaseImplementation
     {
         private readonly IMongoClient _mongoClient;
-        private readonly IMongoDatabase _database;
+        public IMongoDatabase database {get; internal set;}
         public DataBaseImplementation(string connectionString, string? dataBase = null)
         {
             _mongoClient = new MongoClient(connectionString);
-            _database = _mongoClient.GetDatabase(dataBase is null? "PDV" : dataBase);
+            database = _mongoClient.GetDatabase(dataBase is null? "PDV" : dataBase);
 
             //add the ConventionPack and register the convention to avoid adding tags to models
             var pack = new ConventionPack();
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
             ConventionRegistry.Register("IgnoreExtraElements", conventionPack, type => true);
-
-
-            Products = _database.GetCollection<Product>("Products");
-            Bills = _database.GetCollection<Bill>("Bills");
-            CommerceInformation = _database.GetCollection<CommerceInformation>("CommerceInformation");
-            Users = _database.GetCollection<User>("Users");
-            Combos = _database.GetCollection<Combo>("Combos");
         }
 
-        public IMongoCollection<Product> Products { get; internal set; }
-        public IMongoCollection<Bill> Bills { get; internal set; }
-        public IMongoCollection<CommerceInformation> CommerceInformation { get; internal set; }
-        public IMongoCollection<User> Users { get; internal set; }
-        public IMongoCollection<Combo> Combos { get; internal set; }
+        
     }
 }

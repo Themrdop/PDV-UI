@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 using Polly;
-using System.Collections.Generic;
 
 namespace Products.API.ElectronicBill
 {

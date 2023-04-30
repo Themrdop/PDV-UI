@@ -18,5 +18,7 @@ public static class EndPointConfiguration{
         app.MapPost("/AddCombo", CombosAPI.SaveCombo);
         app.MapDelete("/DeleteCombo", CombosAPI.DeleteCombo);
         app.MapPost("/UpdateCombo", CombosAPI.UpdateCombo);
+        app.MapGet("/GetClient", ClientAPI.GetClient);
+        app.MapPost("/AddClient", ClientAPI.AddClient);
     }
 }

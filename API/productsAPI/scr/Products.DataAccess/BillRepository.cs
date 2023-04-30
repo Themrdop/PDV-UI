@@ -7,15 +7,15 @@ using Products.Models;
 namespace Products.DataAccess{
     public class BillRepository : IBillRepository
     {
-        private readonly DataBaseImplementation _database;
+        private IMongoCollection<Bill> _bills { get; set; }
 
-        public BillRepository(DataBaseImplementation database)
+        public BillRepository(DataBaseImplementation mongo)
         {
-            this._database = database;
+            _bills = mongo.database.GetCollection<Bill>("Bills");
         }
 
         public async Task<IEnumerable<Bill>> GetAllBills(Tuple<DateOnly,DateOnly> dates, CancellationToken cancellationToken){
-            var BaseBills = await _database.Bills.FindAsync<Bill>(Builders<Bill>.Filter.Empty, cancellationToken:cancellationToken);
+            var BaseBills = await _bills.FindAsync<Bill>(Builders<Bill>.Filter.Empty, cancellationToken:cancellationToken);
 
             var bills = BaseBills.ToEnumerable();
 
@@ -33,11 +33,11 @@ namespace Products.DataAccess{
             var document = BsonDocument.Parse(JsonSerializer.Serialize(bill));
             document["id"] = ObjectId.Empty;
 
-            var count = _database.Bills.CountDocuments(Builders<Bill>.Filter.Empty, cancellationToken:cancellationToken);
+            var count = _bills.CountDocuments(Builders<Bill>.Filter.Empty, cancellationToken:cancellationToken);
 
             bill.consecutive = count + 1;
 
-            await _database.Bills.InsertOneAsync(bill, cancellationToken:cancellationToken);
+            await _bills.InsertOneAsync(bill, cancellationToken:cancellationToken);
 
             return bill;
         }
@@ -47,7 +47,7 @@ namespace Products.DataAccess{
         var filter = Builders<Bill>.Filter.Eq("consecutive", bill.consecutive);
         var update = Builders<Bill>.Update.Set("electronicBill", bill.electronicBill);
     
-        return _database.Bills.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
+        return _bills.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }
   }
 }
