@@ -32,6 +32,7 @@ const ProductInput: React.FC = () => {
   const handleChange = (event: { target: { name: any; value: any; }; }) => {
     const name = event.target.name;
     const value = event.target.value;
+    console.log(name, value);
     setInputs(values => ({...values, [name]: value}));
   }
   
@@ -72,6 +73,9 @@ const ProductInput: React.FC = () => {
     }
 
     const data = response.data.pop();
+
+    console.log(data);
+
     if(data !== undefined)
         setInputs(data);
   }
@@ -149,7 +153,7 @@ const ProductInput: React.FC = () => {
         <Form.Control type="text" 
         placeholder="3000" 
         onChange={handleChange} 
-        name="price" 
+        name="amount" 
         value={inputs.amount || ""} />
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicEmail">

@@ -20,6 +20,7 @@ builder.Services.AddSingleton<IBillRepository, BillRepository>();
 builder.Services.AddSingleton<ICommerceInformationRepository, CommerceInformationRepository>();
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IComboRepository, ComboRepository>();
+builder.Services.AddSingleton<IClientRepository, ClientRepository>();
 
 builder.Configuration.AddJsonFile("appsettings.json", false, true);
 
