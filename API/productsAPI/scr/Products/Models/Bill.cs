@@ -37,7 +37,7 @@ namespace Products.Models
     public decimal tax { get; private set; } = 0.0M;
     public ElectronicBill electronicBill { get; set; } = new();
     public string CondicionVenta { get; set; } = CondicionVentaContado;
-    public string PlazoCredito { get; set; } = string.Empty;
+    public string PlazoCredito { get; set; } = "0";
     public decimal Descuento { get; set; } = 0.0M;
 
     public IEnumerable<TipoPago> MedioPago { get; set; } = new List<TipoPago>();

@@ -7,7 +7,7 @@ import api from "../../service/api";
 import { CommerceInfo, PersonFromHacienda, Product } from "../../models/models";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import { Button, Form, Toast } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { formatPrice } from "../../utils/formatPrice";
 import haciendaApi from "../../service/haciendaApi";
 import { Toaster, toast } from 'react-hot-toast';
@@ -42,24 +42,53 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [descuento, setDescuento] = useState<number>(0);
   const [Nombre, setnombre] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  const [metodoPago, setMetodoPago] = useState<string[]>([]);
+  const [metodoPago, setMetodoPago] = useState<Number[]>([]);
   const [activeSINPE, setActive] = useState(false);
   const [activeTarjeta, setTarjeta] = useState(false);
   const [activeEfectivo, setEfectivo] = useState(false);
 
   const handleSINPE = () => {
     setActive(!activeSINPE);
+    if(!activeSINPE){
+      setMetodoPago([...metodoPago, 0]);
+      console.log('aya');
+    }else{
+      setMetodoPago(metodoPago.filter(a =>
+        a !== 0
+      ));
+    }
+    console.log(metodoPago);
   };
 
   const handleTarjeta = () => {
     setTarjeta(!activeTarjeta);
+
+    if(!activeTarjeta){
+      setMetodoPago([...metodoPago, 1]);
+    }else{
+      setMetodoPago(metodoPago.filter(a =>
+        a !== 1
+      ));
+    }
+
+    console.log(metodoPago);
   };
 
   const handleEfectivo = () => {
     setEfectivo(!activeEfectivo);
+
+    if(!activeEfectivo){
+      setMetodoPago([...metodoPago, 3]);
+    }else{
+      setMetodoPago(metodoPago.filter(a =>
+        a !== 3
+      ));
+    }
   };
 
   async function handlePay() {
+
+    console.log(metodoPago);
 
     const response = await api.post<Product[]>(
       '/SaveBill', {
@@ -140,7 +169,6 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
 
     setTipoIdentificacion(response.data.tipoIdentificacion);
     setnombre(response.data.nombre);
-    setTipoIdentificacion(response.data.tipoIdentificacion);
   }
 
   return ReactDOM.createPortal(

@@ -30,14 +30,12 @@ if (!string.IsNullOrWhiteSpace(builder.Configuration["MongoUri"]))
 }
 string userName = builder.Configuration["userName"],
 password = builder.Configuration["password"],
-identificationNumber = builder.Configuration["identificationNumber"],
 thumbprintCertificado = builder.Configuration["thumbprintCertificado"];
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 
 builder.Services.AddSingleton<IElectronicBill>(new Products.API.ElectronicBill.ElectronicBill(userName,
                                                                                               password,
-                                                                                              identificationNumber,
                                                                                               thumbprintCertificado,
                                                                                               builder.Services.BuildServiceProvider().GetService<IMemoryCache>(),
                                                                                               builder.Services.BuildServiceProvider().GetService<IHttpClientFactory>()));

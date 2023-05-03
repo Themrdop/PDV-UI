@@ -22,11 +22,10 @@ namespace Products.API.ElectronicBill
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IAsyncPolicy<HttpResponseMessage> _retryPolicy = Policy
-        .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+        .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && (r.StatusCode != System.Net.HttpStatusCode.BadRequest | r.StatusCode != System.Net.HttpStatusCode.Unauthorized))
         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
     private readonly string _userName;
     private readonly string _password;
-    private readonly string _identificationNumber;
     private readonly string _thumbprintCertificado;
     private SignatureDocument? _signatureDocument;
     private string _token;
@@ -34,14 +33,12 @@ namespace Products.API.ElectronicBill
 
     public ElectronicBill(string userName,
                           string password,
-                          string identificationNumber,
                           string thumbprintCertificado,
                           IMemoryCache cache,
                           IHttpClientFactory httpClientFactory)
     {
       _userName = userName;
       _password = password;
-      _identificationNumber = identificationNumber;
       _thumbprintCertificado = thumbprintCertificado;
       _cache = cache ?? throw new ArgumentNullException(nameof(cache));
       _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -86,7 +83,7 @@ namespace Products.API.ElectronicBill
         Clave = haciendaKey,
         CodigoActividad = CODIGO_ACTIVIDAD,
         FechaEmision = DateTime.Now,
-        NumeroConsecutivo = bill.consecutive.ToString(),
+        NumeroConsecutivo = GetFormatedConsecutive(bill.consecutive),
         Emisor = new EmisorType
         {
           Nombre = bill.electronicBill.emitter.name,
@@ -98,10 +95,11 @@ namespace Products.API.ElectronicBill
           NombreComercial = bill.electronicBill.Comers.name,
           Ubicacion = new UbicacionType
           {
+            BarrioSpecified = true,
             Provincia = bill.electronicBill.Comers.Provincia,
-            Canton = bill.electronicBill.Comers.Canton,
-            Distrito = bill.electronicBill.Comers.Distrito,
-            Barrio = bill.electronicBill.Comers.Barrio,
+            Canton = bill.electronicBill.Comers.Canton.ToString().PadLeft(2, '0'),
+            Distrito = bill.electronicBill.Comers.Distrito.ToString().PadLeft(2, '0'),
+            Barrio = bill.electronicBill.Comers.Barrio.ToString().PadLeft(2, '0'),
             OtrasSenas = bill.electronicBill.Comers.address
           },
           Telefono = new TelefonoType
@@ -111,7 +109,14 @@ namespace Products.API.ElectronicBill
           },
           CorreoElectronico = bill.electronicBill.Comers.email,
         },
-        Receptor = new ReceptorType
+        CondicionVenta = bill,
+        MedioPago = (Collection<TiqueteElectronicoMedioPago>)bill,
+        PlazoCredito = bill.PlazoCredito,
+      };
+
+      if (!string.IsNullOrEmpty(bill.electronicBill.recepient.numeroIdentificacion))
+      {
+        msj.Receptor = new ReceptorType
         {
           Nombre = bill.electronicBill.recepient.name,
           Identificacion = new IdentificacionType
@@ -125,30 +130,31 @@ namespace Products.API.ElectronicBill
             NumTelefono = phone
           },
           CorreoElectronico = bill.electronicBill.recepient.email,
-        },
-        CondicionVenta = bill,
-        MedioPago = (Collection<TiqueteElectronicoMedioPago>)bill,
-      };
+        };
+      }
 
       int linea = 1;
       decimal subtotal = 0;
+      decimal descuento = 0;
       decimal total = 0;
       decimal impuesto = 0;
       decimal sumaSubtotal = 0;
       decimal sumaImpuesto = 0;
       decimal sumaTotal = 0;
+      decimal sumaDescuento = 0;
 
 
       foreach (var pro in bill.products)
       {
         total = pro.price * pro.amount;
-        subtotal = total - (total * (bill.Descuento / 100));
+        descuento = total * bill.Descuento / 100;
+        subtotal = total - descuento;
         impuesto = subtotal * 0.13M;
 
         msj.DetalleServicio.Add(new TiqueteElectronicoDetalleServicioLineaDetalle
         {
           NumeroLinea = linea.ToString(),
-          Codigo = CODIGO_ACTIVIDAD,
+          Codigo = CODIGO_PRODUCTO,
           Cantidad = pro.amount,
           UnidadMedida = UnidadMedidaType.Unid,
           UnidadMedidaComercial = string.Empty,
@@ -156,20 +162,25 @@ namespace Products.API.ElectronicBill
           PrecioUnitario = pro.price,
           MontoTotal = total,
           SubTotal = subtotal,
-          MontoTotalLinea = subtotal,
+          MontoTotalLinea = subtotal + impuesto,
           Impuesto = new Collection<ImpuestoType>{
             new ImpuestoType{
               Codigo = ImpuestoTypeCodigo.IVA,
               CodigoTarifa = ImpuestoTypeCodigoTarifa.Item08,
-              Tarifa = 13M,
-              Monto = impuesto
+              CodigoTarifaSpecified = true,
+              TarifaSpecified = true,
+              Tarifa = 13,
+              Monto = impuesto,
+              
             }
-          }
+          },
+          ImpuestoNeto = impuesto
         });
         linea++;
         sumaSubtotal += subtotal;
         sumaImpuesto += impuesto;
         sumaTotal += total;
+        sumaDescuento += descuento;
       }
 
       msj.ResumenFactura = new TiqueteElectronicoResumenFactura
@@ -179,16 +190,15 @@ namespace Products.API.ElectronicBill
           CodigoMoneda = CodigoMonedaTypeCodigoMoneda.CRC,
           TipoCambio = 1M
         },
-        //TotalServGravados = bill.total,
-        //TotalServExentos = bill.TotalServExentos,
+        TotalMercanciasGravadasSpecified = true,
+        TotalGravadoSpecified = true,
         TotalMercanciasGravadas = sumaTotal,
         TotalGravado = sumaTotal,
-        //TotalExento = bill.TotalExento,
         TotalVenta = sumaTotal,
-        TotalDescuentos = bill.Descuento,
-        TotalVentaNeta = sumaTotal - (sumaTotal * (bill.Descuento / 100)),
+        TotalDescuentos = sumaDescuento,
+        TotalVentaNeta = sumaTotal - sumaDescuento,
         TotalImpuesto = sumaImpuesto,
-        TotalComprobante = sumaTotal - (sumaTotal * (bill.Descuento / 100)) + sumaImpuesto
+        TotalComprobante = sumaTotal
       };
 
       using var stringwriter = new Utf8StringWriter();
@@ -240,7 +250,7 @@ namespace Products.API.ElectronicBill
 
       if ((response.StatusCode != System.Net.HttpStatusCode.OK))
       {
-          throw new Exception(("Error: " + responseString));
+        throw new Exception(("Error: " + responseString));
       }
 
       var token = JsonSerializer.Deserialize<Token>(responseString);
@@ -274,7 +284,7 @@ namespace Products.API.ElectronicBill
 
       if (string.IsNullOrEmpty(thumbprintCertificado))
       {
-        cert = new X509Certificate2(Environment.CurrentDirectory + "/client-identity.p12", "123456789");
+        cert = new X509Certificate2(Environment.CurrentDirectory + "/client-identity.p12", "1485");
       }
       else
       {
@@ -321,7 +331,7 @@ namespace Products.API.ElectronicBill
                                   .Append(currentDate.Day.ToString().PadLeft(2, '0'))
                                   .Append(currentDate.Month.ToString().PadLeft(2, '0'))
                                   .Append(currentDate.Year.ToString().Substring(2))
-                                  .Append(_identificationNumber.PadLeft(12, '0'))
+                                  .Append(bill.electronicBill.emitter.numeroIdentificacion.PadLeft(12, '0'))
                                   .Append(Consecutivo)
                                   .Append('1')
                                   .Append(CreaCodigoSeguridad(Consecutivo))

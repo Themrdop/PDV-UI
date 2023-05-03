@@ -149,7 +149,7 @@ namespace TiqueteElectronico
         [System.ComponentModel.DataAnnotations.RegularExpressionAttribute("\\d\\d")]
         [System.ComponentModel.DataAnnotations.RequiredAttribute()]
         [System.Xml.Serialization.XmlElementAttribute("Canton")]
-        public byte Canton { get; set; }
+        public string Canton { get; set; }
         
         /// <summary>
         /// <para xml:lang="en">Total number of digits: 2.</para>
@@ -158,7 +158,7 @@ namespace TiqueteElectronico
         [System.ComponentModel.DataAnnotations.RegularExpressionAttribute("\\d\\d")]
         [System.ComponentModel.DataAnnotations.RequiredAttribute()]
         [System.Xml.Serialization.XmlElementAttribute("Distrito")]
-        public byte Distrito { get; set; }
+        public string Distrito { get; set; }
         
         /// <summary>
         /// <para xml:lang="en">Total number of digits: 2.</para>
@@ -166,7 +166,7 @@ namespace TiqueteElectronico
         /// </summary>
         [System.ComponentModel.DataAnnotations.RegularExpressionAttribute("\\d\\d")]
         [System.Xml.Serialization.XmlElementAttribute("Barrio")]
-        public byte Barrio { get; set; }
+        public string Barrio { get; set; }
         
         /// <summary>
         /// <para xml:lang="en">Gets or sets a value indicating whether the Barrio property is specified.</para>
@@ -467,7 +467,7 @@ namespace TiqueteElectronico
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Tarifa del impuesto")]
         [System.Xml.Serialization.XmlElementAttribute("Tarifa")]
-        public decimal Tarifa { get; set; }
+        public int Tarifa { get; set; }
         
         /// <summary>
         /// <para xml:lang="en">Gets or sets a value indicating whether the Tarifa property is specified.</para>
