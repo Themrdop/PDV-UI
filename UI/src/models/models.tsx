@@ -103,3 +103,11 @@ export interface OutCommerceMsj {
   distrito: number;
   barrio: number;
 }
+
+export interface Person {
+  name: string;
+  tipoIdentificacion: string;
+  numeroIdentificacion: string;
+  phone: string;
+  email: string;
+}

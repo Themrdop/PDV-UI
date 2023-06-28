@@ -27,12 +27,12 @@ public class BillAPI
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
-      logger?.LogInformation("Enviando factura electronica");
-      bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
+      //logger?.LogInformation("Enviando factura electronica");
+      //bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
 
       await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-      await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
+      //await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
 
       logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", bill.consecutive);
 

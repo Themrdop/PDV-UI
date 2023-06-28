@@ -102,7 +102,7 @@ ipcMain.on('open-file-dialog', (event, arg) => {
 ipcMain.handle("showDialog", async () => {
     const result = await dialog.showOpenDialog(
       { 
-        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif'] }],
+        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif', 'jpeg', 'webp'] }],
         properties: ['openFile'] 
       });
 
@@ -129,5 +129,5 @@ function copyFileSync(src){
       fs.mkdirSync(getPath(), { recursive: true });
     }
 
-    fs.copyFileSync(src, destFile, fs.constants.COPYFILE_EXCL);
+    fs.copyFileSync(src, destFile, fs.constants.COPYFILE_FICLONE);
 }

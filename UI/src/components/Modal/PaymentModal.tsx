@@ -4,7 +4,7 @@ import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
-import { CommerceInfo, PersonFromHacienda, Product } from "../../models/models";
+import { CommerceInfo, Person, PersonFromHacienda, Product } from "../../models/models";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { Button } from "react-bootstrap";
@@ -45,14 +45,16 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [metodoPago, setMetodoPago] = useState<Number[]>([]);
   const [activeSINPE, setActive] = useState(false);
   const [activeTarjeta, setTarjeta] = useState(false);
-  const [activeEfectivo, setEfectivo] = useState(false);
+  const [activeEfectivo, setActiveEfectivo] = useState(false);
+  const [Cambio, setCambio] = useState<number>(0);
+  const [Efectivo, setEfectivo] = useState<number>(0);
 
   const handleSINPE = () => {
     setActive(!activeSINPE);
-    if(!activeSINPE){
+    if (!activeSINPE) {
       setMetodoPago([...metodoPago, 0]);
       console.log('aya');
-    }else{
+    } else {
       setMetodoPago(metodoPago.filter(a =>
         a !== 0
       ));
@@ -63,9 +65,9 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const handleTarjeta = () => {
     setTarjeta(!activeTarjeta);
 
-    if(!activeTarjeta){
+    if (!activeTarjeta) {
       setMetodoPago([...metodoPago, 1]);
-    }else{
+    } else {
       setMetodoPago(metodoPago.filter(a =>
         a !== 1
       ));
@@ -75,11 +77,11 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   };
 
   const handleEfectivo = () => {
-    setEfectivo(!activeEfectivo);
+    setActiveEfectivo(!activeEfectivo);
 
-    if(!activeEfectivo){
+    if (!activeEfectivo) {
       setMetodoPago([...metodoPago, 3]);
-    }else{
+    } else {
       setMetodoPago(metodoPago.filter(a =>
         a !== 3
       ));
@@ -88,7 +90,22 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
 
   async function handlePay() {
 
-    console.log(metodoPago);
+    if (metodoPago.length === 0) {
+      toast.error('Debe seleccionar al menos un metodo de pago');
+      return;
+    }
+
+    if (Cedula !== '') {
+      await api.post<Person>(
+        '/AddClient', {
+        name: Nombre,
+        numeroIdentificacion: Cedula,
+        tipoIdentificacion: tipoIdentificacion,
+        telefono: telefono,
+        email: email
+      }
+      );
+    }
 
     const response = await api.post<Product[]>(
       '/SaveBill', {
@@ -118,6 +135,12 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     setTelefono('');
     setnombre('');
     setEmail('');
+    setMetodoPago([]);
+    setCambio(0);
+    setEfectivo(0);
+    setActive(false);
+    setTarjeta(false);
+    setActiveEfectivo(false);
   }
 
   async function loadCommerceInfo() {
@@ -149,26 +172,33 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
 
   async function handleSearch() {
     let response = undefined;
+    let response2 = undefined;
     try {
       response = await haciendaApi.get<PersonFromHacienda>(
         '', { params: { identificacion: Cedula } }
+      );
+
+      response2 = await api.get<Person>(
+        '/GetClient', { params: { numeroIdentificacion: Cedula } }
       );
     } catch (e) {
 
     }
 
-    if (response === undefined) {
+    if (response === undefined || response2 === undefined) {
       toast.error('No se pudo obtener la informacion de la cedula');
       return;
     }
 
-    if (response.status !== 200) {
+    if (response.status !== 200 || response2.status !== 200) {
       console.log(response.data);
       toast.error('No se pudo obtener la informacion de la cedula');
     }
 
     setTipoIdentificacion(response.data.tipoIdentificacion);
     setnombre(response.data.nombre);
+    setEmail(response2.data.email);
+    setTelefono(response2.data.phone);
   }
 
   return ReactDOM.createPortal(
@@ -274,11 +304,14 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                   <div>
                     <Row>
                       <label className="form-label">Efectivo:</label>
-                      <input type="text" value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                      <input type="text" value={Efectivo || ""} className="form-control space" onChange={(e) => {
+                        setEfectivo(Number.parseInt(e.target.value));
+                        setCambio(Number.parseInt(e.target.value) - total.current);
+                      }} />
                     </Row>
                     <Row>
                       <label className="form-label">Cambio:</label>
-                      <input type="text" value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                      <input readOnly type="text" value={Cambio || ""} className="form-control space" />
                     </Row>
                   </div>
                 }

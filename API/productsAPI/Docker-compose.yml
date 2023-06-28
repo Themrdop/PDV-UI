@@ -1,17 +1,26 @@
-version: '3.8'
+version: '0.1'
+networks:
+  netBackEnd:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/24
 services:
  mongodb:
    container_name: mongodb
    image: mongo
    restart: always
-   volumes:
-   - ${WEBAPP_STORAGE_HOME}/site:/data/db
    ports:
    - "27017:27017"
- productAPI:
-  build: ./src
-  container_name: productAPI
+   networks:
+      netBackEnd:
+        ipv4_address: 192.168.0.2
+ products.api:
+  build: ./
+  container_name: products.api
   depends_on:
   - mongodb
   ports:
-  - "8081:80"
+  - "5056:80"
+  networks:
+    netBackEnd:

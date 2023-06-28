@@ -110,7 +110,7 @@ function Dashboard() {
                       <li key={product.id} onClick={() => handleAddProduct(product)}>
                         <img src={product.image} alt={product.name} />
                         <span>
-                          <strong>{product.name}</strong>
+                          <b>{product.name}</b>
                           <p>{product.priceFormatted}</p>
                         </span>
                       </li>
