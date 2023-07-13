@@ -4,7 +4,6 @@ const {PosPrinter} = require("electron-pos-printer");
     preview: true,
     margin: '0 0 0 0',    
     copies: 1,
-    printerName: 'XP-80C',
     timeOutPerLine: 400,
     pageSize: '80mm' // page size
   }
@@ -13,7 +12,7 @@ const {PosPrinter} = require("electron-pos-printer");
   {
     print: async function print(arg) 
     {
-        console.log(arg);
+        //console.log(arg);
         let timeElapsed = Date.now();
         let today = new Date(timeElapsed);
         let data = [
