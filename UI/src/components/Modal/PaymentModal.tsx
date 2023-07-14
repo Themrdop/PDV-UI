@@ -215,27 +215,6 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
             <Row>
               <Col>
                 <Row>
-                  <label className="form-label">Cedula juridica:</label>
-                  <div className='input-group'>
-                    <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value)} />
-                    <Button type="button" variant="primary" onClick={handleSearch}>Consultar</Button>
-                  </div>
-                </Row>
-                <Row>
-                  <label className="form-label">Nombre:</label>
-                  <input type="text" disabled={true} value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
-                </Row>
-                <Row>
-                  <label className="form-label">Telefono de cliente:</label>
-                  <input type="text" className="form-control space" onChange={(e) => setTelefono(e.target.value)} value={telefono || ""} />
-                </Row>
-                <Row>
-                  <label className="form-label">E-mail:</label>
-                  <input type="text" className="form-control space" onChange={(e) => setEmail(e.target.value)} value={email || ""} />
-                </Row>
-              </Col>
-              <Col>
-                <Row>
                   <table className="table table-borderless">
                     <tbody>
                       <tr className="add">
@@ -261,14 +240,10 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                   <table className="table table-borderless">
                     <tbody>
                       <tr className="add">
-                        <td>Subtotal</td>
-                        <td>Impuesto</td>
                         <td>Descuento</td>
                         <td className="text-center">Total</td>
                       </tr>
                       <tr className="content">
-                        <td>{formatPrice(total.current * (1 - 0.13))}</td>
-                        <td>{formatPrice(total.current * 0.13)}</td>
                         <td><input type="text" onChange={(e) => handleDescuento(e)} /></td>
                         <td className="text-center">{formatPrice(total.current)}</td>
                       </tr>

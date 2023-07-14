@@ -4,12 +4,13 @@ import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
+import { get } from "https";
 
 export interface Bill {
   consecutive: number;
   date: string;
   total: number;
-  tax: number;
+  medioPago: number[];
 }
 
 export interface Props {
@@ -32,9 +33,12 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
     };
   });
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date(Date.now()));
+  const [endDate, setEndDate] = useState(new Date(Date.now()));
   const [bills, setBills] = useState<Bill[]>([]); 
+  const [totalEfectivo, setTotalEfectivo] = useState<number>(0);
+  const [totalTarjeta, setTotalTarjeta] = useState<number>(0);
+  const [totalSINPE, setTotalSINPE] = useState<number>(0);
 
   async function handlePay(){
     console.log(startDate);
@@ -45,12 +49,26 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
     if(response.status === 200){
       console.log(response.data);
       setBills(response.data);
+      setTotalEfectivo(getBills(0, response.data));
+      setTotalTarjeta(getBills(1, response.data));
+      setTotalSINPE(getBills(2, response.data));
     }
   }
 
   const divStyle = {
     display: 'flex',
   };
+
+  function getBills(medioPago: number, input: Bill[]){
+    let result = 0
+    input.forEach(bill =>{
+      if(bill.medioPago.includes(medioPago)){
+        result += bill.total;
+      }
+    });
+
+    return result;
+  }
 
   return ReactDOM.createPortal(
     <CSSTransition
@@ -59,45 +77,52 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
       timeout={{ enter: 0, exit: 300 }}>
       <div className="modal">
         <div className="modal-content" onClick={e => e.stopPropagation()}>
-          <div className="modal-header">
-            <h2 className="h2">Informe de facturacion</h2>
-          </div>
-          <div className="App container mt-1">
-            <div className="mb-1" style={divStyle}>
-            </div>
-            <div id="divToPrint" className="m-1">
-            <div className="row d-flex justify-content-center">
-              <div className="col-md-3">
-                  <div className="card">
-                      <div className="products p-2">
-                      <input type="date" onChange={(e) => setStartDate(new Date(e.target.value))} />
-                      <input type="date" onChange={(e) => setEndDate(new Date(e.target.value))} />
-                          <table className="table table-borderless">
-                              <tbody>
-                                  <tr className="add">
-                                      <td>Consecutivo</td>
-                                      <td>Fecha</td>
-                                      <td>Total</td>
-                                      <td>Impuesto</td>
-                                  </tr>
-                                  {bills.map((item, index) => {
-                                    return (
-                                      <tr key={index}>
-                                        <td>{item.consecutive}</td>
-                                        <td>{item.date}</td>
-                                        <td>{item.total}</td>
-                                        <td>{item.tax}</td>
-                                      </tr>
-                                    );
-                                  })}
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
-              </div>
-          </div>
+        <div className="card">
+  <div className="card-body mx-4">
+    <div className="container">
+      <p className="my-5 mx-5" style={{fontSize: 30}}>Cierre de caja</p>
+      <div className="row">
+        <hr/>
+        <div className="col-xl-10">
+          <p>Ventas en efectivo</p>
         </div>
+        <div className="col-xl-2">
+          <p className="float-end">{totalEfectivo}
+          </p>
+        </div>
+        <hr/>
       </div>
+      <div className="row">
+        <div className="col-xl-10">
+          <p>Ventas por tarjeta</p>
+        </div>
+        <div className="col-xl-2">
+          <p className="float-end">{totalTarjeta}
+          </p>
+        </div>
+        <hr/>
+      </div>
+      <div className="row">
+        <div className="col-xl-10">
+          <p>Ventas por SINPE</p>
+        </div>
+        <div className="col-xl-2">
+          <p className="float-end">{totalSINPE}
+          </p>
+        </div>
+        <hr style={{border: 2 }}/>
+      </div>
+      <div className="row text-black">
+
+        <div className="col-xl-12">
+          <p className="float-end fw-bold">Total: {totalSINPE + totalTarjeta + totalEfectivo}
+          </p>
+        </div>
+        <hr style={{border: 2}}/>
+      </div>
+    </div>
+  </div>
+</div>
           <div className="modal-footer">
           <button onClick={handlePay} className="btn btn-primary">
               Consultar

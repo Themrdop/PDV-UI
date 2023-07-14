@@ -44,10 +44,12 @@ const ProductInput: React.FC = () => {
     let imgName = inputs.image?.replace(protocol,'');
 
     if(inputs.id !== undefined){
+      console.log('xxx');
       response = await api.put<Product>(
         '/UpdateProduct', {id: inputs.id, name: inputs.name, price: inputs.price, image: protocol + imgName, amount: inputs.amount}
       );
     }else{
+      console.log('xcd');
       response = await api.post<Product>(
         '/AddProduct', {name: inputs.name, price: inputs.price, image: protocol + imgName, amount: inputs.amount}
       );
