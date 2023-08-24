@@ -121,6 +121,7 @@ const ProductInput: React.FC = () => {
 
   async function handleDialog() {
     let fileName = await ipcRenderer.invoke("showDialog");
+    console.log(fileName);
     setInputs(values => ({...values, image: fileName}));
   }
 
@@ -129,9 +130,6 @@ const ProductInput: React.FC = () => {
     <ul className="nav nav-tabs">
         <li className="nav-item">
             <a className="nav-link active" aria-current="page" href="/product">Productos</a>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/combo">Combos</Link>
         </li>
     </ul>
     <h1 className='h1'>Producto</h1>

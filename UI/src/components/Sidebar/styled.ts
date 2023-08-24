@@ -157,7 +157,7 @@ export const SmallButton = styled.button`
 `;
 
 export const ButtonWrapper = styled.div`
-  display: inline-box;
+  display: inherit;
   justify-content: space-between;
   margin-top: 10px;
 `;

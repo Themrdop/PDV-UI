@@ -3,7 +3,7 @@ import { HashRouter } from 'react-router-dom';
 
 import { Provider } from 'react-redux';
 
-import Routes from './routes';
+import AppRoutes from './routes';
 import store from './store';
 import Dashboard from './pages/Dashboard';
 
@@ -13,7 +13,7 @@ function App() {
       <Provider store={store}>
         <HashRouter>
           <div>
-            <Routes />
+            <AppRoutes />
           </div>
         </HashRouter>
       </Provider>

@@ -7,7 +7,7 @@ import * as s from './styled';
 
 import GlobalStyles from '../../styles/global';
 
-const Layout: React.FC<{name?:string}> = ({children, name}) => (
+const Layout: React.FC<{children:any, name?:string}> = ({children, name}) => (
   <s.LayoutWrapper>
     <GlobalStyles />
     <MenuBar />

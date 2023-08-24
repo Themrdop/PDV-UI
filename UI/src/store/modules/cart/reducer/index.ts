@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-param-reassign */
-import produce from 'immer';
+import { produce } from 'immer';
 import { Product } from '../../../../models/models';
 
 export interface Action {

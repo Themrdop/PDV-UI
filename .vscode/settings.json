@@ -1,0 +1,3 @@
+{
+    "dotnet.defaultSolution": "API/productsAPI/src/Products.sln"
+}

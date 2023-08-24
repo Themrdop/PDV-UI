@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes as Routes } from 'react-router-dom';
 import Dashboard from '../pages/Dashboard';
 import Product from '../pages/Product';
 import About from '../pages/About';
@@ -8,29 +8,17 @@ import Configuration from '../pages/Configuration';
 import Combo from '../pages/Combo';
 import UserAdministration from '../pages/User';
 
-function Routes() {
+function AppRoutes() {
   return (
-    <Switch>
-      <Route path="/" exact component={Dashboard} />
-      <Route path="/product" component={Product} />
-      <Route path="/combo" component={Combo} />
-      <Route path="/about" component={About} />
-      <Route path="/configuration" component={Configuration} />
-      <Route path="/user" component={UserAdministration} />
-    </Switch>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/product" element={<Product />} />
+        <Route path="/combo" element={<Combo />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/configuration" element={<Configuration />} />
+        <Route path="/user" element={<UserAdministration />} />
+      </Routes>
   )
 };
 
-/*const Routes: React.FC = () => (
-  <Switch>
-    <Route path="/" exact component={Dashboard} />
-    <Route path="/product" component={Product} />
-    <Route path="/combo" component={Combo} />
-    <Route path="/about" component={About} />
-    <Route path="/configuration" component={Configuration} />
-    <Route path="/user" component={UserAdministration} />
- 
-  </Switch>
-);*/
-
-export default Routes;
+export default AppRoutes;

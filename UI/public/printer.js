@@ -1,9 +1,9 @@
-const {PosPrinter} = require("electron-pos-printer");
+/*const {PosPrinter} = require("electron-pos-printer");
 
   const options = {
     preview: true,
     margin: '0 0 0 0',    
-    copies: 1,
+    copies: 2,
     timeOutPerLine: 400,
     pageSize: '80mm' // page size
   }
@@ -96,4 +96,4 @@ const {PosPrinter} = require("electron-pos-printer");
             console.error(error);
         }
     }
-}
+}*/

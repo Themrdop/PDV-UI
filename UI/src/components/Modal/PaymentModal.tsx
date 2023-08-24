@@ -7,7 +7,6 @@ import api from "../../service/api";
 import { CommerceInfo, Person, PersonFromHacienda, Product } from "../../models/models";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import { Button } from "react-bootstrap";
 import { formatPrice } from "../../utils/formatPrice";
 import haciendaApi from "../../service/haciendaApi";
 import { Toaster, toast } from 'react-hot-toast';
@@ -72,8 +71,6 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
         a !== 1
       ));
     }
-
-    console.log(metodoPago);
   };
 
   const handleEfectivo = () => {
@@ -123,10 +120,10 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     );
 
     if (response.status === 200) {
-      let commers = await loadCommerceInfo();
-      ipcRenderer.invoke('print-bill', { bill: response.data, commers: commers });
       clean();
       onClose(true);
+    }else{
+      toast.error('No se generar la factura');
     }
   }
 
@@ -142,13 +139,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     setTarjeta(false);
     setActiveEfectivo(false);
   }
-
-  async function loadCommerceInfo() {
-    const response = await api.get<CommerceInfo>(
-      '/GetCommerceInformation',
-    );
-    return response.data;
-  }
+  
   const total = useRef(0);
 
   useEffect(() => {

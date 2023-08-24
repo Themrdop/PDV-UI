@@ -94,8 +94,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
               clean();
             }
           }
-        } show={show}>
-      </PaymentModal>
+        } show={show}/>
     </s.SidebarWrapper>
   );
 };

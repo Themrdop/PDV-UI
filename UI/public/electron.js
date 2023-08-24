@@ -12,7 +12,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
-    fullscreen: true,
+    fullscreen: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule:true,
@@ -77,13 +77,13 @@ function getPath(){
 
   switch(process.platform) {
     case 'darwin': {
-      return path.join(process.env.HOME, 'appName', 'img');
+      return path.join(process.env.HOME, 'PDV', 'img');
     }
     case 'win32': {
-      return path.join(process.env.APPDATA, 'appName', 'img');
+      return path.join(process.env.APPDATA, 'PDV', 'img');
     }
     case 'linux': {
-      return path.join(process.env.APPDATA, 'appName', 'img');
+      return path.join("/usr/share", 'PDV', 'img');
     }
   }
 }
@@ -117,9 +117,9 @@ ipcMain.handle("showDialog", async () => {
     }
 });
 
-ipcMain.handle("print-bill", async (event, arg) => {
+/*ipcMain.handle("print-bill", async (event, arg) => {
   await printer.print(arg);
-});
+});*/
 
 function copyFileSync(src){
   let fileName = path.basename(src);
