@@ -60,6 +60,19 @@ public class BillAPI
     return Results.Ok(bills);
   }
 
+  internal static async Task<IResult> GetDaylyReport(DateTime? dateBeginig,
+                                                  DateTime? dateEnd,
+                                                  IBillRepository billRepository,
+                                                  ILogger<Product> logger,
+                                                  CancellationToken cancellationToken)
+  {
+    var bills = await billRepository
+        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue), DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+    logger?.LogInformation("Todos las facturas fueron consultados");
+
+    return Results.Ok(bills);
+  }
+
   private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter, CommerceInformation commerce, IEnumerable<TipoPago> medioPago, decimal descuento = 0M)
   {
     var bill = new Bill()
@@ -87,5 +100,15 @@ public class BillAPI
     public Person? recipient { get; set; } = new();
     public decimal descuento { get; set; } = 0M;
     public IEnumerable<TipoPago> metodoPago { get; set; } = new List<TipoPago>();
+  }
+
+  public class Report
+  {
+    public List<KeyValuePair<Product, int>> products = new List<KeyValuePair<Product, int>>();
+    public DateOnly date = new DateOnly();
+
+    public Report ToReport(Bill bill){
+      bill.products.Sum
+    }
   }
 }

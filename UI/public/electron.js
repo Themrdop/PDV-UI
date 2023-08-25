@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs');
+const log = require('electron-log');
 
 const printer = require('./printer.js');
 //remoteMain.initialize();
@@ -77,44 +78,39 @@ function getPath(){
 
   switch(process.platform) {
     case 'darwin': {
+      log.info('darwin');
       return path.join(process.env.HOME, 'PDV', 'img');
     }
     case 'win32': {
+      log.info('win32');
       return path.join(process.env.APPDATA, 'PDV', 'img');
     }
     case 'linux': {
-      return path.join("/usr/share", 'PDV', 'img');
+      log.info('linux');
+      return path.join(process.env.HOME, 'PDV', 'img');
     }
   }
 }
 
-ipcMain.on('open-file-dialog', (event, arg) => {
-    let fileName = path.basename(arg.src);
-    let destFile = path.join(getPath(), fileName)
-
-    if(!fs.existsSync(destFile)){
-      fs.mkdirSync(getPath(), { recursive: true });
-    }
-
-    fs.copyFileSync(arg.src, destFile, fs.constants.COPYFILE_EXCL);
-});
-
 ipcMain.handle("showDialog", async () => {
-    const result = await dialog.showOpenDialog(
-      { 
-        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif', 'jpeg', 'webp'] }],
-        properties: ['openFile'] 
-      });
+  log.info('showDialog called');
+  const result = await dialog.showOpenDialog(
+    { 
+      filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif', 'jpeg', 'webp'] }],
+      properties: ['openFile'] 
+    });
 
-      if(!result.canceled){
-        let file = result.filePaths[0];
+    if(!result.canceled){
+      let file = result.filePaths[0];
+      log.info('File: ' + file);
 
-        let fileName = path.basename(file);
+      let fileName = path.basename(file);
+      log.info('fileName: ' + fileName);
 
-        copyFileSync(file);
+      copyFileSync(file);
 
-        return fileName;
-    }
+      return fileName;
+  }
 });
 
 /*ipcMain.handle("print-bill", async (event, arg) => {
@@ -123,11 +119,15 @@ ipcMain.handle("showDialog", async () => {
 
 function copyFileSync(src){
   let fileName = path.basename(src);
-    let destFile = path.join(getPath(), fileName)
+  log.info('file name: '+fileName);
+  let destFile = path.join(getPath(), fileName)
 
-    if(!fs.existsSync(destFile)){
-      fs.mkdirSync(getPath(), { recursive: true });
-    }
+  log.info('file destination: ' + destFile);
 
-    fs.copyFileSync(src, destFile, fs.constants.COPYFILE_FICLONE);
+  if(!fs.existsSync(destFile)){
+    fs.mkdirSync(getPath(), { recursive: true });
+    log.info('path created');
+  }
+
+  fs.copyFileSync(src, destFile, fs.constants.COPYFILE_FICLONE);
 }

@@ -1,10 +1,5 @@
 const { ipcRenderer } = require('electron');
 
-ipcRenderer.on('open-file-dialog', (event, arg) => {
-    console.log('open-file-dialog');
-    dialog.showOpenDialog();
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     let domElement = document.getElementById('root');
     if(domElement !== null){
