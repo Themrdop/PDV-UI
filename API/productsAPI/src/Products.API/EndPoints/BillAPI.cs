@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+
 public class BillAPI
 {
   internal static async Task<IResult> Billing(LocalBill localBill,
@@ -61,16 +63,19 @@ public class BillAPI
   }
 
   internal static async Task<IResult> GetDaylyReport(DateTime? dateBeginig,
-                                                  DateTime? dateEnd,
-                                                  IBillRepository billRepository,
-                                                  ILogger<Product> logger,
-                                                  CancellationToken cancellationToken)
+                                                    DateTime? dateEnd,
+                                                    IBillRepository billRepository,
+                                                    ILogger<Product> logger,
+                                                    CancellationToken cancellationToken)
   {
     var bills = await billRepository
         .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue), DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+    
     logger?.LogInformation("Todos las facturas fueron consultados");
 
-    return Results.Ok(bills);
+    var report = new Report().FromBills(bills);
+
+    return Results.Ok(report.products);
   }
 
   private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter, CommerceInformation commerce, IEnumerable<TipoPago> medioPago, decimal descuento = 0M)
@@ -104,11 +109,27 @@ public class BillAPI
 
   public class Report
   {
-    public List<KeyValuePair<Product, int>> products = new List<KeyValuePair<Product, int>>();
-    public DateOnly date = new DateOnly();
+    public List<Line> products = new List<Line>();
+    public DateTime date = new DateTime();
 
-    public Report ToReport(Bill bill){
-      bill.products.Sum
+    public Report FromBills(IEnumerable<Bill> bills){
+      var report = new Report();
+      var products = new List<Product>();
+
+      date = DateTime.UtcNow;
+
+      foreach (var bill in bills)
+      {
+        products.AddRange(bill.products);
+      }
+
+      this.products = (from product in products
+                      group product by product.id into g
+                      select new Line (products.First(x => x.id == g.Key), products.Where(x => x.id == g.Key).Sum(x => x.amount))).ToList(); 
+
+      return this;
     }
   }
+
+  public record Line(Product product,int count);
 }

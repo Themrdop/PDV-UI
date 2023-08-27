@@ -20,7 +20,8 @@ namespace Products.Models
 
     private decimal _total = 0.0M;
     public long consecutive { get; set; } = 0L;
-    public DateTime date { get; set; } = DateTime.Now;
+    public DateTime date {get; set; } = DateTime.UtcNow;
+
     public IEnumerable<Product> products { get; set; } = new List<Product>();
     public decimal total
     {

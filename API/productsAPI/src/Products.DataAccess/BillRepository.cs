@@ -19,8 +19,16 @@ namespace Products.DataAccess{
 
             var bills = BaseBills.ToEnumerable();
 
-            if(dates is not null && dates.Item1 != DateOnly.MaxValue && dates.Item2 != DateOnly.MinValue)
-                bills = bills.Where(bill => DateOnly.FromDateTime(bill.date) >= dates.Item1 && DateOnly.FromDateTime(bill.date) <= dates.Item2).ToList();
+            if(dates is not null && dates.Item1 != DateOnly.MaxValue && dates.Item2 != DateOnly.MinValue){
+
+                bills = bills.Where(bill => TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.Local) >= dates.Item1.ToDateTime(TimeOnly.MinValue) && 
+                                            TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.Local) <= dates.Item2.ToDateTime(TimeOnly.MaxValue))
+                             .Select(bill => {
+                                bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.Local);
+                                return bill;
+                             })
+                             .ToList();
+            }
 
             if (bills is null)
                 return new List<Bill>();

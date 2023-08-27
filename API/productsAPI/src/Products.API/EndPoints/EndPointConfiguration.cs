@@ -20,5 +20,6 @@ public static class EndPointConfiguration{
         app.MapPost("/UpdateCombo", CombosAPI.UpdateCombo);
         app.MapGet("/GetClient", ClientAPI.GetClient);
         app.MapPost("/AddClient", ClientAPI.AddClient);
+        app.MapGet("/GetReport", BillAPI.GetDaylyReport);
     }
 }
