@@ -48,6 +48,8 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [Cambio, setCambio] = useState<number>(0);
   const [Efectivo, setEfectivo] = useState<number>(0);
 
+  const EfectivoTxt = useRef(null);
+
   const handleSINPE = () => {
     setActive(!activeSINPE);
     if (!activeSINPE) {
@@ -270,7 +272,11 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                   <div>
                     <Row>
                       <label className="form-label">Efectivo:</label>
-                      <input type="text" value={Efectivo || ""} className="form-control space" onChange={(e) => {
+                      <input ref={function(input) {
+                        if (input != null) {
+                          input.focus();
+                        }
+                      }} type="text" value={Efectivo || ""} className="form-control space" onChange={(e) => {
                         setEfectivo(Number.parseInt(e.target.value));
                         setCambio(Number.parseInt(e.target.value) - total.current);
                       }} />
@@ -284,7 +290,11 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                 {activeTarjeta &&
                   <Row>
                     <label className="form-label">Numero voucher:</label>
-                    <input type="text" value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                    <input type="text" ref={function(input) {
+                        if (input != null) {
+                          input.focus();
+                        }
+                      }} value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
                   </Row>
                 }
               </Col>
