@@ -17,15 +17,14 @@ public class BillAPI
     {
       var commers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
 
-      Bill bill = CreateBill(localBill.products, localBill.recipient,
-                             new Person()
+      Bill bill = CreateBill(localBill, new Person()
                              {
                                name = commers.name,
                                numeroIdentificacion = commers.cedula,
                                tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
                                phone = commers.phone,
                                email = commers.email
-                             }, commers, localBill.metodoPago, localBill.descuento);
+                             }, commers);
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
@@ -78,20 +77,22 @@ public class BillAPI
     return Results.Ok(report.products);
   }
 
-  private static Bill CreateBill(IEnumerable<Product> products, Person? recipient, Person? emmiter, CommerceInformation commerce, IEnumerable<TipoPago> medioPago, decimal descuento = 0M)
+  private static Bill CreateBill(LocalBill localBill, Person? emmiter, CommerceInformation commerce)
   {
     var bill = new Bill()
     {
-      total = products.Sum(x => x.price),
-      products = products.ToList(),
-      Descuento = descuento,
-      MedioPago = medioPago,
+      total = localBill.products.Sum(x => x.price),
+      products = localBill.products.ToList(),
+      Descuento = localBill.descuento,
+      MedioPago = localBill.metodoPago,
+      Efectivo = localBill.efectivo,
+      NumeroVoucher = localBill.numeroVoucher
     };
 
-    if (recipient is not null && emmiter is not null)
+    if (localBill.recipient is not null && emmiter is not null)
       bill.electronicBill = new ElectronicBill()
       {
-        recepient = recipient,
+        recepient = localBill.recipient,
         emitter = emmiter,
         Comers = commerce
       };
@@ -105,6 +106,8 @@ public class BillAPI
     public Person? recipient { get; set; } = new();
     public decimal descuento { get; set; } = 0M;
     public IEnumerable<TipoPago> metodoPago { get; set; } = new List<TipoPago>();
+    public int numeroVoucher { get; set; } = 0;
+    public decimal efectivo { get; set; } = 0;
   }
 
   public class Report

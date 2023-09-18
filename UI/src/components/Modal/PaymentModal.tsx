@@ -39,7 +39,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [telefono, setTelefono] = useState<string>('');
   const [tipoIdentificacion, setTipoIdentificacion] = useState<string>('01');
   const [descuento, setDescuento] = useState<number>(0);
-  const [Nombre, setnombre] = useState<string>('');
+  const [Voucher, setVoucher] = useState<number>(0);
   const [email, setEmail] = useState<string>('');
   const [metodoPago, setMetodoPago] = useState<Number[]>([]);
   const [activeSINPE, setActive] = useState(false);
@@ -97,7 +97,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     if (Cedula !== '') {
       await api.post<Person>(
         '/AddClient', {
-        name: Nombre,
+        name: Voucher,
         numeroIdentificacion: Cedula,
         tipoIdentificacion: tipoIdentificacion,
         telefono: telefono,
@@ -111,13 +111,15 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
       products: products,
       recipient:
       {
-        name: Nombre,
+        name: '',
         numeroIdentificacion: Cedula,
         tipoIdentificacion: tipoIdentificacion,
         telefono: telefono,
         email: email
       },
-      metodoPago: metodoPago
+      metodoPago: metodoPago,
+      numeroVoucher: Voucher,
+      efectivo: Efectivo
     }
     );
 
@@ -132,7 +134,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   function clean() {
     setCedula('');
     setTelefono('');
-    setnombre('');
+    setVoucher(0);
     setEmail('');
     setMetodoPago([]);
     setCambio(0);
@@ -189,7 +191,6 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     }
 
     setTipoIdentificacion(response.data.tipoIdentificacion);
-    setnombre(response.data.nombre);
     setEmail(response2.data.email);
     setTelefono(response2.data.phone);
   }
@@ -294,7 +295,7 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                         if (input != null) {
                           input.focus();
                         }
-                      }} value={Nombre || ""} className="form-control space" onChange={(e) => setnombre(e.target.value)} />
+                      }} value={Voucher || ""} className="form-control space" onChange={(e) => setVoucher(Number.parseInt(e.target.value))} />
                   </Row>
                 }
               </Col>

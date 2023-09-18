@@ -42,6 +42,8 @@ namespace Products.Models
     public decimal Descuento { get; set; } = 0.0M;
 
     public IEnumerable<TipoPago> MedioPago { get; set; } = new List<TipoPago>();
+    public int NumeroVoucher { get; set; }
+    public decimal Efectivo { get; set; }
 
     public override string ToString()
     {
