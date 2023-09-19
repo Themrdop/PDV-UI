@@ -28,6 +28,7 @@ const ProductInput: React.FC = () => {
 
   const [inputs, setInputs] = useState<Product>({} as Product);
   const [products, setProducts] = useState<Product[]>([]);
+  const [filter, setFilter] = useState('');
 
   const handleChange = (event: { target: { name: any; value: any; }; }) => {
     const name = event.target.name;
@@ -64,6 +65,7 @@ const ProductInput: React.FC = () => {
 
   function clear() {
     setInputs({} as Product);
+    setFilter('');
   }
 
   async function selectProduct(id: number) {
@@ -136,7 +138,7 @@ const ProductInput: React.FC = () => {
               <Form.Label>Nombre:</Form.Label>
               <Form.Control type="text" 
               placeholder="Rice and Beans o algo asi" 
-              onChange={handleChange} 
+              onChange={(event: { target: { name: any; value: any; }; }) => {handleChange(event); setFilter(event.target.value);}}
               name="name" 
               value={inputs.name || ""} />
             </Form.Group>
@@ -175,7 +177,8 @@ const ProductInput: React.FC = () => {
         <div className="col">
         <ProductList>
           {
-          products.map((product, index) => (
+          products.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()))
+                  .map((product, index) => (
                         <ListGroup key={index}>
                           <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
                             {product.name}
