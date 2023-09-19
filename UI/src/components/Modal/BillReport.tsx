@@ -41,8 +41,6 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
   const [totalSINPE, setTotalSINPE] = useState<number>(0);
 
   async function handlePay(){
-    console.log(startDate);
-    console.log(endDate);
     const response = await api.get<Bill[]>(
       '/GetAllBills', { params: { dateBeginig: startDate, dateEnd: endDate } }
     );

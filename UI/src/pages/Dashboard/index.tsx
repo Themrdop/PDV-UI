@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
-  FiSearch, FiChevronRight, FiChevronLeft
+  FiSearch, FiChevronRight, FiChevronLeft, FiDelete, FiX
 } from 'react-icons/fi';
 
 import {
@@ -66,17 +66,15 @@ function Dashboard() {
     setFilter(query)
   }
 
-  const current = new Date();
-  const date = `${current.getDate()}/${current.getMonth()+1}/${current.getFullYear()}`;
-
   return (
     <Layout name='Dashboard'>
       <s.Search>
         <FiSearch size="24px" color="grey" />
-        <s.SearchInput placeholder="Buscar producto" onChange={(event) => handleSearch(event.target.value) } />
+        <s.SearchInput placeholder="Buscar producto" value={filter} onChange={(event) => handleSearch(event.target.value) } />
+        {filter.length > 0 && <FiX size="24px" onClick={(_) => setFilter('')}/>}
       </s.Search>
 
-      {combos.length > 0 ??<s.CategoryContainer>
+      {combos.length > 0 &&<s.CategoryContainer>
         <CarouselProvider
           naturalSlideWidth={50}
           naturalSlideHeight={70}
