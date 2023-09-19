@@ -47,7 +47,6 @@ const BillReport: React.FC<Props> = ({show, onClose}) => {
       '/GetAllBills', { params: { dateBeginig: startDate, dateEnd: endDate } }
     );
     if(response.status === 200){
-      console.log(response.data);
       setBills(response.data);
       setTotalEfectivo(getBills(0, response.data));
       setTotalTarjeta(getBills(1, response.data));

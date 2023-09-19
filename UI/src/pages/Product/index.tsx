@@ -127,66 +127,67 @@ const ProductInput: React.FC = () => {
 
   return(
   <Layout>
-    <ul className="nav nav-tabs">
-        <li className="nav-item">
-            <a className="nav-link active" aria-current="page" href="/product">Productos</a>
-        </li>
-    </ul>
     <h1 className='h1'>Producto</h1>
-    <form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Nombre:</Form.Label>
-        <Form.Control type="text" 
-        placeholder="Rice and Beans o algo asi" 
-        onChange={handleChange} 
-        name="name" 
-        value={inputs.name || ""} />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Precio:</Form.Label>
-        <Form.Control type="text" 
-        placeholder="3000" 
-        onChange={handleChange} 
-        name="price" 
-        value={inputs.price || ""} />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Cantidad:</Form.Label>
-        <Form.Control type="text" 
-        placeholder="3000" 
-        onChange={handleChange} 
-        name="amount" 
-        value={inputs.amount || ""} />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Direccion de la imagen:</Form.Label>
-        <div className='input-group'>
-          <Form.Control type="text" 
-            placeholder="htttp://algo.com/algo.jpg" 
-            onChange={handleChange} 
-            name="image" 
-            disabled={true}
-            value={inputs.image?.replace(protocol,'') || ""} />
-          <Button type="button" variant="primary" onClick={handleDialog}>Buscar</Button>
+    <div className="container">
+      <div className="row">
+        <div className="col">
+          <form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Nombre:</Form.Label>
+              <Form.Control type="text" 
+              placeholder="Rice and Beans o algo asi" 
+              onChange={handleChange} 
+              name="name" 
+              value={inputs.name || ""} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Precio:</Form.Label>
+              <Form.Control type="text" 
+              placeholder="3000" 
+              onChange={handleChange} 
+              name="price" 
+              value={inputs.price || ""} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Cantidad:</Form.Label>
+              <Form.Control type="text" 
+              placeholder="3000" 
+              onChange={handleChange} 
+              name="amount" 
+              value={inputs.amount || ""} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Direccion de la imagen:</Form.Label>
+              <div className='input-group'>
+                <Form.Control type="text" 
+                  placeholder="htttp://algo.com/algo.jpg" 
+                  onChange={handleChange} 
+                  name="image" 
+                  disabled={true}
+                  value={inputs.image?.replace(protocol,'') || ""} />
+                <Button type="button" variant="primary" onClick={handleDialog}>Buscar</Button>
+              </div>
+            </Form.Group>
+            <Button type="submit" variant="primary">Guardar</Button>
+            <Button style={buttonMargin} disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
+          </form>
         </div>
-      </Form.Group>
-      <Button type="submit" variant="primary">Guardar</Button>
-      <Button style={buttonMargin} disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
-    </form>
-    <br/>
-    <hr style={divStyle}></hr>
-    <ProductList>
-        {
-        products.map((product, index) => (
-                      <ListGroup key={index}>
-                        <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
-                          {product.name}
-                          <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>
-                        </ListGroup.Item>
-                      </ListGroup>
-        ))}
-      </ProductList>
-      <Toaster />
+        <div className="col">
+        <ProductList>
+          {
+          products.map((product, index) => (
+                        <ListGroup key={index}>
+                          <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
+                            {product.name}
+                            <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>
+                          </ListGroup.Item>
+                        </ListGroup>
+          ))}
+        </ProductList>
+        </div>
+      </div>
+    </div>
+    <Toaster />
   </Layout>
   )
 };
