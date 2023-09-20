@@ -109,7 +109,6 @@ const Commerce: React.FC = () => {
                 </Form.Group>
                 <Button type="submit" variant="primary">Guardar</Button>
             </form>
-            <BillReport onClose={(result: boolean) => { setShow(false); }} show={show}></BillReport>
             <Toaster />
         </Layout>
     )

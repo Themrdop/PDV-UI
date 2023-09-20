@@ -7,12 +7,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import api from "../../service/api";
 import BillReport from '../../components/Modal/BillReport';
 import DatePicker from 'react-datepicker';
+import { Product } from '../../models/models';
 
 export interface Bill {
     consecutive: number;
     date: string;
     total: number;
     medioPago: number[];
+    products: Product[];
   }
 
 const Bill: React.FC = () => {
@@ -20,6 +22,7 @@ const Bill: React.FC = () => {
     const [endDate, setEndDate] = useState(new Date(Date.now()));
     const [bills, setBills] = useState<Bill[]>([]); 
     const [show, setShow] = useState(false);
+    const [selectedBill, setSelectedBill] = useState<Bill>({consecutive:-1, date: '', total: 0, medioPago: [], products: []}); 
   
     useEffect(() => {
         RequestBills();
@@ -37,7 +40,7 @@ const Bill: React.FC = () => {
     return (
     <Layout>
         <div>
-            <h1 className='h1'>Facturas diarias</h1>
+            <h1 className='h1'>Facturas</h1>
         </div>
         <div>
           <label>Fecha de inicio</label><DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> &nbsp;
@@ -55,7 +58,7 @@ const Bill: React.FC = () => {
             </thead>
             {renderBills()}
           </Table>
-          <BillReport onClose={(result: boolean) => { setShow(false); }} show={show}></BillReport>
+          <BillReport onClose={(result: boolean) => { setShow(false); }} bill={selectedBill} show={show}></BillReport>
     </Layout>
     );
 
@@ -67,7 +70,7 @@ const Bill: React.FC = () => {
               {bills.length > 0 ? (
                 bills.map((bill: Bill, index: number) => {
                   return (
-                    <tr key={index} onClick={handleRowClic}>
+                    <tr key={index} onClick={() => handleRowClick(bill)}>
                       <td>{bill.consecutive}</td>
                       <td>{toReadible(bill.medioPago)}</td>
                       <td>{bill.date}</td>
@@ -99,7 +102,7 @@ const Bill: React.FC = () => {
           <tbody>
             <tr>
               <td align={"center"} colSpan={5}>
-                Total Bill Amount: {amt}
+                Monto total de facturas: {amt}
               </td>
             </tr>
             <tr>
@@ -128,8 +131,9 @@ const Bill: React.FC = () => {
         return concat;
       }
 
-    function handleRowClic(event: any): void {
-        setShow(true);
+    function handleRowClick(bill: Bill): void {
+      setSelectedBill(bill);  
+      setShow(true);
     }
 }
 
