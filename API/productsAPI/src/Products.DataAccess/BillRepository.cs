@@ -15,23 +15,27 @@ namespace Products.DataAccess{
         }
 
         public async Task<IEnumerable<Bill>> GetAllBills(Tuple<DateOnly,DateOnly> dates, CancellationToken cancellationToken){
-            var BaseBills = await _bills.FindAsync<Bill>(Builders<Bill>.Filter.Empty, cancellationToken:cancellationToken);
+            var filterBuilder = Builders<Bill>.Filter;
+            FilterDefinition<Bill> filter = filterBuilder.Empty;
+
+            if(dates is not null && dates.Item1 != DateOnly.MaxValue && dates.Item2 != DateOnly.MinValue){
+                filter = filterBuilder.Gte(x => x.date, dates.Item1.ToDateTime(TimeOnly.MinValue)) &
+                         filterBuilder.Lte(x => x.date, dates.Item2.ToDateTime(TimeOnly.MaxValue));
+                
+            }
+
+            var BaseBills = await _bills.FindAsync<Bill>(filter, cancellationToken:cancellationToken);
 
             var bills = BaseBills.ToEnumerable();
 
-            if(dates is not null && dates.Item1 != DateOnly.MaxValue && dates.Item2 != DateOnly.MinValue){
+            if (bills is null)
+                return new List<Bill>();
 
-                bills = bills.Where(bill => TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.Local) >= dates.Item1.ToDateTime(TimeOnly.MinValue) && 
-                                            TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.Local) <= dates.Item2.ToDateTime(TimeOnly.MaxValue))
-                             .Select(bill => {
-                                bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.Local);
+            bills = bills.Select(bill => {
+                                bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
                                 return bill;
                              })
                              .ToList();
-            }
-
-            if (bills is null)
-                return new List<Bill>();
 
             return bills;
         } 
