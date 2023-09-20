@@ -4,7 +4,6 @@ import api from '../../service/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button } from 'react-bootstrap';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Link } from 'react-router-dom';
 
 import { formatPrice } from '../../utils/formatPrice';
 import { ProductList } from '../../components/ProductList';
@@ -114,7 +113,6 @@ const ProductInput: React.FC = () => {
     );
 
     if(response.status === 200){
-        console.log(response.data);
         toast.success('El producto se elimino con exito');
         loadProducts();
         clear();
@@ -123,7 +121,6 @@ const ProductInput: React.FC = () => {
 
   async function handleDialog() {
     let fileName = await ipcRenderer.invoke("showDialog");
-    console.log(fileName);
     setInputs(values => ({...values, image: fileName}));
   }
 

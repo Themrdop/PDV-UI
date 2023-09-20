@@ -66,7 +66,6 @@ const Commerce: React.FC = () => {
     }
 
     async function handlePay() {
-        console.log('show');
         setShow(true);
     }
 

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
-  FiSearch, FiChevronRight, FiChevronLeft, FiDelete, FiX
+  FiSearch, FiChevronRight, FiChevronLeft, FiX
 } from 'react-icons/fi';
 
 import {
@@ -34,7 +34,7 @@ function Dashboard() {
     const response = await api.get<Product[]>(
       '/GetAllProducts',
     );
-    console.log(response.data);
+    
     const data = response.data.map((product) => ({
       ...product,
       priceFormatted: formatPrice(product.price),

@@ -3,10 +3,14 @@ import React from 'react';
 import {
   FiUser, FiSliders, FiBox, FiMonitor, FiInfo,
 } from 'react-icons/fi';
+import {
+  RiBillLine
+} from 'react-icons/ri';
 
 import LogoImg from '../../assets/logo.png';
 
 import * as s from './styled';
+import { BsFillEnvelopeFill } from 'react-icons/bs';
 
 const MenuBar: React.FC = () => (
   <s.MenuBarWrapper>
@@ -32,6 +36,11 @@ const MenuBar: React.FC = () => (
       <s.MenuBarLink to="/configuration" title="Configuración">
         <s.MenuBarItem title="Configuración">
           <FiSliders size="1.6em" />
+        </s.MenuBarItem>
+      </s.MenuBarLink>
+      <s.MenuBarLink to="/bill" title="Sobre">
+        <s.MenuBarItem>
+          <RiBillLine size="1.6em" />
         </s.MenuBarItem>
       </s.MenuBarLink>
       <s.MenuBarLink to="/about" title="Sobre">
