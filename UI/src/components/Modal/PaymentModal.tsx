@@ -54,13 +54,11 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     setActive(!activeSINPE);
     if (!activeSINPE) {
       setMetodoPago([...metodoPago, 0]);
-      console.log('aya');
     } else {
       setMetodoPago(metodoPago.filter(a =>
         a !== 0
       ));
     }
-    console.log(metodoPago);
   };
 
   const handleTarjeta = () => {
@@ -91,6 +89,16 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
 
     if (metodoPago.length === 0) {
       toast.error('Debe seleccionar al menos un metodo de pago');
+      return;
+    }
+
+    if (activeTarjeta && Voucher === 0) {
+      toast.error('Debe ingresar el numero de factura');
+      return;
+    }
+
+    if (activeEfectivo && Efectivo === 0) {
+      toast.error('Debe ingresar el monto de efectivo');
       return;
     }
 
