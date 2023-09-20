@@ -4,10 +4,8 @@ import api from '../../service/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button } from 'react-bootstrap';
 import { Toaster, toast } from 'react-hot-toast';
-import { HiDocumentReport } from 'react-icons/hi';
 import BillReport from '../../components/Modal/BillReport';
-import { Barrio, Canton, CommerceInfo, Distrito, OutCommerceMsj, Provincia, Provincias } from '../../models/models';
-import ubicaciones from '../../assets/data/localization.json';
+import { CommerceInfo, OutCommerceMsj} from '../../models/models';
 
 const Commerce: React.FC = () => {
     const divStyle = {
@@ -65,19 +63,8 @@ const Commerce: React.FC = () => {
         } as CommerceInfo);
     }
 
-    async function handlePay() {
-        setShow(true);
-    }
-
     return (
         <Layout>
-            <Button onClick={handlePay}>
-                <HiDocumentReport />
-                Generar Informe de facturación
-            </Button>
-            <br />
-            <br />
-            <hr style={divStyle}></hr>
             <h1 className='h1'>Información de comercio</h1>
             <form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formBasicEmail">

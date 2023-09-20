@@ -1,10 +1,12 @@
 
 import Layout from '../../components/Layout';
-import Table from "react-bootstrap/Table";
+import Table from 'react-bootstrap/Table';
 import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import api from "../../service/api";
 import BillReport from '../../components/Modal/BillReport';
+import DatePicker from 'react-datepicker';
 
 export interface Bill {
     consecutive: number;
@@ -17,9 +19,6 @@ const Bill: React.FC = () => {
     const [startDate, setStartDate] = useState(new Date(Date.now()));
     const [endDate, setEndDate] = useState(new Date(Date.now()));
     const [bills, setBills] = useState<Bill[]>([]); 
-    const [totalEfectivo, setTotalEfectivo] = useState<number>(0);
-    const [totalTarjeta, setTotalTarjeta] = useState<number>(0);
-    const [totalSINPE, setTotalSINPE] = useState<number>(0);
     const [show, setShow] = useState(false);
   
     useEffect(() => {
@@ -32,16 +31,18 @@ const Bill: React.FC = () => {
       );
       if(response.status === 200){
         setBills(response.data);
-        /*setTotalEfectivo(getBills(0, response.data));
-        setTotalTarjeta(getBills(1, response.data));
-        setTotalSINPE(getBills(2, response.data));*/
       }
     }
 
     return (
     <Layout>
         <div>
-            <h1>Facturas diarias</h1>
+            <h1 className='h1'>Facturas diarias</h1>
+        </div>
+        <div>
+          <label>Fecha de inicio</label><DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> &nbsp;
+          <label>Fecha de final</label><DatePicker selected={endDate} onChange={(date: Date) => setEndDate(date)} />&nbsp;&nbsp;
+          <button onClick={(_) => RequestBills()}>Consultar</button>
         </div>
         <Table striped={true} bordered={true} hover={true}>
             <thead>
@@ -59,9 +60,7 @@ const Bill: React.FC = () => {
     );
 
     function renderBills(){
-        //const billsList = RequestBills();
         const sumAmount = getSumOfBills(bills);
-        // return budget.bills.map((bill: Bill, index: number) => {
         return (
           <>
             <tbody>
@@ -112,7 +111,6 @@ const Bill: React.FC = () => {
       function toReadible(medioPago: number[]){
         let concat = '';
         medioPago.map((x: number) => {
-            console.log(x);
             switch (x) {
                 case 0:
                     concat += 'Efectivo'
