@@ -8,6 +8,7 @@ import Configuration from '../pages/Configuration';
 import Combo from '../pages/Combo';
 import UserAdministration from '../pages/User';
 import Bill from '../pages/Bills';
+import Sales from '../pages/Sales';
 
 function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ function AppRoutes() {
         <Route path="/configuration" element={<Configuration />} />
         <Route path="/user" element={<UserAdministration />} />
         <Route path="/Bill" element={<Bill />} />
+        <Route path="/sales" element={<Sales />} />
       </Routes>
   )
 };

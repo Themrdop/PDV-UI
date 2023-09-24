@@ -79,7 +79,7 @@ public class BillAPI
   {
     var bill = new Bill()
     {
-      total = localBill.products.Sum(x => x.price),
+      total = localBill.products.Sum(x => x.price * x.amount),
       products = localBill.products.ToList(),
       Descuento = localBill.descuento,
       MedioPago = localBill.metodoPago,

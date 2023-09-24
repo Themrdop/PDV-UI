@@ -51,7 +51,7 @@ const BillReport: React.FC<Props> = ({show, bill, onClose}) => {
                     bill.products.map((product, index) => (
                                   <ListGroup key={index}>
                                     <ListGroup.Item action key={index}>
-                                      {product.name}
+                                      {product.name} {product.amount}
                                     </ListGroup.Item>
                                   </ListGroup>
                     ))}

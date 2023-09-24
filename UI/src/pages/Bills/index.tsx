@@ -8,6 +8,7 @@ import api from "../../service/api";
 import BillReport from '../../components/Modal/BillReport';
 import DatePicker from 'react-datepicker';
 import { Product } from '../../models/models';
+import { ExportCSV } from '../../utils/excel/ExportCSV';
 
 export interface Bill {
     consecutive: number;
@@ -23,6 +24,8 @@ const Bill: React.FC = () => {
     const [bills, setBills] = useState<Bill[]>([]); 
     const [show, setShow] = useState(false);
     const [selectedBill, setSelectedBill] = useState<Bill>({consecutive:-1, date: '', total: 0, medioPago: [], products: []}); 
+
+    const fileName = `Facturas_${startDate}-${endDate}`;
   
     useEffect(() => {
         RequestBills();
@@ -58,6 +61,7 @@ const Bill: React.FC = () => {
             </thead>
             {renderBills()}
           </Table>
+          <ExportCSV csvData={bills} fileName={fileName}/>
           <BillReport onClose={(result: boolean) => { setShow(false); }} bill={selectedBill} show={show}></BillReport>
     </Layout>
     );
@@ -94,7 +98,7 @@ const Bill: React.FC = () => {
       function getSumOfBills (bills: Bill[]) {
         return bills
           .map((item: Bill) => item.total)
-          .reduce((prev: number, next: number) => prev + Math.round(next), 0);
+          .reduce((partialSum: number, next: number) => partialSum + next, 0);
       };
       
       function footerTable(amt: number){
