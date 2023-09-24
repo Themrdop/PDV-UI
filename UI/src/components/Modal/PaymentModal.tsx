@@ -4,7 +4,7 @@ import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
 import api from "../../service/api";
-import { CommerceInfo, Person, PersonFromHacienda, Product } from "../../models/models";
+import { Person, PersonFromHacienda, Product } from "../../models/models";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { formatPrice } from "../../utils/formatPrice";

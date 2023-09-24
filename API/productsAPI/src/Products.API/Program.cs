@@ -22,7 +22,12 @@ builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IComboRepository, ComboRepository>();
 builder.Services.AddSingleton<IClientRepository, ClientRepository>();
 
+#if DEBUG 
+builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);
+#else
 builder.Configuration.AddJsonFile("appsettings.json", false, true);
+#endif
+
 
 if (!string.IsNullOrWhiteSpace(builder.Configuration["MongoUri"]))
 {

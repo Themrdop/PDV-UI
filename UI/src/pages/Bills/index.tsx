@@ -116,13 +116,13 @@ const Bill: React.FC = () => {
         medioPago.map((x: number) => {
             switch (x) {
                 case 0:
-                    concat += 'Efectivo'
+                    concat += 'SINPE'
                     break;
                 case 1:
                     concat += 'Tarjeta'
                     break;
                 case 3:
-                    concat += 'SINPE'
+                    concat += 'Efectivo'
                     break;
                 default:
                     break;

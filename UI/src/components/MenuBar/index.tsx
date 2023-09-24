@@ -28,22 +28,17 @@ const MenuBar: React.FC = () => (
           <FiBox size="1.6em" />
         </s.MenuBarItem>
       </s.MenuBarLink>
-      <s.MenuBarLink to="/user" title="Produtos">
-        <s.MenuBarItem title="Perfil">
-          <FiUser size="1.6em" />
-        </s.MenuBarItem>
-      </s.MenuBarLink>
       <s.MenuBarLink to="/configuration" title="Configuración">
         <s.MenuBarItem title="Configuración">
           <FiSliders size="1.6em" />
         </s.MenuBarItem>
       </s.MenuBarLink>
-      <s.MenuBarLink to="/bill" title="Sobre">
+      <s.MenuBarLink to="/bill" title="Facturas">
         <s.MenuBarItem>
           <RiBillLine size="1.6em" />
         </s.MenuBarItem>
       </s.MenuBarLink>
-      <s.MenuBarLink to="/about" title="Sobre">
+      <s.MenuBarLink to="/about" title="Ventas">
         <s.MenuBarItem>
           <FiInfo size="1.6em" />
         </s.MenuBarItem>

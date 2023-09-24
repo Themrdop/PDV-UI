@@ -1,5 +1,3 @@
-using System.Net.WebSockets;
-
 public class BillAPI
 {
   internal static async Task<IResult> Billing(LocalBill localBill,
