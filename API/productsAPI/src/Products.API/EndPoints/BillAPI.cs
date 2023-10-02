@@ -26,7 +26,8 @@ public class BillAPI
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
-      if (localBill.recipient is not null){
+      if (localBill.recipient?.email is not null & 
+          localBill.recipient?.numeroIdentificacion is not null){
         logger?.LogInformation("Enviando factura electronica");
         bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
       }
