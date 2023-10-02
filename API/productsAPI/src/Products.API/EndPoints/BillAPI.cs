@@ -34,7 +34,8 @@ public class BillAPI
 
       await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-      if (localBill.recipient is not null){
+      if (localBill.recipient?.email is not null & 
+          localBill.recipient?.numeroIdentificacion is not null){
         await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
       }
 
