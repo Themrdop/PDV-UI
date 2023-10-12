@@ -18,24 +18,20 @@ namespace Products.DataAccess{
             var filterBuilder = Builders<Bill>.Filter;
             FilterDefinition<Bill> filter = filterBuilder.Empty;
 
-            if(dates is not null && dates.Item1 != DateOnly.MaxValue && dates.Item2 != DateOnly.MinValue){
-                filter = filterBuilder.Gte(x => x.date, dates.Item1.ToDateTime(TimeOnly.MinValue)) &
-                         filterBuilder.Lte(x => x.date, dates.Item2.ToDateTime(TimeOnly.MaxValue));
-                
-            }
-
             var BaseBills = await _bills.FindAsync<Bill>(filter, cancellationToken:cancellationToken);
 
-            var bills = BaseBills.ToEnumerable();
+            var bills = BaseBills.ToList();
 
             if (bills is null)
                 return new List<Bill>();
 
             bills = bills.Select(bill => {
-                                bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
-                                return bill;
-                             })
-                             .ToList();
+                                    bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
+                                    return bill;
+                                })
+                         .Where(bill => bill.date >= dates.Item1.ToDateTime(TimeOnly.MinValue) && 
+                                        bill.date <= dates.Item2.ToDateTime(TimeOnly.MaxValue))
+                         .ToList();
 
             return bills;
         } 
