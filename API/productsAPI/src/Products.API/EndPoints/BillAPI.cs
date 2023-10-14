@@ -52,8 +52,9 @@ public class BillAPI
                                                   CancellationToken cancellationToken)
   {
 
-    var bills = await billRepository
-        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue), DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+        var bills = await billRepository
+        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateBeginig ?? DateTime.MaxValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"))), 
+                                                   DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateEnd ?? DateTime.MinValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")))), cancellationToken);
     logger?.LogInformation("Todos las facturas fueron consultados");
 
     return Results.Ok(bills);
