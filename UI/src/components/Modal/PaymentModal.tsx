@@ -9,10 +9,10 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { formatPrice } from "../../utils/formatPrice";
 import haciendaApi from "../../service/haciendaApi";
-import { Toaster, toast } from 'react-hot-toast';
+import { Button, Form} from "react-bootstrap";
 import { BsCashCoin, BsPhone } from "react-icons/bs";
 import { MdPayment } from "react-icons/md";
-const { ipcRenderer } = window.require('electron');
+import { Toaster, toast } from 'react-hot-toast';
 
 export interface Props {
   show: boolean;
@@ -47,6 +47,8 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [activeEfectivo, setActiveEfectivo] = useState(false);
   const [Cambio, setCambio] = useState<number>(0);
   const [Efectivo, setEfectivo] = useState<number>(0);
+  const [Nombre, setnombre] = useState<string>('');
+  
 
   const EfectivoTxt = useRef(null);
 
@@ -194,13 +196,13 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     }
 
     if (response.status !== 200 || response2.status !== 200) {
-      console.log(response.data);
       toast.error('No se pudo obtener la informacion de la cedula');
     }
 
     setTipoIdentificacion(response.data.tipoIdentificacion);
     setEmail(response2.data.email);
     setTelefono(response2.data.phone);
+    setnombre(response.data.nombre);
   }
 
   return ReactDOM.createPortal(
@@ -217,26 +219,49 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
             <Row>
               <Col>
                 <Row>
-                  <table className="table table-borderless">
-                    <tbody>
-                      <tr className="add">
-                        <td>Producto</td>
-                        <td>Cantidad</td>
-                        <td>Precio</td>
-                        <td className="text-center">Total</td>
-                      </tr>
-                      {
-                        products.map((p, index) => {
-                          return <tr className="content" key={index}>
-                            <td>{p.name}</td>
-                            <td>{p.amount}</td>
-                            <td>{formatPrice(p.price)}</td>
-                            <td className="text-center">{formatPrice(p.price * p.amount)}</td>
-                          </tr>
-                        })
-                      }
-                    </tbody>
-                  </table>
+                  <label className="form-label">Tipo Cedula:</label>
+                  <Form.Select onChange={(e) => setTipoIdentificacion(e.target.value)} value={tipoIdentificacion || ""}>
+                  <option value="02">Juridica</option>
+                    <option value="01">Fisica</option>
+                  </Form.Select>
+                </Row>
+                <Row>
+                  <div className='input-group'>
+                    <label className="form-label">Cedula juridica:</label>
+                    <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value) }/>
+                    <Button type="button" variant="primary" onClick={handleSearch}>Consultar</Button>
+                  </div>
+                </Row>
+                <Row>
+                  <label className="form-label">Nombre:</label>
+                  <input type="text" disabled={true} value={Nombre || ""} className="form-control" onChange={(e) => setnombre(e.target.value) }/>
+                </Row>
+                
+              </Col>
+              <Col>
+                <Row>
+                  <Col>
+                    <table className="table table-borderless">
+                      <tbody>
+                        <tr className="add">
+                          <td>Producto</td>
+                          <td>Cantidad</td>
+                          <td>Precio</td>
+                          <td className="text-center">Total</td>
+                        </tr>
+                        {
+                          products.map((p, index) => {
+                            return <tr className="content" key={index}>
+                              <td>{p.name}</td>
+                              <td>{p.amount}</td>
+                              <td>{formatPrice(p.price)}</td>
+                              <td className="text-center">{formatPrice(p.price * p.amount)}</td>
+                            </tr>
+                          })
+                        }
+                      </tbody>
+                    </table>
+                  </Col>
                 </Row>
                 <Row>
                   <table className="table table-borderless">
@@ -290,10 +315,6 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                         setCambio(Number.parseInt(e.target.value) - total.current);
                       }} />
                     </Row>
-                    <Row>
-                      <label className="form-label">Cambio:</label>
-                      <input readOnly type="text" value={Cambio || ""} className="form-control space" />
-                    </Row>
                   </div>
                 }
                 {activeTarjeta &&
@@ -307,6 +328,14 @@ const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                   </Row>
                 }
               </Col>
+              {activeEfectivo &&
+                  <Col xs={6} md={4}>
+                    <Row>
+                      <label className="form-label">Cambio:</label>
+                      <textarea readOnly value={Cambio || ""} style={{ width: "99%", border: "none", outline: "none", fontSize: "35px", color: "orange" }} />
+                    </Row>
+                  </Col>
+                  }
             </Row>
           </div>
           <div className="modal-footer">
