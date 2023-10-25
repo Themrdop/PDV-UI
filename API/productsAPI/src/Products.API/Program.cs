@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using RabbitMQHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddSingleton<ICommerceInformationRepository, CommerceInformatio
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IComboRepository, ComboRepository>();
 builder.Services.AddSingleton<IClientRepository, ClientRepository>();
+builder.Services.AddSingleton<IMessageQueue, MessageQueue>();
 
 #if DEBUG 
 builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);
@@ -29,21 +31,17 @@ builder.Configuration.AddJsonFile("appsettings.json", false, true);
 #endif
 
 
-if (!string.IsNullOrWhiteSpace(builder.Configuration["MongoUri"]))
+var mongoUri = builder.Configuration["MongoUri"];
+if (!string.IsNullOrWhiteSpace(mongoUri))
 {
-  builder.Services.AddSingleton<DataBaseImplementation>(new DataBaseImplementation(builder.Configuration["MongoUri"]));
+  builder.Services.AddSingleton(new DataBaseImplementation(mongoUri!));
 }
-string userName = builder.Configuration["userName"],
-password = builder.Configuration["password"],
-thumbprintCertificado = builder.Configuration["thumbprintCertificado"];
+string userName = builder.Configuration["userName"] ?? string.Empty,
+password = builder.Configuration["password"] ?? string.Empty,
+thumbprintCertificado = builder.Configuration["thumbprintCertificado"] ?? string.Empty;
+
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
-
-builder.Services.AddSingleton<IElectronicBill>(new Products.API.ElectronicBill.ElectronicBill(userName,
-                                                                                              password,
-                                                                                              thumbprintCertificado,
-                                                                                              builder.Services.BuildServiceProvider().GetService<IMemoryCache>(),
-                                                                                              builder.Services.BuildServiceProvider().GetService<IHttpClientFactory>()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

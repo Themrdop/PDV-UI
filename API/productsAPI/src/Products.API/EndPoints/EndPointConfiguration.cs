@@ -6,8 +6,11 @@ public static class EndPointConfiguration{
         app.MapDelete("/DeleteProduct",ProductsAPI.DeleteProduct);
         app.MapPost("/SaveBill",BillAPI.Billing);
         app.MapGet("/GetAllBills", BillAPI.GetAllBills);
+        app.MapPut("/AddElectronicBill", BillAPI.AddElectronicBill);
         app.MapGet("/GetCommerceInformation", CommerceInformationAPI.getCommerceInformation);
         app.MapPost("/UpdateCommerceInformation", CommerceInformationAPI.updateCommerceInformation);
+        app.MapPost("/SaveCertificateForCommerce", CommerceInformationAPI.SaveCertificateForCommerceAsync);
+        app.MapGet("/GetCertificate", CommerceInformationAPI.GetCertificate);
         app.MapGet("/GetUsers", UserAPI.GetUsers);
         app.MapPost("/AddUser", UserAPI.SaveUser);
         app.MapDelete("/DeleteUser", UserAPI.DeleteUser);

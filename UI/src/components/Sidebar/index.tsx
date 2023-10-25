@@ -4,11 +4,11 @@ import { MdPayment} from "react-icons/md";
 import { FcCancel } from "react-icons/fc";
 
 import * as s from './styled';
-import PaymentModal from '../Modal/PaymentModal';
 import {Cart, CommerceInfo, Product} from '../../models/models';
 
 import toast from 'react-hot-toast';
 import api from '../../service/api';
+import { PaymentModal } from '../Modal/PaymentModal';
 
 export interface Props {
   isSmall?: boolean;

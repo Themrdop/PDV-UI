@@ -16,7 +16,7 @@ const { ipcRenderer } = window.require("electron");
 const protocol = 'media-loader://';
 
 const ProductInput: React.FC = () => {
-  
+
   const divStyle = {
     borderTop: '2px solid #999',
   };
@@ -33,27 +33,27 @@ const ProductInput: React.FC = () => {
     const name = event.target.name;
     const value = event.target.value;
     console.log(name, value);
-    setInputs(values => ({...values, [name]: value}));
+    setInputs(values => ({ ...values, [name]: value }));
   }
-  
+
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
 
     let response;
 
-    let imgName = inputs.image?.replace(protocol,'');
+    let imgName = inputs.image?.replace(protocol, '');
 
-    if(inputs.id !== undefined){
+    if (inputs.id !== undefined) {
       response = await api.put<Product>(
-        '/UpdateProduct', {id: inputs.id, name: inputs.name, price: inputs.price, image: protocol + imgName, amount: inputs.amount}
+        '/UpdateProduct', { id: inputs.id, name: inputs.name, price: inputs.price, image: protocol + imgName, amount: inputs.amount }
       );
-    }else{
+    } else {
       response = await api.post<Product>(
-        '/AddProduct', {name: inputs.name, price: inputs.price, image: protocol + imgName, amount: inputs.amount}
+        '/AddProduct', { name: inputs.name, price: inputs.price, image: protocol + imgName, amount: inputs.amount }
       );
     }
 
-    if(response.status === 200){
+    if (response.status === 200) {
       toast.success('El producto se guardo con exito');
       loadProducts();
       clear();
@@ -67,18 +67,18 @@ const ProductInput: React.FC = () => {
 
   async function selectProduct(id: number) {
     const response = await api.get<Product[]>(
-        '/GetAllProducts', { params: { ProductId: id } }
-      );
+      '/GetAllProducts', { params: { ProductId: id } }
+    );
 
-    if(response.status !== 200){
+    if (response.status !== 200) {
       toast.error('Error al cargar el producto');
       return;
     }
 
     const data = response.data.pop();
 
-    if(data !== undefined)
-        setInputs(data);
+    if (data !== undefined)
+      setInputs(data);
   }
 
   useEffect(() => {
@@ -90,7 +90,7 @@ const ProductInput: React.FC = () => {
       '/GetAllProducts',
     );
 
-    if(response.status !== 200){
+    if (response.status !== 200) {
       toast.error('Error al cargar los productos');
       return;
     }
@@ -108,83 +108,83 @@ const ProductInput: React.FC = () => {
       '/DeleteProduct', { params: { ProductId: id } }
     );
 
-    if(response.status === 200){
-        toast.success('El producto se elimino con exito');
-        loadProducts();
-        clear();
+    if (response.status === 200) {
+      toast.success('El producto se elimino con exito');
+      loadProducts();
+      clear();
     }
   }
 
   async function handleDialog() {
     let fileName = await ipcRenderer.invoke("showDialog");
-    setInputs(values => ({...values, image: fileName}));
+    setInputs(values => ({ ...values, image: fileName }));
   }
 
-  return(
-  <Layout>
-    <h1 className='h1'>Producto</h1>
-    <div className="container">
-      <div className="row">
-        <div className="col">
-          <form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Nombre:</Form.Label>
-              <Form.Control type="text" 
-              placeholder="Rice and Beans o algo asi" 
-              onChange={(event: { target: { name: any; value: any; }; }) => {handleChange(event); setFilter(event.target.value);}}
-              name="name" 
-              value={inputs.name || ""} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Precio:</Form.Label>
-              <Form.Control type="text" 
-              placeholder="3000" 
-              onChange={handleChange} 
-              name="price" 
-              value={inputs.price || ""} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Cantidad:</Form.Label>
-              <Form.Control type="text" 
-              placeholder="3000" 
-              onChange={handleChange} 
-              name="amount" 
-              value={inputs.amount || ""} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Direccion de la imagen:</Form.Label>
-              <div className='input-group'>
-                <Form.Control type="text" 
-                  placeholder="htttp://algo.com/algo.jpg" 
-                  onChange={handleChange} 
-                  name="image" 
-                  disabled={true}
-                  value={inputs.image?.replace(protocol,'') || ""} />
-                <Button type="button" variant="primary" onClick={handleDialog}>Buscar</Button>
-              </div>
-            </Form.Group>
-            <Button type="submit" variant="primary">Guardar</Button>
-            <Button style={buttonMargin} disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
-          </form>
-        </div>
-        <div className="col">
-        <ProductList>
-          {
-          products.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()))
+  return (
+    <Layout>
+      <h1 className='h1'>Producto</h1>
+      <div className="container">
+        <div className="row">
+          <div className="col">
+            <form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Nombre:</Form.Label>
+                <Form.Control type="text"
+                  placeholder="Rice and Beans o algo asi"
+                  onChange={(event: { target: { name: any; value: any; }; }) => { handleChange(event); setFilter(event.target.value); }}
+                  name="name"
+                  value={inputs.name || ""} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Precio:</Form.Label>
+                <Form.Control type="text"
+                  placeholder="3000"
+                  onChange={handleChange}
+                  name="price"
+                  value={inputs.price || ""} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Cantidad:</Form.Label>
+                <Form.Control type="text"
+                  placeholder="3000"
+                  onChange={handleChange}
+                  name="amount"
+                  value={inputs.amount || ""} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Direccion de la imagen:</Form.Label>
+                <div className='input-group'>
+                  <Form.Control type="text"
+                    placeholder="htttp://algo.com/algo.jpg"
+                    onChange={handleChange}
+                    name="image"
+                    disabled={true}
+                    value={inputs.image?.replace(protocol, '') || ""} />
+                  <Button type="button" variant="primary" onClick={handleDialog}>Buscar</Button>
+                </div>
+              </Form.Group>
+              <Button type="submit" variant="primary">Guardar</Button>
+              <Button style={buttonMargin} disabled={inputs.id === undefined} type="button" variant="primary" onClick={() => clear()}>Nuevo</Button>
+            </form>
+          </div>
+          <div className="col">
+            <ProductList>
+              {
+                products.filter(f => f.name.toLowerCase().includes(filter.toLowerCase()))
                   .map((product, index) => (
-                        <ListGroup key={index}>
-                          <ListGroup.Item action key={index} onClick={() => {selectProduct(product.id);}}>
-                            {product.name}
-                            <button className="btn btn-danger btn-sm float-end" onClick={() => {deleteProduct(product.id)}}>x</button>
-                          </ListGroup.Item>
-                        </ListGroup>
-          ))}
-        </ProductList>
+                    <ListGroup key={index}>
+                      <ListGroup.Item action key={index} onClick={() => { selectProduct(product.id); }}>
+                        {product.name}
+                        <button className="btn btn-danger btn-sm float-end" onClick={() => { deleteProduct(product.id) }}>x</button>
+                      </ListGroup.Item>
+                    </ListGroup>
+                  ))}
+            </ProductList>
+          </div>
         </div>
       </div>
-    </div>
-    <Toaster />
-  </Layout>
+      <Toaster />
+    </Layout>
   )
 };
 

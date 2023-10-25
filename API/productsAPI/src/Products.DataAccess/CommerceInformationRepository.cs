@@ -1,17 +1,23 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Products.Interfaces;
 using Products.Models;
+using System.IO;
 
-namespace Products.DataAccess{
+namespace Products.DataAccess
+{
     public class CommerceInformationRepository : ICommerceInformationRepository
     {
         private IMongoCollection<CommerceInformation> CommerceInformation { get; set; }
-        
+
+        private IMongoCollection<BsonDocument> Certificate { get; set; }
+
         public CommerceInformationRepository(DataBaseImplementation mongo)
         {
             CommerceInformation = mongo.database.GetCollection<CommerceInformation>("CommerceInformation");
+            Certificate = mongo.database.GetCollection<BsonDocument>("Certificate");
         }
-        
+
         public async Task<CommerceInformation> GetCommerceInformation(CancellationToken cancellationToken)
         {
             var commerceInformation = await CommerceInformation.FindAsync(Builders<CommerceInformation>.Filter.Empty, null, cancellationToken);
@@ -23,18 +29,50 @@ namespace Products.DataAccess{
 
             return commerceInformationresult;
         }
-        
+
         public async Task<CommerceInformation> UpdateCommerceInformation(CommerceInformation commerceInformation, CancellationToken cancellationToken)
         {
             var filter = Builders<CommerceInformation>.Filter.Eq(p => p.name, commerceInformation.name);
 
             var result = await CommerceInformation.ReplaceOneAsync(filter, commerceInformation);
 
-            if (result.ModifiedCount <= 0){
+            if (result.ModifiedCount <= 0)
+            {
                 await CommerceInformation.InsertOneAsync(commerceInformation);
             }
 
             return commerceInformation;
+        }
+
+        public async Task<bool> SaveCertificate(Stream certificate, CommerceInformation commerceInformation, CancellationToken cancellationToken)
+        {
+            byte[] crtBytes = new byte[certificate.Length];
+            await certificate.ReadAsync(crtBytes, 0, (int)certificate.Length, cancellationToken);
+
+            BsonDocument pdfDocument = new BsonDocument
+            {
+                { "CommersName", commerceInformation.name },
+                { "content", new BsonBinaryData(crtBytes) }
+            };
+
+            await Certificate.InsertOneAsync(pdfDocument, cancellationToken: cancellationToken);
+            return true;
+        }
+
+        public async Task<byte[]?> GetCertificate(string commersName, CancellationToken cancellationToken)
+        {
+            var filter = Builders<BsonDocument>.Filter.Eq("name", commersName);
+            var document = await Certificate.Find(filter).FirstOrDefaultAsync(cancellationToken);
+
+            if (document is not null)
+            {
+                var pdfBytes = document["content"].AsBsonBinaryData.Bytes;
+                return pdfBytes;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
