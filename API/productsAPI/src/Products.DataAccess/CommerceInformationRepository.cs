@@ -46,13 +46,18 @@ namespace Products.DataAccess
 
         public async Task<bool> SaveCertificate(Stream certificate, CommerceInformation commerceInformation, CancellationToken cancellationToken)
         {
-            byte[] crtBytes = new byte[certificate.Length];
-            await certificate.ReadAsync(crtBytes, 0, (int)certificate.Length, cancellationToken);
+            byte[] buffer = new byte[16 * 1024];
+            using var ms = new MemoryStream();
+            int read;
+            while ((read = await certificate.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                ms.Write(buffer, 0, read);
+            }
 
             BsonDocument pdfDocument = new BsonDocument
             {
                 { "CommersName", commerceInformation.name },
-                { "content", new BsonBinaryData(crtBytes) }
+                { "content", new BsonBinaryData(ms.ToArray()) }
             };
 
             await Certificate.InsertOneAsync(pdfDocument, cancellationToken: cancellationToken);
@@ -61,7 +66,7 @@ namespace Products.DataAccess
 
         public async Task<byte[]?> GetCertificate(string commersName, CancellationToken cancellationToken)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("name", commersName);
+            var filter = Builders<BsonDocument>.Filter.Eq("CommersName", commersName);
             var document = await Certificate.Find(filter).FirstOrDefaultAsync(cancellationToken);
 
             if (document is not null)

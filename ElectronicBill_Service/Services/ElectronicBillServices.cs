@@ -44,6 +44,12 @@ public class ElectronicBillServices
 
                 byte[]? certificate = await getCertificate(bill, CancellationToken.None);
 
+                if (certificate == null)
+                {
+                    _logger.LogError("Error getting certificate");
+                    return;
+                }
+
                 var billFull = await _electronicBill.SendElectronicBill(bill, certificate, CancellationToken.None);
 
                 var serializedBillFull = JsonSerializer.Serialize(billFull);

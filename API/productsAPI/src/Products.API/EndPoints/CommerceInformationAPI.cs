@@ -45,13 +45,17 @@ public static class CommerceInformationAPI
     }
 
     internal static async Task<IResult> SaveCertificateForCommerceAsync(Stream certificate,
-                                                                        CommerceInformation commerceInformation,
                                                                         ICommerceInformationRepository commerceInformationRepository,
                                                                         ILogger<CommerceInformation> logger,
                                                                         CancellationToken cancellationToken)
     {
         try
         {
+            if (certificate is null)
+                return Results.BadRequest();
+
+            var commerceInformation = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
+
             var response = await commerceInformationRepository.SaveCertificate(certificate, commerceInformation, cancellationToken);
 
             return Results.Ok(response);
@@ -75,9 +79,9 @@ public static class CommerceInformationAPI
 
             if (response is not null)
             {
-                using var Stream = new MemoryStream(response);
+                var Stream = new MemoryStream(response);
                 
-                return Results.Ok(Stream);
+                return Results.Stream(Stream);
             }
 
             return Results.NotFound();

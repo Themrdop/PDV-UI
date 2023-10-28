@@ -5,7 +5,6 @@ public class BillAPI
 {
   internal static async Task<IResult> Billing(LocalBill localBill,
                                               IBillRepository billRepository,
-                                              IElectronicBill electronicBill,
                                               IProductsRepository productsRepository,
                                               ICommerceInformationRepository commerceInformationRepository,
                                               ILogger<Product> logger,
