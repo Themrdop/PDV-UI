@@ -31,8 +31,8 @@ public class BillAPI
 
       await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-      if (localBill.recipient?.email is not null & 
-          localBill.recipient?.numeroIdentificacion is not null){
+      if (!string.IsNullOrEmpty(localBill.recipient?.email) & 
+          !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion)){
         logger?.LogInformation("Enviando factura electronica");
         messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_ELECTRONIC_BILL, JsonSerializer.Serialize(bill));
       }

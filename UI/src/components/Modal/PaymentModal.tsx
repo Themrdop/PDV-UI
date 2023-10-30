@@ -96,9 +96,9 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
       return;
     }
 
-    if(email !== ''){
+    if (email !== '') {
       const emailRegex = /\S+@\S+\.\S+/;
-      if(!emailRegex.test(email)){
+      if (!emailRegex.test(email)) {
         toast.error('El correo electronico no es valido');
         return;
       }
@@ -178,30 +178,35 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   async function handleSearch() {
     let response = undefined;
     let response2 = undefined;
+
+    try {
+      response2 = await api.get<Person>(
+        '/GetClient', { params: { numeroIdentificacion: Cedula } }
+      );
+    } catch (error) { }
+
+    if (response2 !== undefined && response2.status === 200 && response2.data.name !== undefined) {
+      setTipoIdentificacion(response2.data.tipoIdentificacion);
+      setEmail(response2.data.email);
+      setTelefono(response2.data.phone);
+      setNombre(response2.data.name);
+
+      return;
+    }
+
     try {
       response = await haciendaApi.get<PersonFromHacienda>(
         '', { params: { identificacion: Cedula } }
       );
+    } catch (e) { }
 
-      response2 = await api.get<Person>(
-        '/GetClient', { params: { numeroIdentificacion: Cedula } }
-      );
-    } catch (e) {
-    }
-
-    if (response === undefined || response2 === undefined) {
-      toast.error('No se pudo obtener la informacion de la cedula');
+    if (response !== undefined && response.status === 200) {
+      setTipoIdentificacion(response.data.tipoIdentificacion);
+      setNombre(response.data.nombre);
       return;
     }
 
-    if (response.status !== 200 || response2.status !== 200) {
-      toast.error('No se pudo obtener la informacion de la cedula');
-    }
-
-    setTipoIdentificacion(response.data.tipoIdentificacion);
-    setEmail(response2.data.email);
-    setTelefono(response2.data.phone);
-    setNombre(response.data.nombre);
+    toast.error('No se encontro el cliente');
   }
 
   return ReactDOM.createPortal(
@@ -323,7 +328,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                 </Row>
                 <Row style={{ marginTop: "10px", marginBottom: "10px", marginLeft: "5px", marginRight: "5px" }}>
                   <label className="form-label">Cedula juridica:</label>
-                  <div className='input-group' style={{marginLeft: "-5px" }}>
+                  <div className='input-group' style={{ marginLeft: "-5px" }}>
                     <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value)} />
                     <Button type="button" variant="primary" onClick={handleSearch}>Consultar</Button>
                   </div>
