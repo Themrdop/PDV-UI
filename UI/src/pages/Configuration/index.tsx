@@ -7,6 +7,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { Barrio, Canton, CommerceInfo, Distrito, OutCommerceMsj, Provincia, Provincias } from '../../models/models';
 import ubicaciones from '../../assets/data/localization.json';
 
+const { ipcRenderer } = window.require("electron");
+
 const Commerce: React.FC = () => {
     const divStyle = {
         borderTop: '2px solid #999',
@@ -19,6 +21,7 @@ const Commerce: React.FC = () => {
     const [cantones, setCantones] = useState<Canton[]>([]);
     const [distritos, setDistritos] = useState<Distrito[]>([]);
     const [barrio, setBarrio] = useState<Barrio[]>([]);
+    const [file, setFile] = useState<File | null>(null);
 
     const selectedProvincia = useRef<Provincia>({} as Provincia);
     const selectedCanton = useRef<Canton>({} as Canton);
@@ -35,8 +38,6 @@ const Commerce: React.FC = () => {
 
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-
-        console.log(inputs);
 
         let response = await api.post<CommerceInfo>(
             '/UpdateCommerceInformation', {
@@ -71,19 +72,19 @@ const Commerce: React.FC = () => {
         let provincias2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())
         let cantones2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0]?.cantones || [];
         let Distritos2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0]?.cantones
-                                    .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos || [];
+            .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos || [];
         let barrios2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0]?.cantones
-                                    .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos
-                                    .filter((distrito: Distrito) => distrito.distrito === response.data.distrito.toString())[0]?.barrios || [];
-        
+            .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos
+            .filter((distrito: Distrito) => distrito.distrito === response.data.distrito.toString())[0]?.barrios || [];
+
         setCantones(cantones2);
         setDistritos(Distritos2);
         setBarrio(barrios2);
-        
-        selectedProvincia.current = {provincia: response.data.provincia.toString()} as Provincia;
-        selectedCanton.current = {canton: response.data.canton.toString()} as Canton;
-        selectedDistrito.current = {distrito: response.data.distrito.toString()} as Distrito;
-        selectedBarrio.current = {barrio: response.data.barrio.toString()} as Barrio;
+
+        selectedProvincia.current = { provincia: response.data.provincia.toString() } as Provincia;
+        selectedCanton.current = { canton: response.data.canton.toString() } as Canton;
+        selectedDistrito.current = { distrito: response.data.distrito.toString() } as Distrito;
+        selectedBarrio.current = { barrio: response.data.barrio.toString() } as Barrio;
 
         setInputs({
             name: response.data.name,
@@ -163,8 +164,8 @@ const Commerce: React.FC = () => {
         selectedBarrio.current = { barrio: value } as Barrio;
         const canton = cantones.filter((c: Canton) => c.canton === inputs.provincia.cantones[0].canton)[0];
         const distritos = canton.distritos.filter((distrito: Distrito) => distrito.distrito === inputs.provincia.cantones[0].distritos[0].distrito)[0] || [];
-        const barrio = distritos.barrios.filter((barrio: Barrio) => barrio.barrio === value) || [];      
-        
+        const barrio = distritos.barrios.filter((barrio: Barrio) => barrio.barrio === value) || [];
+
         setInputs(values => ({
             ...values, provincia: {
                 provincia: inputs.provincia.provincia,
@@ -173,6 +174,35 @@ const Commerce: React.FC = () => {
             }
         }));
     }
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setFile(e.target.files[0]);
+
+            const formData = new FormData();
+            formData.append("file", e.target.files[0]);
+
+            try {
+                const response = await api.post(
+                    '/SaveCertificateForCommerce',
+                    formData
+                );
+
+                console.log(response.data);
+                toast.success('Se actualizo el certificado del comercio');
+            } catch (error) {
+                console.error(error);
+                toast.error('Error al actualizar el certificado del comercio');
+            }
+        }
+    };
+
+    const handleUpload = async () => {
+        if (file) {
+            
+        }
+    };
+
     return (
         <Layout>
             <h1 className='h1'>Información de comercio</h1>
@@ -262,7 +292,7 @@ const Commerce: React.FC = () => {
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Barrio:</Form.Label>
                     <Form.Select aria-label="distrito"
-                    onChange={handleSelectChange4}
+                        onChange={handleSelectChange4}
                         value={selectedBarrio.current.barrio || 1}
                         name="barrio">
                         {barrio?.map((item: Barrio) => {
@@ -271,6 +301,13 @@ const Commerce: React.FC = () => {
                             )
                         })}
                     </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Certificado:</Form.Label>
+                    <Form.Control type="file"
+                        placeholder="Certificado"
+                        name="certificado"
+                        onChange={handleFileChange} />
                 </Form.Group>
                 <Button type="submit" variant="primary">Guardar</Button>
             </form>

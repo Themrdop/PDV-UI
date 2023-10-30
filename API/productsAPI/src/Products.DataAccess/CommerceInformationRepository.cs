@@ -34,11 +34,11 @@ namespace Products.DataAccess
         {
             var filter = Builders<CommerceInformation>.Filter.Eq(p => p.name, commerceInformation.name);
 
-            var result = await CommerceInformation.ReplaceOneAsync(filter, commerceInformation);
+            var result = await CommerceInformation.ReplaceOneAsync(filter, commerceInformation, cancellationToken: cancellationToken);
 
             if (result.ModifiedCount <= 0)
             {
-                await CommerceInformation.InsertOneAsync(commerceInformation);
+                await CommerceInformation.InsertOneAsync(commerceInformation, cancellationToken: cancellationToken);
             }
 
             return commerceInformation;
@@ -54,13 +54,21 @@ namespace Products.DataAccess
                 ms.Write(buffer, 0, read);
             }
 
-            BsonDocument pdfDocument = new BsonDocument
+            BsonDocument document = new BsonDocument
             {
                 { "CommersName", commerceInformation.name },
                 { "content", new BsonBinaryData(ms.ToArray()) }
             };
 
-            await Certificate.InsertOneAsync(pdfDocument, cancellationToken: cancellationToken);
+            var filter = Builders<BsonDocument>.Filter.Eq("CommersName", commerceInformation.name);
+
+            var result = await Certificate.ReplaceOneAsync(filter,document);
+
+            if (result.ModifiedCount <= 0)
+            {
+                await Certificate.InsertOneAsync(document, cancellationToken: cancellationToken);
+            }
+
             return true;
         }
 
