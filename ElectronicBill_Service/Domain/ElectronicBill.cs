@@ -50,7 +50,7 @@ public class ElectronicBill : IElectronicBill
     string xmlDocument = GetXMLDocument(haciendaKey, bill);
     string singedXML = singXML(xmlDocument, certificate);
     string singedXMLInBase64 = Base64_Encode(singedXML);
-    HaciendaMessage haciendaMessage = creatMessage(haciendaKey, bill.electronicBill.emitter, bill.electronicBill.recepient, singedXMLInBase64);
+    HaciendaMessage haciendaMessage = creatMessage(haciendaKey, bill.electronicBill.emitter, bill.electronicBill.recipient, singedXMLInBase64);
     HttpResponseMessage result = await sendToHacienda(haciendaMessage, cancellationToken);
 
     switch (result.StatusCode)
@@ -76,7 +76,7 @@ public class ElectronicBill : IElectronicBill
   private string GetXMLDocument(string haciendaKey, Bill bill)
   {
     string xmlDocument = string.Empty;
-    decimal phone = decimal.TryParse(bill.electronicBill.recepient.phone, out phone) ? phone : 0;
+    decimal phone = decimal.TryParse(bill.electronicBill.recipient.phone, out phone) ? phone : 0;
 
     var msj = new TiqueteElectronico.TiqueteElectronico
     {
@@ -114,17 +114,17 @@ public class ElectronicBill : IElectronicBill
       PlazoCredito = bill.PlazoCredito,
     };
 
-    if (!string.IsNullOrEmpty(bill.electronicBill.recepient.numeroIdentificacion))
+    if (!string.IsNullOrEmpty(bill.electronicBill.recipient.numeroIdentificacion))
     {
       msj.Receptor = new ReceptorType
       {
-        Nombre = bill.electronicBill.recepient.name,
+        Nombre = bill.electronicBill.recipient.name,
         Identificacion = new IdentificacionType
         {
-          Tipo = bill.electronicBill.recepient,
-          Numero = bill.electronicBill.recepient.numeroIdentificacion
+          Tipo = bill.electronicBill.recipient,
+          Numero = bill.electronicBill.recipient.numeroIdentificacion
         },
-        CorreoElectronico = bill.electronicBill.recepient.email,
+        CorreoElectronico = bill.electronicBill.recipient.email,
       };
     }
 
@@ -298,14 +298,14 @@ public class ElectronicBill : IElectronicBill
     throw new NotImplementedException();
   }
 
-  private HaciendaMessage creatMessage(string haciendaKey, Person emitter, Person recepient, string singedXMLInBase64)
+  private HaciendaMessage creatMessage(string haciendaKey, Person emitter, Person recipient, string singedXMLInBase64)
   {
     return new HaciendaMessage
     {
       clave = haciendaKey,
       fecha = DateTime.Now.ToString("yyyy-MM-dd'T'HH:mm:ssZ"),
       emisor = emitter,
-      receptor = recepient,
+      receptor = recipient,
       comprobanteXml = singedXMLInBase64
     };
   }

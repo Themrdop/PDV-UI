@@ -59,6 +59,8 @@ public class ElectronicBillServices
 
                 _messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_EMAIL, serializedBillFull);
 
+                Console.WriteLine($"Bill sent: {serializedBillFull}");
+
             }
             catch (Exception ex)
             {

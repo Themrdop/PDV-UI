@@ -104,7 +104,7 @@ public class BillAPI
     if (localBill.recipient is not null && emmiter is not null)
       bill.electronicBill = new ElectronicBill()
       {
-        recepient = localBill.recipient,
+        recipient = localBill.recipient,
         emitter = emmiter,
         Comers = commerce
       };
