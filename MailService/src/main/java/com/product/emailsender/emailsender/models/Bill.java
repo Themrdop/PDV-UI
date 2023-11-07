@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
+import com.product.emailsender.emailsender.models.Enums.TipoPago;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +28,7 @@ public class Bill {
     private String condicionVenta;
     private String plazoCredito;
     private BigDecimal descuento;
+    @SerializedName(value = "MedioPago")
     private List<TipoPago> medioPago;
     private int numeroVoucher;
     private BigDecimal efectivo;

@@ -2,6 +2,8 @@ package com.product.emailsender.emailsender.models;
 
 import java.net.URI;
 
+import com.google.gson.annotations.SerializedName;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +20,7 @@ public class ElectronicBill {
     private String electronicBill;
     private URI location;
     private String errorMessages;
+    @SerializedName(value = "Comers")
     private CommerceInformation comers;
 
     @Override

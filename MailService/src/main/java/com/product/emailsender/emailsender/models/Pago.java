@@ -2,6 +2,8 @@ package com.product.emailsender.emailsender.models;
 
 import java.math.BigDecimal;
 
+import com.product.emailsender.emailsender.models.Enums.TipoPago;
+
 public class Pago {
     private TipoPago tipoPago;
     private BigDecimal monto = BigDecimal.ZERO;
@@ -22,10 +24,4 @@ public class Pago {
     public void setMonto(BigDecimal monto) {
         this.monto = monto;
     }
-}
-
-enum TipoPago {
-    Transferencia_DepositoBancario,
-    Tarjeta,
-    Efectivo
 }

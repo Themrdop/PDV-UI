@@ -33,7 +33,7 @@ public class EmailService {
     private final String subject = "Factura electrónica";
     private final String body = "Adjunto encontrará su factura electrónica.";
 
-    public boolean sendEmail(File location, Bill bill) {
+    public boolean sendEmail(File location, Bill bill, String xmlResponse) {
         Properties props = System.getProperties();
 
         props.put("mail.smtp.host", smtpHostServer);
@@ -92,7 +92,6 @@ public class EmailService {
             messageBodyPart.setFileName(bill.getElectronicBill().getClave() + ".xml");
             multipart.addBodyPart(messageBodyPart);
 
-            String xmlResponse = getResponse(bill);
             if (xmlResponse != null) {
                 messageBodyPart = new MimeBodyPart();
                 DataSource attachment2 = new ByteArrayDataSource(xmlResponse.getBytes("utf-8"), "text/plain");
@@ -116,8 +115,6 @@ public class EmailService {
 
         return false;
     }
-
-    private String getResponse(Bill bill) {
-        return null;
-    }
 }
+
+

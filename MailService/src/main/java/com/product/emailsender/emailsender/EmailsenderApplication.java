@@ -6,6 +6,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class EmailsenderApplication {
 	}
 
 	@RabbitListener(queues = "product.SendEmail")
-	public void listen(String in) {
+	public void listen(String in) throws Exception {
 		receiver.receiveMessage(in);
 	}
 
