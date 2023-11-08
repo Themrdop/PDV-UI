@@ -120,7 +120,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
       '/SaveBill', {
       products: products,
       recipient: {
-        name: '',
+        name: Nombre,
         numeroIdentificacion: Cedula,
         tipoIdentificacion: tipoIdentificacion,
         telefono: telefono,

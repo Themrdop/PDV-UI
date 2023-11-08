@@ -54,7 +54,7 @@ public class EmailService {
             msg.addHeader("format", "flowed");
             msg.addHeader("Content-Transfer-Encoding", "8bit");
 
-            msg.setFrom(new InternetAddress(emailID, "NoReply-JD"));
+            msg.setFrom(new InternetAddress(emailID, "Takeout"));
 
             msg.setReplyTo(InternetAddress.parse(emailID, false));
 

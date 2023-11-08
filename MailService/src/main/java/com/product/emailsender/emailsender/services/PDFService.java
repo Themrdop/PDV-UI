@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import com.product.emailsender.emailsender.models.Bill;
 import com.product.emailsender.emailsender.models.Invoice;
 import com.product.emailsender.emailsender.models.Enums.TipoPago;
 import com.product.emailsender.emailsender.util.CustomElementFactoryImpl;
+import com.product.emailsender.emailsender.util.MathHelper;
 
 @Service
 public class PDFService {
@@ -25,7 +29,8 @@ public class PDFService {
         return generateHtmlToPdf(bill, outputPdf);
     }
 
-    private static final String HTML_INPUT = "/Users/andrewallen/Code/PDV-UI/MailService/src/main/resources/static/invoice.html";
+    private static final String HTML_INPUT = "MailService/src/main/resources/static/invoice.html";
+    private static final String PATTERN_FORMAT = "dd/MM/YYYY hh:mm:ss a";
 
     private File generateHtmlToPdf(Bill bill, String outputPdfPath) throws Exception {
         File inputHTML = new File(HTML_INPUT);
@@ -59,12 +64,15 @@ public class PDFService {
 
     private String addDataToTemplate(String html, Bill bill) throws IOException {
         Handlebars handlebars = new Handlebars();
+        handlebars.registerHelper("math", new MathHelper());
         Template template = handlebars.compileInline(html);
         String metodoPago = getMetodoPago(bill.getMedioPago().get(0));
-        Invoice invoice = new Invoice(bill.getConsecutive(), bill.getDate(), bill.getElectronicBill().getComers().getName(),
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN_FORMAT).withLocale(Locale.forLanguageTag("es_CR") )
+       .withZone( ZoneId.of("America/Costa_Rica"));
+        Invoice invoice = new Invoice(bill.getConsecutive(), bill.getElectronicBill().getClave(), formatter.format(bill.getDate()), bill.getElectronicBill().getComers().getName(),
                 bill.getElectronicBill().getComers().getAddress(), bill.getElectronicBill().getComers().getPhone(), bill.getElectronicBill().getComers().getEmail(),
-                bill.getElectronicBill().getRecipient().getName(), bill.getElectronicBill().getRecipient().getEmail(), metodoPago,
-                bill.getProducts().size(), bill.getProducts().get(0).getPrice(), bill.getProducts(),
+                bill.getElectronicBill().getRecipient().getName(), bill.getElectronicBill().getRecipient().getEmail(), bill.getElectronicBill().getRecipient().getNumeroIdentificacion(), metodoPago,
+                bill.getProducts(),
                 bill.getTotal());
 
         return template.apply(invoice);
