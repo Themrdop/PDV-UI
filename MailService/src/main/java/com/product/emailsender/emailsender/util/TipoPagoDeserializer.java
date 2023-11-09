@@ -11,7 +11,6 @@ public class TipoPagoDeserializer extends TypeAdapter <TipoPago> {
 
 	@Override
 	public void write(JsonWriter out, TipoPago value) throws IOException {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'write'");
 	}
 

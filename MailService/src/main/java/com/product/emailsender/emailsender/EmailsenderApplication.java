@@ -1,12 +1,13 @@
 package com.product.emailsender.emailsender;
 
+import com.product.emailsender.emailsender.util.PropertiesUtils;
+
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ public class EmailsenderApplication {
 	}
 
 	public static void main(String[] args) {
+		PropertiesUtils.initProperties();
+
 		SpringApplication.run(EmailsenderApplication.class, args);
 	}
 

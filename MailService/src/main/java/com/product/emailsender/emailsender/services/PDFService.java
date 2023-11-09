@@ -18,24 +18,31 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.product.emailsender.emailsender.models.Bill;
 import com.product.emailsender.emailsender.models.Invoice;
+import com.product.emailsender.emailsender.models.PDFConfig;
 import com.product.emailsender.emailsender.models.Enums.TipoPago;
 import com.product.emailsender.emailsender.util.CustomElementFactoryImpl;
 import com.product.emailsender.emailsender.util.MathHelper;
 
 @Service
 public class PDFService {
-
-    public File generatePdf(Bill bill, String outputPdf) throws Exception {
-        return generateHtmlToPdf(bill, outputPdf);
-    }
-
+    
     private static final String HTML_INPUT = "MailService/src/main/resources/static/invoice.html";
     private static final String PATTERN_FORMAT = "dd/MM/YYYY hh:mm:ss a";
 
-    private File generateHtmlToPdf(Bill bill, String outputPdfPath) throws Exception {
+    private PDFConfig PDFConfig;
+
+    public PDFService(PDFConfig PDFConfig) {
+        this.PDFConfig = PDFConfig;
+    }
+
+    public File generatePdf(Bill bill) throws Exception {
+        return generateHtmlToPdf(bill);
+    }
+
+    private File generateHtmlToPdf(Bill bill) throws Exception {
         File inputHTML = new File(HTML_INPUT);
         Document inputHtml = createWellFormedHtml(inputHTML);
-        File outputPdf = new File(outputPdfPath + bill.getElectronicBill().getClave() + "_Recibo.pdf");
+        File outputPdf = new File(PDFConfig.getPath() + bill.getElectronicBill().getClave() + "_Recibo.pdf");
         xhtmlToPdf(inputHtml, outputPdf, bill);
         return outputPdf;
     }
@@ -84,5 +91,10 @@ public class PDFService {
             case Tarjeta -> "Tarjeta";
             case Efectivo -> "Efectivo";
         };
+    }
+
+    public void clear(Bill bill) {
+        File file = new File(PDFConfig.getPath() + bill.getElectronicBill().getClave() + "_Recibo.pdf");
+        file.delete();
     }
 }

@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @Configuration
 @NoArgsConstructor
-@ConfigurationProperties("pdf")
-public class Config {
-    private String path;
+@ConfigurationProperties("hacienda")
+public class HaciendaConfig {
+    private String username;
+    private String password;
+    private String jwt_endpoint;
 }

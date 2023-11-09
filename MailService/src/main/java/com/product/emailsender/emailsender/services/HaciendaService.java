@@ -15,17 +15,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.gson.Gson;
 import com.product.emailsender.emailsender.models.Bill;
+import com.product.emailsender.emailsender.models.HaciendaConfig;
 import com.product.emailsender.emailsender.models.Token;
 
 @Service
 public class HaciendaService {
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(3);
-    public final String JWT_ENDPOINT = "https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/openid-connect/token";
 
     private final WebClient.Builder webClientBuilder;
+    private HaciendaConfig haciendaConfig;
 
-    public HaciendaService(WebClient.Builder webClientBuilder) {
+    public HaciendaService(WebClient.Builder webClientBuilder,
+                            HaciendaConfig haciendaConfig) {
         this.webClientBuilder = webClientBuilder;
+        this.haciendaConfig = haciendaConfig;
     }
 
     public String getHaciendaResponce(Bill bill) throws Exception {
@@ -37,8 +40,6 @@ public class HaciendaService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block(REQUEST_TIMEOUT);
-
-                
     }
 
     private String getToken() throws Exception {
@@ -47,15 +48,15 @@ public class HaciendaService {
         MultiValueMap<String, String> values = new LinkedMultiValueMap<>();
         values.add("client_id", "api-stag");
         values.add("grant_type", "password");
-        values.add("username", "cpj-3-101-874921@stag.comprobanteselectronicos.go.cr");
-        values.add("password", "27QxB+O.3s%Q?]g_4:!8");
+        values.add("username", haciendaConfig.getUsername());
+        values.add("password", haciendaConfig.getPassword());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(values, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(JWT_ENDPOINT, request, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(haciendaConfig.getJwt_endpoint(), request, String.class);
 
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new Exception("Error: " + response.getBody());

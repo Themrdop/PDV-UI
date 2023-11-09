@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.product.emailsender.emailsender.models.Bill;
-import com.product.emailsender.emailsender.models.Config;
 import com.product.emailsender.emailsender.models.Recepcion;
 import com.product.emailsender.emailsender.models.Enums.TipoPago;
 import com.product.emailsender.emailsender.services.EmailService;
@@ -24,17 +23,14 @@ public class Receiver {
     private PDFService pdfService;
     private EmailService emailService;
     private HaciendaService haciendaService;
-    private Config config;
 
     @Autowired
     public Receiver(PDFService pdfService,
             EmailService emailService,
-            HaciendaService haciendaService,
-            Config config) {
+            HaciendaService haciendaService) {
         this.pdfService = pdfService;
         this.emailService = emailService;
         this.haciendaService = haciendaService;
-        this.config = config;
     }
 
     public void receiveMessage(String message) throws Exception {
@@ -45,12 +41,14 @@ public class Receiver {
         
         var bill = gson.fromJson(message, Bill.class);
 
-        File location = pdfService.generatePdf(bill, config.getPath());
+        File location = pdfService.generatePdf(bill);
         var respuesta_xml = haciendaService.getHaciendaResponce(bill);
 
         var x = gson.fromJson(respuesta_xml, Recepcion.class);
 
         emailService.sendEmail(location, bill, Base64Decode(x.getRespuesta_xml()));
+
+        pdfService.clear(bill);        
     }
 
     private String Base64Decode(String encodedString) {
