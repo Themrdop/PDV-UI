@@ -11,6 +11,8 @@ public static class EndPointConfiguration{
         app.MapPost("/UpdateCommerceInformation", CommerceInformationAPI.updateCommerceInformation);
         app.MapPost("/SaveCertificateForCommerce", CommerceInformationAPI.SaveCertificateForCommerceAsync);
         app.MapGet("/GetCertificate", CommerceInformationAPI.GetCertificate);
+        app.MapPost("/SaveLogo", CommerceInformationAPI.SaveLogo);
+        app.MapGet("/GetLogo", CommerceInformationAPI.GetLogo);
         app.MapGet("/GetUsers", UserAPI.GetUsers);
         app.MapPost("/AddUser", UserAPI.SaveUser);
         app.MapDelete("/DeleteUser", UserAPI.DeleteUser);

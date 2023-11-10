@@ -80,7 +80,57 @@ public static class CommerceInformationAPI
             if (response is not null)
             {
                 var Stream = new MemoryStream(response);
-                
+
+                return Results.Stream(Stream);
+            }
+
+            return Results.NotFound();
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError("Error guardando certificado, exception: {ex}", ex);
+
+            return Results.Problem(ex.Message);
+        }
+    }
+
+    internal static async Task<IResult> SaveLogo(Stream logo,
+                                                ICommerceInformationRepository commerceInformationRepository,
+                                                ILogger<CommerceInformation> logger,
+                                                CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (logo is null)
+                return Results.BadRequest();
+
+            var commerceInformation = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
+
+            var response = await commerceInformationRepository.SaveLogo(logo, commerceInformation, cancellationToken);
+
+            return Results.Ok(response);
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError("Error guardando certificado, exception: {ex}", ex);
+
+            return Results.Problem(ex.Message);
+        }
+    }
+
+    internal static async Task<IResult> GetLogo(string commersName,
+                                                ICommerceInformationRepository commerceInformationRepository,
+                                                ILogger<CommerceInformation> logger,
+                                                CancellationToken cancellationToken)
+    {
+        try
+        {
+            Byte[]? response = await commerceInformationRepository.GetLogo(commersName, cancellationToken);
+
+            if (response is not null)
+            {
+                var Stream = new MemoryStream(response);
+
                 return Results.Stream(Stream);
             }
 

@@ -30,9 +30,11 @@ public class PDFService {
     private static final String PATTERN_FORMAT = "dd/MM/YYYY hh:mm:ss a";
 
     private PDFConfig PDFConfig;
+    private CustomElementFactoryImpl customElementFactoryImpl;
 
-    public PDFService(PDFConfig PDFConfig) {
+    public PDFService(PDFConfig PDFConfig, CustomElementFactoryImpl customElementFactoryImpl) {
         this.PDFConfig = PDFConfig;
+        this.customElementFactoryImpl = customElementFactoryImpl;
     }
 
     public File generatePdf(Bill bill) throws Exception {
@@ -61,7 +63,7 @@ public class PDFService {
             SharedContext sharedContext = renderer.getSharedContext();
             sharedContext.setPrint(true);
             sharedContext.setInteractive(false);
-            sharedContext.setReplacedElementFactory(new CustomElementFactoryImpl());
+            sharedContext.setReplacedElementFactory(customElementFactoryImpl);
             String HTMLWitData = addDataToTemplate(xhtml.html(), bill);
             renderer.setDocumentFromString(HTMLWitData);
             renderer.layout();
