@@ -7,7 +7,6 @@ export const LayoutWrapper = styled.section`
 export const LayoutMain = styled.main`
   ${media.lessThan('large')`
     margin-top: 70px;
-    max-height: 95vh;
   `}
   background: #fff;
   

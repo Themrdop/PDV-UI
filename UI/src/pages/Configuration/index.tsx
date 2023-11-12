@@ -22,6 +22,7 @@ const Commerce: React.FC = () => {
     const [distritos, setDistritos] = useState<Distrito[]>([]);
     const [barrio, setBarrio] = useState<Barrio[]>([]);
     const [file, setFile] = useState<File | null>(null);
+    const [logoUrl, setLogoUrl] = useState('');
 
     const selectedProvincia = useRef<Provincia>({} as Provincia);
     const selectedCanton = useRef<Canton>({} as Canton);
@@ -110,7 +111,16 @@ const Commerce: React.FC = () => {
                 } as Canton]
             } as Provincia
         } as CommerceInfo);
+
+        fetchLogo(response.data.name);
     }
+
+    const fetchLogo = async (commersName: string) => {
+        const response = await fetch('http://localhost:5056/GetLogo?commersName=' + commersName);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setLogoUrl(url);
+    };
 
     const handleSelectChange = (event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
@@ -188,7 +198,6 @@ const Commerce: React.FC = () => {
                     formData
                 );
 
-                console.log(response.data);
                 toast.success('Se actualizo el certificado del comercio');
             } catch (error) {
                 console.error(error);
@@ -197,9 +206,20 @@ const Commerce: React.FC = () => {
         }
     };
 
-    const handleUpload = async () => {
-        if (file) {
-            
+    const handlelogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const file = e.target.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('http://localhost:5056/SaveLogo', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                console.log('Logo upload failed');
+            }
         }
     };
 
@@ -301,6 +321,19 @@ const Commerce: React.FC = () => {
                             )
                         })}
                     </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Logo:</Form.Label>
+                    <div className='input-group'>
+                        <Form.Control type="file"
+                            placeholder="logo"
+                            name="Logo"
+                            onChange={handlelogoChange} />
+                        <div>
+                            {logoUrl && <img src={logoUrl} alt="Logo" style={{ width: '35px', height: '35px' }} />}
+                        </div>
+                    </div>
+
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Certificado:</Form.Label>
