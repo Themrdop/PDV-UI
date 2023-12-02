@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 import org.jsoup.nodes.Document;
@@ -25,12 +29,14 @@ import com.product.emailsender.emailsender.util.MathHelper;
 
 @Service
 public class PDFService {
-    
-    private static final String HTML_INPUT = "MailService/src/main/resources/static/invoice.html";
+
+    //private static final String HTML_INPUT = "/invoice.html";
     private static final String PATTERN_FORMAT = "dd/MM/YYYY hh:mm:ss a";
 
     private PDFConfig PDFConfig;
     private CustomElementFactoryImpl customElementFactoryImpl;
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public PDFService(PDFConfig PDFConfig, CustomElementFactoryImpl customElementFactoryImpl) {
         this.PDFConfig = PDFConfig;
@@ -42,8 +48,14 @@ public class PDFService {
     }
 
     private File generateHtmlToPdf(Bill bill) throws Exception {
-        File inputHTML = new File(HTML_INPUT);
-        Document inputHtml = createWellFormedHtml(inputHTML);
+        Resource resource = resourceLoader.getResource("classpath:invoice.html");
+        File HTML_INPUT = null;
+        try {
+            HTML_INPUT = resource.getFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Document inputHtml = createWellFormedHtml(HTML_INPUT);
         File outputPdf = new File(PDFConfig.getPath() + bill.getElectronicBill().getClave() + "_Recibo.pdf");
         xhtmlToPdf(inputHtml, outputPdf, bill);
         return outputPdf;
@@ -76,11 +88,15 @@ public class PDFService {
         handlebars.registerHelper("math", new MathHelper());
         Template template = handlebars.compileInline(html);
         String metodoPago = getMetodoPago(bill.getMedioPago().get(0));
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN_FORMAT).withLocale(Locale.forLanguageTag("es_CR") )
-       .withZone( ZoneId.of("America/Costa_Rica"));
-        Invoice invoice = new Invoice(bill.getConsecutive(), bill.getElectronicBill().getClave(), formatter.format(bill.getDate()), bill.getElectronicBill().getComers().getName(),
-                bill.getElectronicBill().getComers().getAddress(), bill.getElectronicBill().getComers().getPhone(), bill.getElectronicBill().getComers().getEmail(),
-                bill.getElectronicBill().getRecipient().getName(), bill.getElectronicBill().getRecipient().getEmail(), bill.getElectronicBill().getRecipient().getNumeroIdentificacion(), metodoPago,
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN_FORMAT)
+                .withLocale(Locale.forLanguageTag("es_CR"))
+                .withZone(ZoneId.of("America/Costa_Rica"));
+        Invoice invoice = new Invoice(bill.getConsecutive(), bill.getElectronicBill().getClave(),
+                formatter.format(bill.getDate()), bill.getElectronicBill().getComers().getName(),
+                bill.getElectronicBill().getComers().getAddress(), bill.getElectronicBill().getComers().getPhone(),
+                bill.getElectronicBill().getComers().getEmail(),
+                bill.getElectronicBill().getRecipient().getName(), bill.getElectronicBill().getRecipient().getEmail(),
+                bill.getElectronicBill().getRecipient().getNumeroIdentificacion(), metodoPago,
                 bill.getProducts(),
                 bill.getTotal());
 

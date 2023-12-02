@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using RabbitMQHandler;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,9 +35,6 @@ if (!string.IsNullOrWhiteSpace(mongoUri))
 {
   builder.Services.AddSingleton(new DataBaseImplementation(mongoUri!));
 }
-string userName = builder.Configuration["userName"] ?? string.Empty,
-password = builder.Configuration["password"] ?? string.Empty,
-thumbprintCertificado = builder.Configuration["thumbprintCertificado"] ?? string.Empty;
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();

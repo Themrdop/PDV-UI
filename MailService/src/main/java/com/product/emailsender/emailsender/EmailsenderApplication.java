@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
@@ -39,6 +40,11 @@ public class EmailsenderApplication {
 	Binding binding(Queue queue, TopicExchange exchange) {
 		return BindingBuilder.bind(queue).to(exchange).with("foo.bar.#");
 	}
+
+	@Bean
+    public CachingConnectionFactory connectionFactory() {
+        return new CachingConnectionFactory("192.168.0.4");
+    }
 
 	@RabbitListener(queues = "product.SendEmail")
 	public void listen(String in) throws Exception {

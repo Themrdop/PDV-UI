@@ -3,7 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Products\Products.csproj" />
     <ProjectReference Include="..\Products.DataAccess\Products.DataAccess.csproj" />
-    <ProjectReference Include="..\..\..\..\util\RabbitMQ\RabbitMQHandler\src\RabbitMQHandler.csproj" />
+    <ProjectReference Include="..\RabbitMQHandler\RabbitMQHandler.csproj" />
   </ItemGroup>
 
   <ItemGroup>

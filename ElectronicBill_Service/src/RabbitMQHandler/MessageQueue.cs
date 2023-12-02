@@ -8,7 +8,7 @@ public class MessageQueue :IMessageQueue
     public static readonly string QUEUE_SEND_ELECTRONIC_BILL = "product.sendelectronicbill";
     public static readonly string QUEUE_SEND_EMAIL = "product.SendEmail";
 
-    private static readonly ConnectionFactory _factory = new ConnectionFactory { HostName = "localhost" };
+    private static readonly ConnectionFactory _factory = new ConnectionFactory { HostName = "192.168.0.4" };
 
     public void PublishToMessageQueue(string integrationEvent, string eventData)
     {
@@ -16,7 +16,7 @@ public class MessageQueue :IMessageQueue
         using var channel = connection.CreateModel();
 
         channel.QueueDeclare(queue: integrationEvent,
-                     durable: true,
+                     durable: false,
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);

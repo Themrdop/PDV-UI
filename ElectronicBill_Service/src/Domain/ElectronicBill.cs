@@ -17,29 +17,29 @@ namespace Domain.ElectronicBill;
 public class ElectronicBill : IElectronicBill
 {
   private const string COUNTRY_CODE = "506";
-  public const string ENDPOINT = @"https://api-sandbox.comprobanteselectronicos.go.cr/recepcion/v1";
-  public const string JWT_ENDPOINT = @"https://idp.comprobanteselectronicos.go.cr/auth/realms/rut-stag/protocol/openid-connect/token";
   public const string CODIGO_ACTIVIDAD = "552004";
   public const string CODIGO_PRODUCTO = "6332000000000";//Suministro de comida, servicio de restaurante sin mesero, con sitios para sentarse	13%
-
   private readonly IHttpClientFactory _httpClientFactory;
   private readonly IAsyncPolicy<HttpResponseMessage> _retryPolicy = Policy
       .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && (r.StatusCode != System.Net.HttpStatusCode.BadRequest | r.StatusCode != System.Net.HttpStatusCode.Unauthorized))
       .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
   private readonly string _userName;
   private readonly string _password;
-  private readonly string _thumbprintCertificado;
+  public readonly string _JWT_Endpoint;
+  public readonly string _endPoint;
   private IMemoryCache _cache;
 
   public ElectronicBill(string userName,
                         string password,
-                        string thumbprintCertificado,
+                        string JWT_Endpoint,
+                        string endPoint,
                         IMemoryCache cache,
                         IHttpClientFactory httpClientFactory)
   {
-    _userName = userName;
-    _password = password;
-    _thumbprintCertificado = thumbprintCertificado;
+    _userName = userName ?? throw new ArgumentNullException(nameof(userName));
+    _password = password ?? throw new ArgumentNullException(nameof(password));
+    _JWT_Endpoint = JWT_Endpoint ?? throw new ArgumentNullException(nameof(JWT_Endpoint));
+    _endPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
     _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
   }
@@ -219,7 +219,7 @@ public class ElectronicBill : IElectronicBill
 
     string token = await getToken(cancellationToken);
     httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + token);
-    return await _retryPolicy.ExecuteAsync(() => httpClient.PostAsJsonAsync<HaciendaMessage>(ENDPOINT + "/recepcion", haciendaMessage, cancellationToken: cancellationToken));
+    return await _retryPolicy.ExecuteAsync(() => httpClient.PostAsJsonAsync<HaciendaMessage>(_endPoint + "/recepcion", haciendaMessage, cancellationToken: cancellationToken));
   }
 
   private async Task<string> getToken(CancellationToken cancellationToken)
@@ -239,7 +239,7 @@ public class ElectronicBill : IElectronicBill
     values.Add("password", _password);
 
     var content = new FormUrlEncodedContent(values);
-    var response = await _retryPolicy.ExecuteAsync(() => httpClient.PostAsync(JWT_ENDPOINT, content));
+    var response = await _retryPolicy.ExecuteAsync(() => httpClient.PostAsync(_JWT_Endpoint, content));
     var responseString = await response.Content.ReadAsStringAsync();
 
     if ((response.StatusCode != System.Net.HttpStatusCode.OK))

@@ -57,6 +57,7 @@ public static class CommerceInformationAPI
             var commerceInformation = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
 
             var response = await commerceInformationRepository.SaveCertificate(certificate, commerceInformation, cancellationToken);
+            logger?.LogInformation("Se guardo el certificado del comercio: {commerceInformation}", commerceInformation);
 
             return Results.Ok(response);
         }
@@ -76,6 +77,7 @@ public static class CommerceInformationAPI
         try
         {
             var response = await commerceInformationRepository.GetCertificate(commersName, cancellationToken);
+            logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", response);
 
             if (response is not null)
             {
@@ -107,6 +109,7 @@ public static class CommerceInformationAPI
             var commerceInformation = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
 
             var response = await commerceInformationRepository.SaveLogo(logo, commerceInformation, cancellationToken);
+            logger?.LogInformation("Se guardo el certificado del comercio: {commerceInformation}", commerceInformation);
 
             return Results.Ok(response);
         }
@@ -126,6 +129,7 @@ public static class CommerceInformationAPI
         try
         {
             Byte[]? response = await commerceInformationRepository.GetLogo(commersName, cancellationToken);
+            logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", response);
 
             if (response is not null)
             {

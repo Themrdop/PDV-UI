@@ -13,7 +13,7 @@ public class ElectronicBillServices
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMessageQueue _messageQueue;
 
-    private const string baseURL = "http://localhost:5056";
+    private const string baseURL = "http://192.168.0.3:80";
 
     public ElectronicBillServices(ILogger<ElectronicBillServices> logger,
                                   IElectronicBill electronicBill,
