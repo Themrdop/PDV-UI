@@ -9,7 +9,7 @@ public class ClientAPI
     {
       var client = await clientRepository.GetClient(numeroIdentificacion, cancellationToken);
       logger?.LogInformation("Cliente consultado con exito");
-      return Results.Ok(client);
+      return Results.Ok(client?.FirstOrDefault());
     }
     catch (Exception ex)
     {

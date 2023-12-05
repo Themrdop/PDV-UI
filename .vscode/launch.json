@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "EmailsenderApplication",
+            "request": "launch",
+            "mainClass": "com.product.emailsender.emailsender.EmailsenderApplication",
+            "projectName": "messaging-rabbitmq"
+        },
+        {
             "name": ".NET Core Launch (web)",
             "type": "coreclr",
             "request": "launch",

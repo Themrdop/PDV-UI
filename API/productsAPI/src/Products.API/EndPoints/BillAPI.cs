@@ -1,11 +1,14 @@
+using System.Text.Json;
+using RabbitMQHandler;
+
 public class BillAPI
 {
   internal static async Task<IResult> Billing(LocalBill localBill,
                                               IBillRepository billRepository,
-                                              IElectronicBill electronicBill,
                                               IProductsRepository productsRepository,
                                               ICommerceInformationRepository commerceInformationRepository,
                                               ILogger<Product> logger,
+                                              IMessageQueue messageQueue,
                                               CancellationToken cancellationToken)
   {
     if (localBill is null || localBill.products is null || !localBill.products.Any())
@@ -26,12 +29,13 @@ public class BillAPI
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
-      //logger?.LogInformation("Enviando factura electronica");
-      //bill = await electronicBill.SendElectronicBill(bill, cancellationToken);
-
       await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-      //await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
+      if (!string.IsNullOrEmpty(localBill.recipient?.email) & 
+          !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion)){
+        logger?.LogInformation("Enviando factura electronica");
+        messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_ELECTRONIC_BILL, JsonSerializer.Serialize(bill));
+      }
 
       logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", bill.consecutive);
 
@@ -43,6 +47,16 @@ public class BillAPI
 
       return Results.Problem(ex.Message);
     }
+  }
+
+  internal static async Task<IResult> AddElectronicBill(Bill bill,
+                                                        IBillRepository billRepository,
+                                                        ILogger<Product> logger,
+                                                        CancellationToken cancellationToken)
+  {
+    await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
+
+    return Results.Ok(bill);
   }
 
   internal static async Task<IResult> GetAllBills(DateTime? dateBeginig,
@@ -92,7 +106,7 @@ public class BillAPI
     if (localBill.recipient is not null && emmiter is not null)
       bill.electronicBill = new ElectronicBill()
       {
-        recepient = localBill.recipient,
+        recipient = localBill.recipient,
         emitter = emmiter,
         Comers = commerce
       };
