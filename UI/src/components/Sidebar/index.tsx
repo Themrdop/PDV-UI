@@ -12,6 +12,8 @@ import api from '../../service/api';
 
 import OrderModal from '../Modal/OrderModal';
 
+import "./index.css";
+
 export interface Props {
   isSmall?: boolean;
 }
@@ -69,7 +71,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
     <s.SidebarWrapper>
       <div className="item">
         <s.Receipt>
-          <span className="notify-badge">{ }</span>
+          <span className="notify-badge">{ 1 }</span>
           <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
           <br />
           <s.Item>
