@@ -7,8 +7,6 @@ import { Toaster, toast } from 'react-hot-toast';
 import { Barrio, Canton, CommerceInfo, Distrito, OutCommerceMsj, Provincia, Provincias } from '../../models/models';
 import ubicaciones from '../../assets/data/localization.json';
 
-const { ipcRenderer } = window.require("electron");
-
 const Commerce: React.FC = () => {
     const divStyle = {
         borderTop: '2px solid #999',
@@ -22,7 +20,7 @@ const Commerce: React.FC = () => {
     const [distritos, setDistritos] = useState<Distrito[]>([]);
     const [barrio, setBarrio] = useState<Barrio[]>([]);
     const [file, setFile] = useState<File | null>(null);
-    const [logoUrl, setLogoUrl] = useState('');
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
     const selectedProvincia = useRef<Provincia>({} as Provincia);
     const selectedCanton = useRef<Canton>({} as Canton);
@@ -117,8 +115,12 @@ const Commerce: React.FC = () => {
 
     const fetchLogo = async (commersName: string) => {
         const response = await fetch('http://localhost:5056/GetLogo?commersName=' + commersName);
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
+        if (response.status !== 200) {
+            setLogoUrl(null);
+            return;
+        }
+        const blob = await response.arrayBuffer();
+        const url = URL.createObjectURL(new Blob([blob]));
         setLogoUrl(url);
     };
 
@@ -188,15 +190,23 @@ const Commerce: React.FC = () => {
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFile(e.target.files[0]);
-
-            const formData = new FormData();
-            formData.append("file", e.target.files[0]);
+            const file = e.target.files[0];
 
             try {
-                const response = await api.post(
-                    '/SaveCertificateForCommerce',
-                    formData
-                );
+                const buffer = await file.arrayBuffer();
+                const response = await fetch('http://localhost:5056/SaveCertificateForCommerce', {
+                    method: 'POST',
+                    body: new Blob([buffer], { type: file.type }),
+                    headers: {
+                        'Content-Type': file.type,
+                        'Content-Disposition': `attachment; filename="${file.name}"`,
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Error al actualizar el certificado del comercio');
+                    toast.error('Error al actualizar el certificado del comercio');
+                }
 
                 toast.success('Se actualizo el certificado del comercio');
             } catch (error) {
@@ -209,17 +219,22 @@ const Commerce: React.FC = () => {
     const handlelogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const file = e.target.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-
+            const buffer = await file.arrayBuffer();
             const response = await fetch('http://localhost:5056/SaveLogo', {
                 method: 'POST',
-                body: formData,
+                body: new Blob([buffer], { type: file.type }),
+                headers: {
+                    'Content-Type': file.type,
+                    'Content-Disposition': `attachment; filename="${file.name}"`,
+                }
             });
 
             if (!response.ok) {
-                console.log('Logo upload failed');
+                console.log('Logo upload failed' + response.statusText);
+                toast.error('Error al actualizar el logo del comercio');
             }
+
+            toast.success('Se actualizo el logo del comercio');
         }
     };
 

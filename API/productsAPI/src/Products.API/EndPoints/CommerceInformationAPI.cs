@@ -77,7 +77,7 @@ public static class CommerceInformationAPI
         try
         {
             var response = await commerceInformationRepository.GetCertificate(commersName, cancellationToken);
-            logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", response);
+            logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", commersName);
 
             if (response is not null)
             {
