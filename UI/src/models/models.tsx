@@ -118,3 +118,7 @@ export interface SaveOrder {
  products: Product[];
  date: Date;
 }
+
+export interface SavedOrders {
+  orders: SaveOrder[];
+}

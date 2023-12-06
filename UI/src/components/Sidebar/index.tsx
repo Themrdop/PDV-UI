@@ -67,22 +67,25 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
 
   return (
     <s.SidebarWrapper>
-      <s.Receipt>
-        <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
-        <br />
-        <s.Item>
-          <div>Descripción</div>
-          <div>Cantidad</div>
-          <div>Eliminar</div>
-        </s.Item>
-        {cart.map((p, index) => (
-          <s.Item key={index}>
-            <div>{p.name}</div>
-            <span>{p.amount}</span>
-            <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>
+      <div className="item">
+        <s.Receipt>
+          <span className="notify-badge">{ }</span>
+          <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
+          <br />
+          <s.Item>
+            <div>Descripción</div>
+            <div>Cantidad</div>
+            <div>Eliminar</div>
           </s.Item>
-        ))}
-      </s.Receipt>
+          {cart.map((p, index) => (
+            <s.Item key={index}>
+              <div>{p.name}</div>
+              <span>{p.amount}</span>
+              <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>
+            </s.Item>
+          ))}
+        </s.Receipt>
+      </div>
       <s.Total>
         Total <p>{cart.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0)}</p>
       </s.Total>
