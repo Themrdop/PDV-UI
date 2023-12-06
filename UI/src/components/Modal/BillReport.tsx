@@ -6,7 +6,6 @@ import "./PaymentModal.css";
 import { Bill } from "../../pages/Bills";
 import { ProductList } from "../ProductList";
 import { ListGroup } from "react-bootstrap";
-import { padding } from "polished";
 
 export interface Props {
   show: boolean;

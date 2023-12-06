@@ -111,3 +111,10 @@ export interface Person {
   phone: string;
   email: string;
 }
+
+export interface SaveOrder {
+ id: number;
+ name: string;
+ products: Product[];
+ date: Date;
+}
