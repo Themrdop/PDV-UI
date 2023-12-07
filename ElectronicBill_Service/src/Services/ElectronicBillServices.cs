@@ -13,17 +13,19 @@ public class ElectronicBillServices
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMessageQueue _messageQueue;
 
-    private const string baseURL = "http://192.168.0.3:80";
+    private readonly string _baseURL;
 
     public ElectronicBillServices(ILogger<ElectronicBillServices> logger,
                                   IElectronicBill electronicBill,
                                   IHttpClientFactory httpClientFactory,
-                                  IMessageQueue messageQueue)
+                                  IMessageQueue messageQueue,
+                                  string baseURL)
     {
         _logger = logger;
         _electronicBill = electronicBill;
         _httpClientFactory = httpClientFactory;
         _messageQueue = messageQueue;
+        _baseURL = baseURL;
     }
 
     public void RegisterListener()
@@ -55,7 +57,7 @@ public class ElectronicBillServices
                 var serializedBillFull = JsonSerializer.Serialize(billFull);
                 var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");
 
-                await _httpClientFactory.CreateClient().PutAsync($"{baseURL}/AddElectronicBill", content);
+                await _httpClientFactory.CreateClient().PutAsync($"{_baseURL}/AddElectronicBill", content);
 
                 _messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_EMAIL, serializedBillFull);
 
@@ -72,11 +74,11 @@ public class ElectronicBillServices
 
     private async Task<byte[]?> getCertificate(Bill bill, CancellationToken none)
     {
-        var response = await _httpClientFactory.CreateClient().GetAsync($"{baseURL}/GetCommerceInformation", none);
+        var response = await _httpClientFactory.CreateClient().GetAsync($"{_baseURL}/GetCommerceInformation", none);
 
         var commersInfo = JsonSerializer.Deserialize<CommerceInformation>(await response.Content.ReadAsStringAsync());
 
-        var certificate = await _httpClientFactory.CreateClient().GetAsync($"{baseURL}/GetCertificate?commersName={commersInfo.name}", none);
+        var certificate = await _httpClientFactory.CreateClient().GetAsync($"{_baseURL}/GetCertificate?commersName={commersInfo.name}", none);
 
         var stream = await certificate.Content.ReadAsStreamAsync();
 

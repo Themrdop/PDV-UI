@@ -42,7 +42,7 @@ public class Receiver {
         var bill = gson.fromJson(message, Bill.class);
 
         File location = pdfService.generatePdf(bill);
-        var respuesta_xml = haciendaService.getHaciendaResponce(bill);
+        var respuesta_xml = haciendaService.getHaciendaResponse(bill);
 
         var x = gson.fromJson(respuesta_xml, Recepcion.class);
 

@@ -1,5 +1,3 @@
-using System.Net;
-
 public static class CommerceInformationAPI
 {
     internal static async Task<IResult> updateCommerceInformation(CommerceInformation commerceInformation,

@@ -43,7 +43,7 @@ public class EmailsenderApplication {
 
 	@Bean
     public CachingConnectionFactory connectionFactory() {
-        return new CachingConnectionFactory("192.168.0.4");
+        return new CachingConnectionFactory("localhost");
     }
 
 	@RabbitListener(queues = "product.SendEmail")

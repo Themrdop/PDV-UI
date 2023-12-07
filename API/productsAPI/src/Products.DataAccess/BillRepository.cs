@@ -29,8 +29,6 @@ namespace Products.DataAccess{
                                     bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
                                     return bill;
                                 })
-                         .Where(bill => bill.date >= dates.Item1.ToDateTime(TimeOnly.MinValue) && 
-                                        bill.date <= dates.Item2.ToDateTime(TimeOnly.MaxValue))
                          .ToList();
 
             return bills;

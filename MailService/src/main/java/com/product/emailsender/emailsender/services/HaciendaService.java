@@ -31,7 +31,7 @@ public class HaciendaService {
         this.haciendaConfig = haciendaConfig;
     }
 
-    public String getHaciendaResponce(Bill bill) throws Exception {
+    public String getHaciendaResponse(Bill bill) throws Exception {
         String Token = getToken();
         return webClientBuilder.build()
                 .get()
@@ -46,7 +46,7 @@ public class HaciendaService {
         RestTemplate restTemplate = new RestTemplate();
 
         MultiValueMap<String, String> values = new LinkedMultiValueMap<>();
-        values.add("client_id", "api-stag");
+        values.add("client_id", haciendaConfig.getClient_id());
         values.add("grant_type", "password");
         values.add("username", haciendaConfig.getUsername());
         values.add("password", haciendaConfig.getPassword());

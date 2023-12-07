@@ -14,4 +14,5 @@ public class HaciendaConfig {
     private String username;
     private String password;
     private String jwt_endpoint;
+    private String client_id;
 }

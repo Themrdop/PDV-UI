@@ -10,7 +10,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Polly;
 using Products.Interfaces;
 using Products.Models;
-using System.Net.Http.Json;
 
 namespace Domain.ElectronicBill;
 
@@ -27,12 +26,14 @@ public class ElectronicBill : IElectronicBill
   private readonly string _password;
   public readonly string _JWT_Endpoint;
   public readonly string _endPoint;
+  private readonly string _clientId;
   private IMemoryCache _cache;
 
   public ElectronicBill(string userName,
                         string password,
                         string JWT_Endpoint,
                         string endPoint,
+                        string clientId,
                         IMemoryCache cache,
                         IHttpClientFactory httpClientFactory)
   {
@@ -40,6 +41,7 @@ public class ElectronicBill : IElectronicBill
     _password = password ?? throw new ArgumentNullException(nameof(password));
     _JWT_Endpoint = JWT_Endpoint ?? throw new ArgumentNullException(nameof(JWT_Endpoint));
     _endPoint = endPoint ?? throw new ArgumentNullException(nameof(endPoint));
+    _clientId = clientId ?? throw new ArgumentNullException(nameof(clientId));
     _cache = cache ?? throw new ArgumentNullException(nameof(cache));
     _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
   }
@@ -233,7 +235,7 @@ public class ElectronicBill : IElectronicBill
     var httpClient = _httpClientFactory.CreateClient();
 
     Dictionary<string, string> values = new();
-    values.Add("client_id", "api-stag");
+    values.Add("client_id", _clientId);//)"api-prod");
     values.Add("grant_type", "password");
     values.Add("username", _userName);
     values.Add("password", _password);
@@ -276,7 +278,7 @@ public class ElectronicBill : IElectronicBill
   {
     X509Certificate2? cert = null;
 
-    cert = new X509Certificate2(certificado, "1485");
+    cert = new X509Certificate2(certificado, "1121");
 
     XadesService xadesService = new XadesService();
     SignatureParameters parametros = new SignatureParameters();
