@@ -46,11 +46,11 @@ public class ElectronicBill : IElectronicBill
     _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
   }
 
-  public async Task<Bill> SendElectronicBill(Bill bill, byte[] certificate, CancellationToken cancellationToken)
+  public async Task<Bill> SendElectronicBill(Bill bill, byte[] certificate, string ping, CancellationToken cancellationToken)
   {
     string haciendaKey = generateKey(bill);
     string xmlDocument = GetXMLDocument(haciendaKey, bill);
-    string singedXML = singXML(xmlDocument, certificate);
+    string singedXML = singXML(xmlDocument, certificate, ping);
     string singedXMLInBase64 = Base64_Encode(singedXML);
     HaciendaMessage haciendaMessage = creatMessage(haciendaKey, bill.electronicBill.emitter, bill.electronicBill.recipient, singedXMLInBase64);
     HttpResponseMessage result = await sendToHacienda(haciendaMessage, cancellationToken);
@@ -274,7 +274,7 @@ public class ElectronicBill : IElectronicBill
     return false;
   }
 
-  private string singXML(string xmlDoc, byte[] certificado)
+  private string singXML(string xmlDoc, byte[] certificado, string pin)
   {
     X509Certificate2? cert = null;
 

@@ -52,7 +52,11 @@ public class ElectronicBillServices
                     return;
                 }
 
-                var billFull = await _electronicBill.SendElectronicBill(bill, certificate, CancellationToken.None);
+                var comercio = await _httpClientFactory.CreateClient().GetAsync($"{_baseURL}/GetCommerceInformation", CancellationToken.None);
+
+                var commersInfo = JsonSerializer.Deserialize<CommerceInformation>(await comercio.Content.ReadAsStringAsync());
+
+                var billFull = await _electronicBill.SendElectronicBill(bill, certificate, commersInfo.pinCertificado, CancellationToken.None);
 
                 var serializedBillFull = JsonSerializer.Serialize(billFull);
                 var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");

@@ -29,6 +29,7 @@ export interface CommerceInfo {
   logo: string;
   cedula: string;
   provincia: Provincia;
+  pinCertificado: string;
 }
 
 export interface Stock {
@@ -102,6 +103,7 @@ export interface OutCommerceMsj {
   canton: number;
   distrito: number;
   barrio: number;
+  pinCertificado: string;
 }
 
 export interface Person {

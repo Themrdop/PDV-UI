@@ -21,7 +21,7 @@ public class MessageQueue : IMessageQueue
         using var channel = connection.CreateModel();
 
         channel.QueueDeclare(queue: integrationEvent,
-                     durable: true,
+                     durable: false,
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);

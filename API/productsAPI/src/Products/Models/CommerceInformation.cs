@@ -12,6 +12,7 @@ namespace Products.Models
     public byte Canton { get; set; }
     public byte Distrito { get; set; }
     public byte Barrio { get; set; }
+    public string pinCertificado { get; set; } = string.Empty;
 
     public override string ToString()
     {

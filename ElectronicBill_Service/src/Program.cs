@@ -1,7 +1,5 @@
 ﻿using ElectronicBill;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Products.Interfaces;
 using RabbitMQHandler;
 

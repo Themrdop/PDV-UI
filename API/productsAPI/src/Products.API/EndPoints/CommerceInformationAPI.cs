@@ -127,7 +127,7 @@ public static class CommerceInformationAPI
         try
         {
             Byte[]? response = await commerceInformationRepository.GetLogo(commersName, cancellationToken);
-            logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", response);
+            logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", response?.Length);
 
             if (response is not null)
             {

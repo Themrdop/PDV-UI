@@ -13,7 +13,7 @@ const Commerce: React.FC = () => {
     };
 
     const [inputs, setInputs] = useState<CommerceInfo>({
-        name: '', address: '', phone: '', email: '', logo: '', cedula: '', provincia: { provincia: '', descripcion_Provincion: '', cantones: [] }
+        name: '', address: '', phone: '', email: '', logo: '', cedula: '', pinCertificado: '', provincia: { provincia: '', descripcion_Provincion: '', cantones: [] }
     });
 
     const [cantones, setCantones] = useState<Canton[]>([]);
@@ -31,7 +31,9 @@ const Commerce: React.FC = () => {
 
     const handleChange = (event: { target: { name: any; value: any; }; }) => {
         const name = event.target.name;
+        console.log(name);
         const value = event.target.value;
+        console.log(value);
         setInputs(values => ({ ...values, [name]: value }));
     }
 
@@ -50,6 +52,7 @@ const Commerce: React.FC = () => {
                 canton: Number.parseInt(inputs.provincia.cantones[0]?.canton),
                 distrito: Number.parseInt(inputs.provincia.cantones[0]?.distritos[0]?.distrito),
                 barrio: Number.parseInt(inputs.provincia.cantones[0]?.distritos[0]?.barrios[0]?.barrio),
+                pinCertificado: inputs.pinCertificado
             } as OutCommerceMsj
         );
 
@@ -68,7 +71,6 @@ const Commerce: React.FC = () => {
             '/GetCommerceInformation',
         );
 
-        let provincias2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())
         let cantones2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0]?.cantones || [];
         let Distritos2 = ubicaciones.filter((provincia: Provincia) => provincia.provincia === response.data.provincia.toString())[0]?.cantones
             .filter((canton: Canton) => canton.canton === response.data.canton.toString())[0].distritos || [];
@@ -92,6 +94,7 @@ const Commerce: React.FC = () => {
             email: response.data.email,
             logo: response.data.logo,
             cedula: response.data.cedula,
+            pinCertificado: response.data.pinCertificado,
             provincia: {
                 provincia: response.data.provincia.toString(),
                 descripcion_Provincion: '',
@@ -356,6 +359,13 @@ const Commerce: React.FC = () => {
                         placeholder="Certificado"
                         name="certificado"
                         onChange={handleFileChange} />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Pin de certificado:</Form.Label>
+                    <Form.Control type="password"
+                        onChange={handleChange}
+                        name="pinCertificado"
+                        value={inputs.pinCertificado || ""} />
                 </Form.Group>
                 <Button type="submit" variant="primary">Guardar</Button>
             </form>
