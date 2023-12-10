@@ -21,7 +21,6 @@ builder.Services.AddSingleton<ICommerceInformationRepository, CommerceInformatio
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IComboRepository, ComboRepository>();
 builder.Services.AddSingleton<IClientRepository, ClientRepository>();
-builder.Services.AddSingleton<IMessageQueue, MessageQueue>();
 
 #if DEBUG 
 builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);
@@ -35,6 +34,13 @@ if (!string.IsNullOrWhiteSpace(mongoUri))
 {
   builder.Services.AddSingleton(new DataBaseImplementation(mongoUri!));
 }
+
+builder.Services.AddSingleton<IMessageQueue>(new Func<IServiceProvider, IMessageQueue>(provider =>
+{
+  var configuration = provider.GetRequiredService<IConfiguration>();
+  var hostName = configuration["RabbitMQ:HostName"];
+  return new MessageQueue(hostName!);
+}));
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();

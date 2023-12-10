@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElectronicBill_Service", "src\ElectronicBill_Service.csproj", "{4303FC78-3AB2-4D48-AC04-06DAB4B70B23}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D044910A-6BD6-4C3C-8E25-AE0409AB9C48}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Products", "src\Products\Products.csproj", "{399498FB-8885-4156-98F7-8BB191E2F452}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Xades", "src\Library\Microsoft.Xades.csproj", "{83ADF98E-7E61-4F2D-8D36-8D21EDBD6600}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirmaXadesNet", "src\FirmaXadesNet\FirmaXadesNet.csproj", "{5676EEE6-33FB-4543-A7AA-3C2821C71A47}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQHandler", "src\RabbitMQHandler\RabbitMQHandler.csproj", "{55C87F99-1CAF-4ADE-B807-0F296CB4CEF0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4303FC78-3AB2-4D48-AC04-06DAB4B70B23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4303FC78-3AB2-4D48-AC04-06DAB4B70B23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4303FC78-3AB2-4D48-AC04-06DAB4B70B23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4303FC78-3AB2-4D48-AC04-06DAB4B70B23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{399498FB-8885-4156-98F7-8BB191E2F452}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{399498FB-8885-4156-98F7-8BB191E2F452}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{399498FB-8885-4156-98F7-8BB191E2F452}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{399498FB-8885-4156-98F7-8BB191E2F452}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83ADF98E-7E61-4F2D-8D36-8D21EDBD6600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83ADF98E-7E61-4F2D-8D36-8D21EDBD6600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83ADF98E-7E61-4F2D-8D36-8D21EDBD6600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83ADF98E-7E61-4F2D-8D36-8D21EDBD6600}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5676EEE6-33FB-4543-A7AA-3C2821C71A47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5676EEE6-33FB-4543-A7AA-3C2821C71A47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5676EEE6-33FB-4543-A7AA-3C2821C71A47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5676EEE6-33FB-4543-A7AA-3C2821C71A47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55C87F99-1CAF-4ADE-B807-0F296CB4CEF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55C87F99-1CAF-4ADE-B807-0F296CB4CEF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55C87F99-1CAF-4ADE-B807-0F296CB4CEF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55C87F99-1CAF-4ADE-B807-0F296CB4CEF0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{399498FB-8885-4156-98F7-8BB191E2F452} = {D044910A-6BD6-4C3C-8E25-AE0409AB9C48}
+		{83ADF98E-7E61-4F2D-8D36-8D21EDBD6600} = {D044910A-6BD6-4C3C-8E25-AE0409AB9C48}
+		{5676EEE6-33FB-4543-A7AA-3C2821C71A47} = {D044910A-6BD6-4C3C-8E25-AE0409AB9C48}
+		{55C87F99-1CAF-4ADE-B807-0F296CB4CEF0} = {D044910A-6BD6-4C3C-8E25-AE0409AB9C48}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {51E981BB-06D2-4035-ADFF-B571FC809CAD}
+	EndGlobalSection
+EndGlobal

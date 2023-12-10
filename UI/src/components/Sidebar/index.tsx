@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { MdPayment} from "react-icons/md";
-import { FcCancel } from "react-icons/fc";
+import { MdPayment } from "react-icons/md";
+import { FcCancel, FcSafe } from "react-icons/fc";
 
 import * as s from './styled';
-import {Cart, CommerceInfo, Product} from '../../models/models';
+import { PaymentModal } from '../Modal/PaymentModal';
+import { Cart, CommerceInfo, Product, SavedOrders } from '../../models/models';
 
 import toast from 'react-hot-toast';
 import api from '../../service/api';
-import { PaymentModal } from '../Modal/PaymentModal';
+
+import OrderNameModal from '../Modal/OrderNameModal';
+
+import "./index.css";
+import SavedOrdersList from '../Modal/SavedOrdersList';
 
 export interface Props {
   isSmall?: boolean;
@@ -16,20 +21,32 @@ export interface Props {
 
 const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
   const dispatch = useDispatch();
-  const [show, setShow] = useState(false);
+  const [showPayment, setPaymentShow] = useState(false);
+  const [showSavedorder, setSavedorderShow] = useState(false);
+  const [showOrderProun, setShowOrderProun] = useState(false);
   const [CommerceInfo, setCommerceInfo] = useState<CommerceInfo>({} as CommerceInfo);
 
   const cart = useSelector((state: Cart) => state.cart.map((product) => ({
     ...product,
   })));
 
+  const order = useSelector((state: SavedOrders) => state.saveOrder.map((order) => ({
+    ...order,
+  })));
+
   function handlerDelete(product: Product) {
     dispatch({ type: 'DELETE_FROM_CART', payload: product });
   }
 
-  async function handlePay(){
+  async function handlePay() {
     if (cart.length > 0) {
-      setShow(true)
+      setPaymentShow(true)
+    }
+  }
+
+  async function handlesavedOrders() {
+    if (order.length > 0) {
+      setSavedorderShow(true)
     }
   }
 
@@ -37,17 +54,17 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
     dispatch({ type: 'CLEAN', payload: cart })
   }
 
-  const showToastMessage = (success:boolean) => {
-    if(success){
+  const showToastMessage = (success: boolean) => {
+    if (success) {
       toast.success('El pago se realizó con exito');
-    }else{
+    } else {
       toast.error('Problema con el pago');
-    }    
+    }
   };
 
   async function loadCommerceInfo() {
     const response = await api.get<CommerceInfo>(
-        '/GetCommerceInformation',
+      '/GetCommerceInformation',
     );
     setCommerceInfo(response.data);
   }
@@ -56,45 +73,67 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
     loadCommerceInfo();
   }, []);
 
+  function addOrder(): void {
+    if (cart.length > 0) {
+      setShowOrderProun(true)
+    }
+  }
+
   return (
     <s.SidebarWrapper>
-      <s.Receipt>
-        <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
-        <br/>
-        <s.Item>
-          <div>Descripción</div>
-          <div>Cantidad</div>
-          <div>Eliminar</div>
-        </s.Item>
-        {cart.map((p, index) => (
-          <s.Item key={index}>
-            <div>{p.name}</div>
-            <span>{p.amount}</span>
-            <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>
+      <div className="item">
+        <s.Receipt>
+          {order.length > 0 && <span className="notify-badge" onClick={() => handlesavedOrders()}>{order.length}</span>}
+          <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
+          <br />
+          <s.Item>
+            <div>Descripción</div>
+            <div>Cantidad</div>
+            <div>Eliminar</div>
           </s.Item>
-        ))}
-      </s.Receipt>
+          {cart.map((p, index) => (
+            <s.Item key={index}>
+              <div>{p.name}</div>
+              <span>{p.amount}</span>
+              <s.SmallButton onClick={(e) => handlerDelete(p)}>x</s.SmallButton>
+            </s.Item>
+          ))}
+        </s.Receipt>
+      </div>
       <s.Total>
         Total <p>{cart.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0)}</p>
       </s.Total>
       <s.ButtonWrapper>
         <s.Button onClick={() => handlePay()}>
-          <MdPayment size={35}/>
+          <MdPayment size={35} />
           Pagar
         </s.Button>
+        <s.Button onClick={() => addOrder()}>
+          <FcSafe size={35} />
+          Guardar
+        </s.Button>
         <s.Button onClick={() => clean()}>
-          <FcCancel size={35}/>
+          <FcCancel size={35} />
           Cancelar
         </s.Button>
       </s.ButtonWrapper>
-      <PaymentModal products={cart} onClose={(result: boolean) => 
-          {setShow(false);
-            showToastMessage(result);
-            if(result){
-              clean();
-            }
-          }
-        } show={show}/>
+      <PaymentModal products={cart} onClose={(result: boolean) => {
+        setPaymentShow(false);
+        showToastMessage(result);
+        if (result) {
+          clean();
+        }
+      }
+      } show={showPayment} />
+      <OrderNameModal products={cart} onClose={(result: boolean) => {
+        setShowOrderProun(false);
+        if (result) {
+          clean();
+        }
+      }} show={showOrderProun} />
+      <SavedOrdersList onClose={(result: boolean) => {
+        setSavedorderShow(false);
+      }} show={showSavedorder} />
     </s.SidebarWrapper>
   );
 };
