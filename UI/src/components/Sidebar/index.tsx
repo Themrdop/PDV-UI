@@ -5,14 +5,15 @@ import { FcCancel, FcSafe } from "react-icons/fc";
 
 import * as s from './styled';
 import { PaymentModal } from '../Modal/PaymentModal';
-import { Cart, CommerceInfo, Product } from '../../models/models';
+import { Cart, CommerceInfo, Product, SavedOrders } from '../../models/models';
 
 import toast from 'react-hot-toast';
 import api from '../../service/api';
 
-import OrderModal from '../Modal/OrderModal';
+import OrderNameModal from '../Modal/OrderNameModal';
 
 import "./index.css";
+import SavedOrdersList from '../Modal/SavedOrdersList';
 
 export interface Props {
   isSmall?: boolean;
@@ -21,11 +22,16 @@ export interface Props {
 const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
   const dispatch = useDispatch();
   const [showPayment, setPaymentShow] = useState(false);
+  const [showSavedorder, setSavedorderShow] = useState(false);
   const [showOrderProun, setShowOrderProun] = useState(false);
   const [CommerceInfo, setCommerceInfo] = useState<CommerceInfo>({} as CommerceInfo);
 
   const cart = useSelector((state: Cart) => state.cart.map((product) => ({
     ...product,
+  })));
+
+  const order = useSelector((state: SavedOrders) => state.saveOrder.map((order) => ({
+    ...order,
   })));
 
   function handlerDelete(product: Product) {
@@ -35,6 +41,12 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
   async function handlePay() {
     if (cart.length > 0) {
       setPaymentShow(true)
+    }
+  }
+
+  async function handlesavedOrders() {
+    if (order.length > 0) {
+      setSavedorderShow(true)
     }
   }
 
@@ -71,7 +83,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
     <s.SidebarWrapper>
       <div className="item">
         <s.Receipt>
-          <span className="notify-badge">{ 1 }</span>
+          {order.length > 0 && <span className="notify-badge" onClick={() => handlesavedOrders()}>{order.length}</span>}
           <s.BillHeader>{CommerceInfo.name}</s.BillHeader>
           <br />
           <s.Item>
@@ -113,12 +125,15 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
         }
       }
       } show={showPayment} />
-      <OrderModal products={cart} onClose={(result: boolean) => {
+      <OrderNameModal products={cart} onClose={(result: boolean) => {
         setShowOrderProun(false);
         if (result) {
           clean();
         }
       }} show={showOrderProun} />
+      <SavedOrdersList onClose={(result: boolean) => {
+        setSavedorderShow(false);
+      }} show={showSavedorder} />
     </s.SidebarWrapper>
   );
 };

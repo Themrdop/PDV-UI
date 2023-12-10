@@ -14,12 +14,17 @@ export default function cart(state = [] as Product[], action: Action) {
       return produce(state, (draft: Product[]) => {
         const prodIndex = draft.findIndex((p: Product) => action.payload.id === p.id);
 
+        let amount = 1;
+
+        if(action.payload.amount > 0)
+          amount = action.payload.amount;
+
         if (prodIndex >= 0) {
           draft[prodIndex].amount += 1;
         } else {
           draft.push({
             ...action.payload,
-            amount: 1,
+            amount: amount,
           });
         }
       });
