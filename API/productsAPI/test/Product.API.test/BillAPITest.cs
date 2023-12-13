@@ -6,7 +6,6 @@ using RabbitMQHandler;
 using static BillAPI;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Castle.Core.Logging;
 
 namespace Products.API.test;
 
@@ -309,6 +308,6 @@ public class BillAPITest
         //Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<Ok<IEnumerable<Bill>>>();
-        result.As<Ok<List<Bill>>>().Value.Should().BeEquivalentTo(bills);
+        result.As<Ok<IEnumerable<Bill>>>().Value.Should().BeEquivalentTo(bills);
     }
 }
