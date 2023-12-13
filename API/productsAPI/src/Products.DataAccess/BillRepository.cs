@@ -20,7 +20,7 @@ namespace Products.DataAccess{
 
             var BaseBills = await _bills.FindAsync<Bill>(filter, cancellationToken:cancellationToken);
 
-            var bills = BaseBills.ToList();
+            var bills = BaseBills.ToEnumerable();
 
             if (bills is null)
                 return new List<Bill>();
@@ -29,7 +29,8 @@ namespace Products.DataAccess{
                                     bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
                                     return bill;
                                 })
-                         .ToList();
+                         .Where(bill => bill.date >= dates.Item1.ToDateTime(TimeOnly.MinValue) && 
+                                        bill.date <= dates.Item2.ToDateTime(TimeOnly.MaxValue));
 
             return bills;
         } 
