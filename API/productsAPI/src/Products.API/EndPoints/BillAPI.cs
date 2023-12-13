@@ -3,11 +3,11 @@ using RabbitMQHandler;
 
 public class BillAPI
 {
-  internal static async Task<IResult> Billing(LocalBill localBill,
+  public static async Task<IResult> Billing(LocalBill localBill,
                                               IBillRepository billRepository,
                                               IProductsRepository productsRepository,
                                               ICommerceInformationRepository commerceInformationRepository,
-                                              ILogger<Product> logger,
+                                              ILogger<BillAPI> logger,
                                               IMessageQueue messageQueue,
                                               CancellationToken cancellationToken)
   {
@@ -49,20 +49,25 @@ public class BillAPI
     }
   }
 
-  internal static async Task<IResult> AddElectronicBill(Bill bill,
+  public static async Task<IResult> AddElectronicBill(Bill bill,
                                                         IBillRepository billRepository,
-                                                        ILogger<Product> logger,
+                                                        ILogger<BillAPI> logger,
                                                         CancellationToken cancellationToken)
   {
+    if (bill is null)
+      return Results.BadRequest();
+
     await billRepository.UpdateAddElectronicBill(bill, cancellationToken);
+
+    logger?.LogInformation("Factura electronica agregada con exito, consecutivo: {consecutive}", bill.consecutive);
 
     return Results.Ok(bill);
   }
 
-  internal static async Task<IResult> GetAllBills(DateTime? dateBeginig,
+  public static async Task<IResult> GetAllBills(DateTime? dateBeginig,
                                                   DateTime? dateEnd,
                                                   IBillRepository billRepository,
-                                                  ILogger<Product> logger,
+                                                  ILogger<BillAPI> logger,
                                                   CancellationToken cancellationToken)
   {
 
@@ -74,10 +79,10 @@ public class BillAPI
     return Results.Ok(bills);
   }
 
-  internal static async Task<IResult> GetDaylyReport(DateTime? dateBeginig,
+  public static async Task<IResult> GetDaylyReport(DateTime? dateBeginig,
                                                     DateTime? dateEnd,
                                                     IBillRepository billRepository,
-                                                    ILogger<Product> logger,
+                                                    ILogger<BillAPI> logger,
                                                     CancellationToken cancellationToken)
   {
     var bills = await billRepository
