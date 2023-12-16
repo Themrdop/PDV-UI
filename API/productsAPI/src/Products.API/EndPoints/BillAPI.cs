@@ -19,20 +19,21 @@ public class BillAPI
       var commers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
 
       Bill bill = CreateBill(localBill, new Person()
-                             {
-                               name = commers.name,
-                               numeroIdentificacion = commers.cedula,
-                               tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
-                               phone = commers.phone,
-                               email = commers.email
-                             }, commers);
+      {
+        name = commers.name,
+        numeroIdentificacion = commers.cedula,
+        tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
+        phone = commers.phone,
+        email = commers.email
+      }, commers);
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
       await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-      if (!string.IsNullOrEmpty(localBill.recipient?.email) & 
-          !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion)){
+      if (!string.IsNullOrEmpty(localBill.recipient?.email) &
+          !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion))
+      {
         logger?.LogInformation("Enviando factura electronica");
         messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_ELECTRONIC_BILL, JsonSerializer.Serialize(bill));
       }
@@ -71,9 +72,21 @@ public class BillAPI
                                                   CancellationToken cancellationToken)
   {
 
-        var bills = await billRepository
-        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue), 
-                                                   DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+    var bills = await billRepository
+    .GetAllBills(cancellationToken);
+
+    if (dateBeginig is null && dateEnd is null)
+      return Results.Ok(bills);
+
+    bills = bills
+              .Select(bill =>
+              {
+                bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
+                return bill;
+              })
+              .Where(bill => bill.date >= dateBeginig &&
+                             bill.date <= dateEnd);
+
     logger?.LogInformation("Todos las facturas fueron consultados");
 
     return Results.Ok(bills);
@@ -86,9 +99,20 @@ public class BillAPI
                                                     CancellationToken cancellationToken)
   {
     var bills = await billRepository
-        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateBeginig ?? DateTime.MaxValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"))), 
-                                                   DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateEnd ?? DateTime.MinValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")))), cancellationToken);
-    
+        .GetAllBills(cancellationToken);
+
+    if (dateBeginig is null && dateEnd is null)
+      return Results.Ok(bills);
+
+    bills = bills
+              .Select(bill =>
+              {
+                bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
+                return bill;
+              })
+              .Where(bill => bill.date >= dateBeginig &&
+                             bill.date <= dateEnd);
+
     logger?.LogInformation("Todos las facturas fueron consultados");
 
     var report = new Report().FromBills(bills);
@@ -134,7 +158,8 @@ public class BillAPI
     public List<Line> products = new List<Line>();
     public DateTime date = new DateTime();
 
-    public Report FromBills(IEnumerable<Bill> bills){
+    public Report FromBills(IEnumerable<Bill> bills)
+    {
       var report = new Report();
       var products = new List<Product>();
 
@@ -146,12 +171,12 @@ public class BillAPI
       }
 
       this.products = (from product in products
-                      group product by product.id into g
-                      select new Line (products.First(x => x.id == g.Key), products.Where(x => x.id == g.Key).Sum(x => x.amount))).ToList(); 
+                       group product by product.id into g
+                       select new Line(products.First(x => x.id == g.Key), products.Where(x => x.id == g.Key).Sum(x => x.amount))).ToList();
 
       return this;
     }
   }
 
-  public record Line(Product product,int count);
+  public record Line(Product product, int count);
 }

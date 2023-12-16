@@ -290,7 +290,8 @@ public class BillAPITest
                     price = 1000,
                     amount = 1
                 }
-            }
+            },
+            date = new DateTime(2021, 12, 12).ToUniversalTime()
         };
 
         var bills = new List<Bill>()
@@ -298,10 +299,48 @@ public class BillAPITest
             bill
         };
 
-        _billRepositoryMock.Setup(x => x.GetAllBills(It.IsAny<Tuple<DateOnly, DateOnly>>(),It.IsAny<CancellationToken>())).ReturnsAsync(bills);
+        _billRepositoryMock.Setup(x => x.GetAllBills(It.IsAny<CancellationToken>())).ReturnsAsync(bills);
 
         //Act
         var result = await BillAPI.GetAllBills(null, null, _billRepositoryMock.Object,
+                                           _loggerMock.Object,
+                                           CancellationToken.None);
+
+        //Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<Ok<IEnumerable<Bill>>>();
+        result.As<Ok<IEnumerable<Bill>>>().Value.Should().BeEquivalentTo(bills);
+    }
+
+    //add unit test for get all bills in the date range 12-12-2021 to 12-12-2021
+    [Test]
+    public async Task TestGetAllBillsWithDateRange()
+    {
+        //Arrange
+        var bill = new Bill()
+        {
+            products = new List<Product>()
+            {
+                new Product()
+                {
+                    id = Guid.Empty.ToString(),
+                    name = "Test",
+                    price = 1000,
+                    amount = 1
+                }
+            },
+            date = new DateTime(2021, 12, 12).ToUniversalTime()
+        };
+
+        var bills = new List<Bill>()
+        {
+            bill
+        };
+
+        _billRepositoryMock.Setup(x => x.GetAllBills(It.IsAny<CancellationToken>())).ReturnsAsync(bills);
+
+        //Act
+        var result = await BillAPI.GetAllBills(new DateTime(2021, 12, 12), new DateTime(2021, 12, 12), _billRepositoryMock.Object,
                                            _loggerMock.Object,
                                            CancellationToken.None);
 

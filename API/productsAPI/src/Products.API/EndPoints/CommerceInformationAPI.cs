@@ -1,6 +1,6 @@
 public static class CommerceInformationAPI
 {
-    internal static async Task<IResult> updateCommerceInformation(CommerceInformation commerceInformation,
+    public static async Task<IResult> updateCommerceInformation(CommerceInformation commerceInformation,
                                                                   ICommerceInformationRepository commerceInformationRepository,
                                                                   ILogger<CommerceInformation> logger,
                                                                   CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ public static class CommerceInformationAPI
         }
     }
 
-    internal static async Task<IResult> getCommerceInformation(ICommerceInformationRepository commerceInformationRepository,
+    public static async Task<IResult> getCommerceInformation(ICommerceInformationRepository commerceInformationRepository,
                                                                ILogger<CommerceInformation> logger,
                                                                CancellationToken cancellationToken)
     {
@@ -42,7 +42,7 @@ public static class CommerceInformationAPI
         }
     }
 
-    internal static async Task<IResult> SaveCertificateForCommerceAsync(Stream certificate,
+    public static async Task<IResult> SaveCertificateForCommerceAsync(Stream certificate,
                                                                         ICommerceInformationRepository commerceInformationRepository,
                                                                         ILogger<CommerceInformation> logger,
                                                                         CancellationToken cancellationToken)
@@ -67,7 +67,7 @@ public static class CommerceInformationAPI
         }
     }
 
-    internal static async Task<IResult> GetCertificate(string commersName,
+    public static async Task<IResult> GetCertificate(string commersName,
                                                        ICommerceInformationRepository commerceInformationRepository,
                                                        ILogger<CommerceInformation> logger,
                                                        CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ public static class CommerceInformationAPI
         }
     }
 
-    internal static async Task<IResult> SaveLogo(Stream logo,
+    public static async Task<IResult> SaveLogo(Stream logo,
                                                 ICommerceInformationRepository commerceInformationRepository,
                                                 ILogger<CommerceInformation> logger,
                                                 CancellationToken cancellationToken)
@@ -119,7 +119,7 @@ public static class CommerceInformationAPI
         }
     }
 
-    internal static async Task<IResult> GetLogo(string commersName,
+    public static async Task<IResult> GetLogo(string commersName,
                                                 ICommerceInformationRepository commerceInformationRepository,
                                                 ILogger<CommerceInformation> logger,
                                                 CancellationToken cancellationToken)
