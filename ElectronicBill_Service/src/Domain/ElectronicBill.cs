@@ -278,7 +278,7 @@ public class ElectronicBill : IElectronicBill
   {
     X509Certificate2? cert = null;
 
-    cert = new X509Certificate2(certificado, "1121");
+    cert = new X509Certificate2(certificado, pin);
 
     XadesService xadesService = new XadesService();
     SignatureParameters parametros = new SignatureParameters();

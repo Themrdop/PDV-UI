@@ -1,5 +1,6 @@
 package com.product.emailsender.emailsender;
 
+import com.product.emailsender.emailsender.models.MongoConfig;
 import com.product.emailsender.emailsender.util.PropertiesUtils;
 
 import org.springframework.amqp.core.Binding;
@@ -20,10 +21,13 @@ public class EmailsenderApplication {
 	static final String queueName = "product.SendEmail";
 
 	private Receiver receiver;
+	private MongoConfig mongoConfig;
 
 	@Autowired
-	public EmailsenderApplication(Receiver receiver) {
+	public EmailsenderApplication(Receiver receiver,
+                                  MongoConfig mongoConfig) {
 		this.receiver = receiver;
+		this.mongoConfig = mongoConfig;
 	}
 
 	@Bean
@@ -43,7 +47,7 @@ public class EmailsenderApplication {
 
 	@Bean
     public CachingConnectionFactory connectionFactory() {
-        return new CachingConnectionFactory("localhost");
+        return new CachingConnectionFactory(mongoConfig.getHost());
     }
 
 	@RabbitListener(queues = "product.SendEmail")

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -30,7 +29,6 @@ import com.product.emailsender.emailsender.util.MathHelper;
 @Service
 public class PDFService {
 
-    //private static final String HTML_INPUT = "/invoice.html";
     private static final String PATTERN_FORMAT = "dd/MM/YYYY hh:mm:ss a";
 
     private PDFConfig PDFConfig;
