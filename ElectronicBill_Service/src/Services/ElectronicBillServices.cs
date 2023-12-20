@@ -1,9 +1,3 @@
-using Products.Interfaces;
-using Products.Models;
-using RabbitMQHandler;
-using System.Text;
-using System.Text.Json;
-
 namespace ElectronicBill;
 
 public class ElectronicBillServices
@@ -32,47 +26,38 @@ public class ElectronicBillServices
     {
         MessageQueue.ListenForIntegrationEvents(async jsonString =>
         {
-            try
+            _logger.LogInformation($"Received message: {jsonString}");
+
+            Bill? bill = JsonSerializer.Deserialize<Bill>(jsonString);
+
+            if (bill == null)
             {
-                _logger.LogInformation($"Received message: {jsonString}");
-
-                Bill? bill = JsonSerializer.Deserialize<Bill>(jsonString);
-
-                if (bill == null)
-                {
-                    _logger.LogError("Error deserializing bill");
-                    return;
-                }
-
-                byte[]? certificate = await getCertificate(bill, CancellationToken.None);
-
-                if (certificate == null)
-                {
-                    _logger.LogError("Error getting certificate");
-                    return;
-                }
-
-                var comercio = await _httpClientFactory.CreateClient().GetAsync($"{_baseURL}/GetCommerceInformation", CancellationToken.None);
-
-                var commersInfo = JsonSerializer.Deserialize<CommerceInformation>(await comercio.Content.ReadAsStringAsync());
-
-                var billFull = await _electronicBill.SendElectronicBill(bill, certificate, commersInfo.pinCertificado, CancellationToken.None);
-
-                var serializedBillFull = JsonSerializer.Serialize(billFull);
-                var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");
-
-                await _httpClientFactory.CreateClient().PutAsync($"{_baseURL}/AddElectronicBill", content);
-
-                _messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_EMAIL, serializedBillFull);
-
-                Console.WriteLine($"Bill sent: {serializedBillFull}");
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Exception processing message {message}", ex.Message);
+                _logger.LogError("Error deserializing bill");
+                return;
             }
 
+            byte[]? certificate = await getCertificate(bill, CancellationToken.None);
+
+            if (certificate == null)
+            {
+                _logger.LogError("Error getting certificate");
+                return;
+            }
+
+            var comercio = await _httpClientFactory.CreateClient().GetAsync($"{_baseURL}/GetCommerceInformation", CancellationToken.None);
+
+            var commersInfo = JsonSerializer.Deserialize<CommerceInformation>(await comercio.Content.ReadAsStringAsync());
+
+            var billFull = await _electronicBill.SendElectronicBill(bill, certificate, commersInfo.pinCertificado, CancellationToken.None);
+
+            var serializedBillFull = JsonSerializer.Serialize(billFull);
+            var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");
+
+            await _httpClientFactory.CreateClient().PutAsync($"{_baseURL}/AddElectronicBill", content);
+
+            _messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_EMAIL, serializedBillFull);
+
+            Console.WriteLine($"Bill sent: {serializedBillFull}");
         });
     }
 

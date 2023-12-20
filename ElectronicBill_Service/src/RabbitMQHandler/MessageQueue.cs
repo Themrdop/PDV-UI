@@ -1,8 +1,4 @@
-﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
-
-namespace RabbitMQHandler;
+﻿namespace RabbitMQHandler;
 public class MessageQueue : IMessageQueue
 {
     public static readonly string QUEUE_SEND_ELECTRONIC_BILL = "product.sendelectronicbill";
@@ -42,16 +38,24 @@ public class MessageQueue : IMessageQueue
 
         consumer.Received += (model, ea) =>
         {
-            var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            func(message);
+            try
+            {
+                var body = ea.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                func(message);
+            }
+            catch (Exception ex)
+            {
+                channel.BasicReject(ea.DeliveryTag, true);
+                Console.WriteLine($"Rejecting message and putting it back to the queue:\n{ex.Message}");
+                Console.WriteLine(ex.Message);
+            }
         };
         channel.BasicConsume(queue: QUEUE_SEND_ELECTRONIC_BILL,
                                  autoAck: true,
                                  consumer: consumer);
     }
 }
-
 
 public interface IMessageQueue
 {

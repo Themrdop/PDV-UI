@@ -1,9 +1,4 @@
-﻿using ElectronicBill;
-using Microsoft.Extensions.Caching.Memory;
-using Products.Interfaces;
-using RabbitMQHandler;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 #if DEBUG 
 builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);

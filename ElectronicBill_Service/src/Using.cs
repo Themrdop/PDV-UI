@@ -1,5 +1,11 @@
 global using Microsoft.Extensions.Logging;
-global using System.Threading;
-global using System.Threading.Tasks;
-global using System;
+global using ElectronicBill;
+global using Microsoft.Extensions.Caching.Memory;
+global using Products.Interfaces;
+global using RabbitMQHandler;
 global using Microsoft.AspNetCore.Builder;
+global using Products.Models;
+global using System.Text;
+global using System.Text.Json;
+global using RabbitMQ.Client;
+global using RabbitMQ.Client.Events;
