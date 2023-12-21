@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-  FiUser, FiSliders, FiBox, FiMonitor, FiInfo, FiSmile,
+  FiUser, FiSliders, FiBox, FiMonitor, FiInfo, FiSmile, FiEye,
 } from 'react-icons/fi';
 import {
   RiBillLine
@@ -41,6 +41,11 @@ const MenuBar: React.FC = () => (
       <s.MenuBarLink to="/sales" title="Ventas">
         <s.MenuBarItem>
           <FiSmile size="1.6em" />
+        </s.MenuBarItem>
+      </s.MenuBarLink>
+      <s.MenuBarLink to="/BillState" title="Estado Facturas">
+        <s.MenuBarItem>
+          <FiEye size="1.6em" />
         </s.MenuBarItem>
       </s.MenuBarLink>
     </s.MenuBarGroup>
