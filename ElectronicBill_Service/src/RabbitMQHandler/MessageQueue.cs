@@ -1,4 +1,8 @@
-﻿namespace RabbitMQHandler;
+﻿using System.Text;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+
+namespace RabbitMQHandler;
 public class MessageQueue : IMessageQueue
 {
     public static readonly string QUEUE_SEND_ELECTRONIC_BILL = "product.sendelectronicbill";

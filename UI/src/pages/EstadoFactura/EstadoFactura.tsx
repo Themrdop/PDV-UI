@@ -7,7 +7,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import api from "../../service/api";
 import BillReport from '../../components/Modal/BillReport';
 import { Product } from '../../models/models';
-import { ExportCSV } from '../../utils/excel/ExportCSV';
 
 export interface Bill {
     consecutive: number;
@@ -15,6 +14,7 @@ export interface Bill {
     total: number;
     medioPago: number[];
     products: Product[];
+    state: number;
     electronicBill: ElectronicBill;
   }
 
@@ -55,7 +55,47 @@ const BillState: React.FC = () => {
     const [endDate, setEndDate] = useState(new Date(Date.now()));
     const [bills, setBills] = useState<Bill[]>([]); 
     const [show, setShow] = useState(false);
-    const [selectedBill, setSelectedBill] = useState<Bill>({consecutive:-1, date: '', total: 0, medioPago: [], products: [], electronicBill: {clave: '', emitter: {name: '', tipoIdentificacion: '', numeroIdentificacion: '', phone: '', email: ''}, recipient: {name: '', tipoIdentificacion: '', numeroIdentificacion: '', phone: '', email: ''}, electronicBill: '', location: undefined, errorMessages: undefined, comers: {name: '', cedula: '', address: '', phone: '', email: '', logo: '', provincia: 0, canton: 0, distrito: 0, barrio: 0, pinCertificado: ''}}}); 
+    const [selectedBill, setSelectedBill] = useState<Bill>({
+      consecutive: -1,
+      date: '',
+      total: 0,
+      medioPago: [],
+      products: [],
+      electronicBill: {
+        clave: '',
+        emitter: {
+          name: '',
+          tipoIdentificacion: '',
+          numeroIdentificacion: '',
+          phone: '',
+          email: '',
+        },
+        recipient: {
+          name: '',
+          tipoIdentificacion: '',
+          numeroIdentificacion: '',
+          phone: '',
+          email: '',
+        },
+        electronicBill: '',
+        location: undefined,
+        errorMessages: undefined,
+        comers: {
+          name: '',
+          cedula: '',
+          address: '',
+          phone: '',
+          email: '',
+          logo: '',
+          provincia: 0,
+          canton: 0,
+          distrito: 0,
+          barrio: 0,
+          pinCertificado: '',
+        },
+      },
+      state: 0
+    });
   
     useEffect(() => {
         RequestBills();
@@ -102,6 +142,7 @@ const BillState: React.FC = () => {
                   return (
                     <tr key={index}>
                       <td>{bill.consecutive}</td>
+                      <td>{bill.state == 0 ? "aceptada" : "rechazada"}</td>
                       <td>{bill.date}</td>
                       <td>{bill.total}</td>
                     </tr>

@@ -1,3 +1,6 @@
+
+using System.Net;
+
 namespace ElectronicBill;
 
 public class ElectronicBillServices
@@ -50,6 +53,8 @@ public class ElectronicBillServices
 
             var billFull = await _electronicBill.SendElectronicBill(bill, certificate, commersInfo.pinCertificado, CancellationToken.None);
 
+            await getElectronicBillStatus(billFull, CancellationToken.None);
+
             var serializedBillFull = JsonSerializer.Serialize(billFull);
             var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");
 
@@ -61,7 +66,28 @@ public class ElectronicBillServices
         });
     }
 
-    private async Task<byte[]?> getCertificate(Bill bill, CancellationToken none)
+  private async Task getElectronicBillStatus(Bill billFull, CancellationToken none)
+  {
+    var httpClient = _httpClientFactory.CreateClient();
+
+    string token = await _electronicBill.getToken();
+    httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + token);
+    var response = await _httpClientFactory.CreateClient().GetAsync(billFull.electronicBill.location, none);
+
+    if (response.StatusCode == HttpStatusCode.OK)
+    {
+      var billStatus = JsonSerializer.Deserialize<HaciendaResponse>(await response.Content.ReadAsStringAsync());
+
+      billFull.State = billStatus.indestado switch
+    {
+        "aceptado" => EstadoFactura.Aceptado,
+        "rechazado" => EstadoFactura.Rechazado,
+        _ => throw new ArgumentOutOfRangeException(nameof(billStatus.indestado), $"Not expected direction value: {billStatus.indestado}"),
+    };;
+    }
+  }
+
+  private async Task<byte[]?> getCertificate(Bill bill, CancellationToken none)
     {
         var response = await _httpClientFactory.CreateClient().GetAsync($"{_baseURL}/GetCommerceInformation", none);
 

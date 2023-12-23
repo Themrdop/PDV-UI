@@ -219,12 +219,12 @@ public class ElectronicBill : IElectronicBill
   {
     var httpClient = _httpClientFactory.CreateClient();
 
-    string token = await getToken(cancellationToken);
+    string token = await getToken();
     httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + token);
     return await _retryPolicy.ExecuteAsync(() => httpClient.PostAsJsonAsync<HaciendaMessage>(_endPoint + "/recepcion", haciendaMessage, cancellationToken: cancellationToken));
   }
 
-  private async Task<string> getToken(CancellationToken cancellationToken)
+  public async Task<string> getToken()
   {
     if (localStoreTokenIsValid())
     {
@@ -244,9 +244,9 @@ public class ElectronicBill : IElectronicBill
     var response = await _retryPolicy.ExecuteAsync(() => httpClient.PostAsync(_JWT_Endpoint, content));
     var responseString = await response.Content.ReadAsStringAsync();
 
-    if ((response.StatusCode != System.Net.HttpStatusCode.OK))
+    if (response.StatusCode != System.Net.HttpStatusCode.OK)
     {
-      throw new Exception(("Error: " + responseString));
+      throw new Exception("Error: " + responseString);
     }
 
     var token = JsonSerializer.Deserialize<Token>(responseString);
