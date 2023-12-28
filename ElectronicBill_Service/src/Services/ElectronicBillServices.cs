@@ -1,9 +1,3 @@
-using Products.Interfaces;
-using Products.Models;
-using RabbitMQHandler;
-using System.Text;
-using System.Text.Json;
-
 namespace ElectronicBill;
 
 public class ElectronicBillServices
@@ -56,16 +50,19 @@ public class ElectronicBillServices
 
                 var commersInfo = JsonSerializer.Deserialize<CommerceInformation>(await comercio.Content.ReadAsStringAsync());
 
-                var billFull = await _electronicBill.SendElectronicBill(bill, certificate, commersInfo.pinCertificado, CancellationToken.None);
+                if (certificate != null && commersInfo != null)
+                {
+                    var billFull = await _electronicBill.SendElectronicBill(bill, certificate, commersInfo.pinCertificado, CancellationToken.None);
 
-                var serializedBillFull = JsonSerializer.Serialize(billFull);
-                var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");
+                    var serializedBillFull = JsonSerializer.Serialize(billFull);
+                    var content = new StringContent(serializedBillFull, Encoding.UTF8, "application/json");
 
-                await _httpClientFactory.CreateClient().PutAsync($"{_baseURL}/AddElectronicBill", content);
+                    await _httpClientFactory.CreateClient().PutAsync($"{_baseURL}/AddElectronicBill", content);
 
-                _messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_EMAIL, serializedBillFull);
+                    _messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_EMAIL, serializedBillFull);
 
-                Console.WriteLine($"Bill sent: {serializedBillFull}");
+                    Console.WriteLine($"Bill sent: {serializedBillFull}");
+                }
 
             }
             catch (Exception ex)

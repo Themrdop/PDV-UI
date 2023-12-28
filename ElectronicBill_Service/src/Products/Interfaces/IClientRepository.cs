@@ -1,5 +1,3 @@
-using Products.Models;
-
 public interface IClientRepository
 {
   Task<Person> AddClient(Person person, CancellationToken cancellationToken);

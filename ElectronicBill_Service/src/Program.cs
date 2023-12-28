@@ -1,9 +1,4 @@
-﻿using ElectronicBill;
-using Microsoft.Extensions.Caching.Memory;
-using Products.Interfaces;
-using RabbitMQHandler;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 #if DEBUG 
 builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);
@@ -11,23 +6,29 @@ builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);
 builder.Configuration.AddJsonFile("appsettings.json", false, true);
 #endif
 
-string userName = builder.Configuration["userName"],
-password = builder.Configuration["password"],
-endpoint = builder.Configuration["endpoint"],
-JWT_Endpoint = builder.Configuration["JWT_Endpoint"],
-clientId = builder.Configuration["clientId"];
+string userName = builder.Configuration["userName"] ?? string.Empty,
+password = builder.Configuration["password"] ?? string.Empty,
+endpoint = builder.Configuration["endpoint"] ?? string.Empty,
+JWT_Endpoint = builder.Configuration["JWT_Endpoint"] ?? string.Empty,
+clientId = builder.Configuration["clientId"] ?? string.Empty;
 
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 
-builder.Services.AddSingleton<IElectronicBill>(new Domain.ElectronicBill.ElectronicBill(userName,
-                                                                                        password,
-                                                                                        JWT_Endpoint,
-                                                                                        endpoint,
-                                                                                        clientId,
-                                                                                        builder.Services.BuildServiceProvider().GetService<IMemoryCache>() ?? throw new ArgumentException("IMemoryCache not found"),
-                                                                                        builder.Services.BuildServiceProvider().GetService<IHttpClientFactory>() ?? throw new ArgumentException("IHttpClientFactory not found")));
+builder.Services.AddSingleton<IElectronicBill>(provider =>
+{
+  var memoryCache = provider.GetRequiredService<IMemoryCache>() ?? throw new ArgumentException("IMemoryCache not found");
+  var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>() ?? throw new ArgumentException("IHttpClientFactory not found");
+
+  return new Domain.ElectronicBill.ElectronicBill(userName,
+                      password,
+                      JWT_Endpoint,
+                      endpoint,
+                      clientId,
+                      memoryCache,
+                      httpClientFactory);
+});
 builder.Services.AddSingleton(new Func<IServiceProvider, ElectronicBillServices>(provider =>
 {
   var configuration = provider.GetRequiredService<IConfiguration>();
@@ -35,7 +36,7 @@ builder.Services.AddSingleton(new Func<IServiceProvider, ElectronicBillServices>
   var electronicBill = provider.GetRequiredService<IElectronicBill>();
   var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
   var messageQueue = provider.GetRequiredService<IMessageQueue>();
-  var baseURL = configuration["apiBaseURL"];
+  var baseURL = configuration["apiBaseURL"] ?? string.Empty;
   return new ElectronicBillServices(logger, electronicBill, httpClientFactory, messageQueue, baseURL);
 }));
 builder.Services.AddSingleton(new Func<IServiceProvider, IMessageQueue>(provider =>
@@ -48,8 +49,6 @@ builder.Services.AddSingleton(new Func<IServiceProvider, IMessageQueue>(provider
 builder.Services.BuildServiceProvider().GetService<ElectronicBillServices>()?.RegisterListener();
 
 var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
 
 app.Run();
 

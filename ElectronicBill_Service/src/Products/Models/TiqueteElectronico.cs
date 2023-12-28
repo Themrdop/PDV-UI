@@ -2542,7 +2542,7 @@ namespace TiqueteElectronico
     {
         
         [System.Xml.Serialization.XmlElementAttribute("CodigoTipoMoneda")]
-        public CodigoMonedaType CodigoTipoMoneda { get; set; }
+        public CodigoMonedaType? CodigoTipoMoneda { get; set; }
         
         /// <summary>
         /// <para>Total de los servicios gravados con IV</para>
@@ -3160,7 +3160,7 @@ namespace TiqueteElectronico
         /// <para xml:lang="en">Gets or sets the text value.</para>
         /// </summary>
         [System.Xml.Serialization.XmlTextAttribute()]
-        public string Value { get; set; }
+        public string? Value { get; set; }
         
         /// <summary>
         /// <para>Código opcional para facilitar
@@ -3168,7 +3168,7 @@ namespace TiqueteElectronico
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Código opcional para facilitar la identificación del elemento.")]
         [System.Xml.Serialization.XmlAttributeAttribute("codigo")]
-        public string Codigo { get; set; }
+        public string? Codigo { get; set; }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("XmlSchemaClassGenerator", "1.0.0.0")]
@@ -3178,17 +3178,16 @@ namespace TiqueteElectronico
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class TiqueteElectronicoOtrosOtroContenido
     {
-        
         [System.ComponentModel.DataAnnotations.RequiredAttribute()]
         [System.Xml.Serialization.XmlAnyElementAttribute()]
-        public System.Xml.XmlElement Any { get; set; }
+        public System.Xml.XmlElement? Any { get; set; }
         
         /// <summary>
         /// <para>Código opcional para facilitar la
-        ///                                                identificación del elemento.</para>
+        /// identificación del elemento.</para>
         /// </summary>
         [System.ComponentModel.DescriptionAttribute("Código opcional para facilitar la identificación del elemento.")]
         [System.Xml.Serialization.XmlAttributeAttribute("codigo")]
-        public string Codigo { get; set; }
+        public string? Codigo { get; set; }
     }
 }

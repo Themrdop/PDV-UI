@@ -9,11 +9,7 @@ builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
 
 builder.Services.AddCors();
 
-builder.Host.ConfigureLogging(logging =>
-{
-  logging.ClearProviders();
-  logging.AddConsole();
-});
+builder.Logging.ClearProviders().AddConsole();
 
 builder.Services.AddSingleton<IProductsRepository, ProductsRepository>();
 builder.Services.AddSingleton<IBillRepository, BillRepository>();
