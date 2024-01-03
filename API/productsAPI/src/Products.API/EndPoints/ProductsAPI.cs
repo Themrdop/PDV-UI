@@ -1,13 +1,14 @@
-public static class ProductsAPI{
+public class ProductsAPI
+{
 
-    internal static async Task<IResult> DeleteProduct(string? ProductId, 
+    public static async Task<IResult> DeleteProduct(string? ProductId,
                                                       IProductsRepository productsRepository,
-                                                      ILogger<Product> logger,
+                                                      ILogger<ProductsAPI> logger,
                                                       CancellationToken cancellationToken)
     {
-        if(string.IsNullOrEmpty(ProductId) || string.IsNullOrWhiteSpace(ProductId))
+        if (string.IsNullOrEmpty(ProductId) || string.IsNullOrWhiteSpace(ProductId))
             return Results.BadRequest();
-        
+
         try
         {
             var responce = await productsRepository.DeleteProduct(ProductId, cancellationToken);
@@ -22,14 +23,14 @@ public static class ProductsAPI{
         }
     }
 
-    internal static async Task<IResult> UpdateProduct(Product product, 
+    public static async Task<IResult> UpdateProduct(Product product,
                                                       IProductsRepository productsRepository,
-                                                      ILogger<Product> logger,
+                                                      ILogger<ProductsAPI> logger,
                                                       CancellationToken cancellationToken)
     {
         try
         {
-            if(product is null)
+            if (product is null)
                 return Results.BadRequest();
 
             var response = await productsRepository.UpdateProduct(product, cancellationToken);
@@ -45,13 +46,14 @@ public static class ProductsAPI{
         }
     }
 
-    internal static async Task<IResult> AddProducts(Product product, 
+    public static async Task<IResult> AddProducts(Product product,
                                                     IProductsRepository productsRepository,
-                                                    ILogger<Product> logger,
-                                                    CancellationToken cancellationToken){
+                                                    ILogger<ProductsAPI> logger,
+                                                    CancellationToken cancellationToken)
+    {
         try
         {
-            if(product is null)
+            if (product is null)
                 return Results.BadRequest();
 
             var response = await productsRepository.AddProduct(product, cancellationToken);
@@ -67,20 +69,23 @@ public static class ProductsAPI{
         }
     }
 
-    internal static async Task<IResult> GetAllProducts(string? ProductId, 
+    public static async Task<IResult> GetAllProducts(string? ProductId,
                                                        IProductsRepository products,
-                                                       ILogger<Product> logger,
+                                                       ILogger<ProductsAPI> logger,
                                                        CancellationToken cancellationToken)
     {
         try
         {
             IEnumerable<Product>? response = null;
 
-            if (ProductId is not null){
+            if (ProductId is not null)
+            {
                 var product = await products.ProductById(ProductId, cancellationToken);
                 response = product is not null ? new List<Product>() { product } : new List<Product>();
                 logger?.LogInformation("Producto con id: {ProductId} fue consultado", ProductId);
-            }else{
+            }
+            else
+            {
                 response = await products.GetAllProducts(cancellationToken);
                 logger?.LogInformation("Todos los productos fueron consultados");
             }

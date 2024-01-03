@@ -7,6 +7,7 @@ using Products.Models;
 
 namespace Products.API.test;
 
+[TestFixture]
 public class CommerceInformationAPITest
 {
   private Mock<ICommerceInformationRepository> _repositoryMock;
@@ -195,6 +196,9 @@ public class CommerceInformationAPITest
   [Test]
   public async Task SaveLogo_WithValidLogo_ReturnsSuccess()
   {
+    _repositoryMock.Setup(r => r.SaveLogo(It.IsAny<Stream>(), It.IsAny<CommerceInformation>(), It.IsAny<CancellationToken>()))
+    .ReturnsAsync(true);
+
     var result = await CommerceInformationAPI.SaveLogo(new MemoryStream(), _repositoryMock.Object, _loggerMock.Object, CancellationToken.None);
 
     result.Should().NotBeNull();
@@ -227,48 +231,48 @@ public class CommerceInformationAPITest
   }
 
   [Test]
-    public async Task GetLogo_WithValidArgs_ReturnsLogoStream()
-    {
-      // Arrange
-      var logoBytes = new byte[] { 0x00, 0xff };
-      _repositoryMock.Setup(r => r.GetLogo(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(logoBytes);
+  public async Task GetLogo_WithValidArgs_ReturnsLogoStream()
+  {
+    // Arrange
+    var logoBytes = new byte[] { 0x00, 0xff };
+    _repositoryMock.Setup(r => r.GetLogo(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(logoBytes);
 
-      // Act
-      var result = await CommerceInformationAPI.GetLogo(
-        "test", _repositoryMock.Object, null, CancellationToken.None);
+    // Act
+    var result = await CommerceInformationAPI.GetLogo(
+      "test", _repositoryMock.Object, null, CancellationToken.None);
 
-      // Assert
-      result.Should().BeOfType<FileStreamHttpResult>();
-      var stream = result.As<FileStreamHttpResult>().FileStream;
-      var buffer = new byte[logoBytes.Length];
-      await stream.ReadAsync(buffer, 0, buffer.Length);
-      CollectionAssert.AreEqual(logoBytes, buffer);
-    }
+    // Assert
+    result.Should().BeOfType<FileStreamHttpResult>();
+    var stream = result.As<FileStreamHttpResult>().FileStream;
+    var buffer = new byte[logoBytes.Length];
+    await stream.ReadAsync(buffer, 0, buffer.Length);
+    CollectionAssert.AreEqual(logoBytes, buffer);
+  }
 
-    [Test]
-    public async Task GetLogo_WithNullLogo_ReturnsBadRequest() 
-    {
-      // Act
-      var result = await CommerceInformationAPI.GetLogo(
-        null, _repositoryMock.Object, null, CancellationToken.None);
+  [Test]
+  public async Task GetLogo_WithNullLogo_ReturnsBadRequest()
+  {
+    // Act
+    var result = await CommerceInformationAPI.GetLogo(
+      null, _repositoryMock.Object, null, CancellationToken.None);
 
-      // Assert
-      result.Should().BeOfType<NotFound>();
-    }
+    // Assert
+    result.Should().BeOfType<NotFound>();
+  }
 
-    [Test]
-    public async Task GetLogo_WhenException_ReturnsProblem()
-    {
-      // Arrange
-      _repositoryMock.Setup(r => r.GetLogo(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-        .Throws<Exception>();
+  [Test]
+  public async Task GetLogo_WhenException_ReturnsProblem()
+  {
+    // Arrange
+    _repositoryMock.Setup(r => r.GetLogo(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .Throws<Exception>();
 
-      // Act
-      var result = await CommerceInformationAPI.GetLogo(
-        "test", _repositoryMock.Object, null, CancellationToken.None);
+    // Act
+    var result = await CommerceInformationAPI.GetLogo(
+      "test", _repositoryMock.Object, null, CancellationToken.None);
 
-      // Assert
-      result.Should().BeOfType<ProblemHttpResult>();
-    }
+    // Assert
+    result.Should().BeOfType<ProblemHttpResult>();
+  }
 }
