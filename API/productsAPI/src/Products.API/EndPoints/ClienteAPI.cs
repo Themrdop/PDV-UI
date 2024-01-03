@@ -1,14 +1,14 @@
 public class ClientAPI
 {
-  internal static async Task<IResult> GetClient(string numeroIdentificacion,
+  public static async Task<IResult> GetClient(string numeroIdentificacion,
                                                 IClientRepository clientRepository,
-                                                ILogger<Product> logger,
+                                                ILogger<ClientAPI> logger,
                                                 CancellationToken cancellationToken)
   {
     try
     {
       var client = await clientRepository.GetClient(numeroIdentificacion, cancellationToken);
-      logger?.LogInformation("Cliente consultado con exito");
+      logger?.LogInformation($"Cliente consultado con exito, cedula: {numeroIdentificacion}");
       return Results.Ok(client?.FirstOrDefault());
     }
     catch (Exception ex)
@@ -18,15 +18,15 @@ public class ClientAPI
     }
   }
 
-  internal static async Task<IResult> AddClient(Person person,
+  public static async Task<IResult> AddClient(Person person,
                                                 IClientRepository clientRepository,
-                                                ILogger<Product> logger,
+                                                ILogger<ClientAPI> logger,
                                                 CancellationToken cancellationToken)
   {
     try
     {
       var client = await clientRepository.AddClient(person, cancellationToken);
-      logger?.LogInformation("Cliente creado con exito");
+      logger?.LogInformation($"Cliente creado con exito identificacion: {person.numeroIdentificacion}");
       return Results.Ok(client);
     }
     catch (Exception ex)

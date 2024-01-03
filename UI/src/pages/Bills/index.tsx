@@ -97,7 +97,7 @@ const Bill: React.FC = () => {
       
       function getSumOfBills (bills: Bill[]) {
         return bills
-          .map((item: Bill) => item.total)
+          .map((item: Bill) => item.medioPago.findIndex(x => x === 1) !== -1 ? item.total : item.total * 0.98)
           .reduce((partialSum: number, next: number) => partialSum + next, 0);
       };
       

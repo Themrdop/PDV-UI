@@ -14,7 +14,7 @@ namespace Products.DataAccess{
             _bills = mongo.database.GetCollection<Bill>("Bills");
         }
 
-        public async Task<IEnumerable<Bill>> GetAllBills(Tuple<DateOnly,DateOnly> dates, CancellationToken cancellationToken){
+        public async Task<IEnumerable<Bill>> GetAllBills(CancellationToken cancellationToken){
             var filterBuilder = Builders<Bill>.Filter;
             FilterDefinition<Bill> filter = filterBuilder.Empty;
 
@@ -24,13 +24,6 @@ namespace Products.DataAccess{
 
             if (bills is null)
                 return new List<Bill>();
-
-            bills = bills.Select(bill => {
-                                    bill.date = TimeZoneInfo.ConvertTimeFromUtc(bill.date, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"));
-                                    return bill;
-                                })
-                         .Where(bill => bill.date >= dates.Item1.ToDateTime(TimeOnly.MinValue) && 
-                                        bill.date <= dates.Item2.ToDateTime(TimeOnly.MaxValue));
 
             return bills;
         } 
