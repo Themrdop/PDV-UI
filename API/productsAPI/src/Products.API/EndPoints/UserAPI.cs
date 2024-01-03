@@ -1,7 +1,7 @@
 public class UserAPI{
 
-    internal static async Task<IResult> GetUsers(IUserRepository userRepository, 
-                                                 ILogger<User> logger, 
+    public static async Task<IResult> GetUsers(IUserRepository userRepository, 
+                                                 ILogger<UserAPI> logger, 
                                                  CancellationToken cancellationToken)
     {
         try
@@ -18,14 +18,18 @@ public class UserAPI{
             return Results.Problem(ex.Message);
         }
     }
-    internal static async Task<IResult> GetUserById(string id, 
+    public static async Task<IResult> GetUserById(string id, 
                                                     IUserRepository userRepository, 
-                                                    ILogger<User> logger, 
+                                                    ILogger<UserAPI> logger, 
                                                     CancellationToken cancellationToken)
     {
         try
         {
             var response = await userRepository.GetUserById(id, cancellationToken);
+            
+            if(response is null)
+                return Results.NotFound();
+
             logger?.LogInformation("Se consulto el usuario: {user}", response);
             
             return Results.Ok(response);
@@ -38,9 +42,9 @@ public class UserAPI{
         }
     }
 
-    internal static async Task<IResult> SaveUser(User user, 
+    public static async Task<IResult> SaveUser(User user, 
                                                  IUserRepository userRepository, 
-                                                 ILogger<User> logger, 
+                                                 ILogger<UserAPI> logger, 
                                                  CancellationToken cancellationToken)
     {
         try
@@ -61,9 +65,9 @@ public class UserAPI{
         }
     }
 
-    internal static async Task<IResult> UpdateUser(User user, 
+    public static async Task<IResult> UpdateUser(User user, 
                                                    IUserRepository userRepository, 
-                                                   ILogger<User> logger, 
+                                                   ILogger<UserAPI> logger, 
                                                    CancellationToken cancellationToken)
     {
         try
@@ -84,14 +88,18 @@ public class UserAPI{
         }
     }
 
-    internal static async Task<IResult> DeleteUser(string id, 
+    public static async Task<IResult> DeleteUser(string id, 
                                                    IUserRepository userRepository, 
-                                                   ILogger<User> logger, 
+                                                   ILogger<UserAPI> logger, 
                                                    CancellationToken cancellationToken)
     {
         try
         {
             var response = await userRepository.DeleteUser(id, cancellationToken);
+
+            if(!response)
+                return Results.NotFound();
+
             logger?.LogInformation("Se elimino el usuario: {user}", response);
             
             return Results.Ok(response);
