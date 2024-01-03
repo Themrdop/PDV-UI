@@ -1,8 +1,8 @@
-public static class CommerceInformationAPI
+public class CommerceInformationAPI
 {
     public static async Task<IResult> updateCommerceInformation(CommerceInformation commerceInformation,
                                                                   ICommerceInformationRepository commerceInformationRepository,
-                                                                  ILogger<CommerceInformation> logger,
+                                                                  ILogger<CommerceInformationAPI> logger,
                                                                   CancellationToken cancellationToken)
     {
         try
@@ -24,7 +24,7 @@ public static class CommerceInformationAPI
     }
 
     public static async Task<IResult> getCommerceInformation(ICommerceInformationRepository commerceInformationRepository,
-                                                               ILogger<CommerceInformation> logger,
+                                                               ILogger<CommerceInformationAPI> logger,
                                                                CancellationToken cancellationToken)
     {
         try
@@ -44,7 +44,7 @@ public static class CommerceInformationAPI
 
     public static async Task<IResult> SaveCertificateForCommerceAsync(Stream certificate,
                                                                         ICommerceInformationRepository commerceInformationRepository,
-                                                                        ILogger<CommerceInformation> logger,
+                                                                        ILogger<CommerceInformationAPI> logger,
                                                                         CancellationToken cancellationToken)
     {
         try
@@ -69,7 +69,7 @@ public static class CommerceInformationAPI
 
     public static async Task<IResult> GetCertificate(string commersName,
                                                        ICommerceInformationRepository commerceInformationRepository,
-                                                       ILogger<CommerceInformation> logger,
+                                                       ILogger<CommerceInformationAPI> logger,
                                                        CancellationToken cancellationToken)
     {
         try
@@ -77,7 +77,7 @@ public static class CommerceInformationAPI
             var response = await commerceInformationRepository.GetCertificate(commersName, cancellationToken);
             logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", commersName);
 
-            if (response is not null)
+            if (response is not null && response?.Length > 0)
             {
                 var Stream = new MemoryStream(response);
 
@@ -96,7 +96,7 @@ public static class CommerceInformationAPI
 
     public static async Task<IResult> SaveLogo(Stream logo,
                                                 ICommerceInformationRepository commerceInformationRepository,
-                                                ILogger<CommerceInformation> logger,
+                                                ILogger<CommerceInformationAPI> logger,
                                                 CancellationToken cancellationToken)
     {
         try
@@ -121,7 +121,7 @@ public static class CommerceInformationAPI
 
     public static async Task<IResult> GetLogo(string commersName,
                                                 ICommerceInformationRepository commerceInformationRepository,
-                                                ILogger<CommerceInformation> logger,
+                                                ILogger<CommerceInformationAPI> logger,
                                                 CancellationToken cancellationToken)
     {
         try
@@ -129,7 +129,7 @@ public static class CommerceInformationAPI
             Byte[]? response = await commerceInformationRepository.GetLogo(commersName, cancellationToken);
             logger?.LogInformation("Se consulto el certificado del comercio: {commerceInformation}", response?.Length);
 
-            if (response is not null)
+            if (response is not null && response?.Length > 0)
             {
                 var Stream = new MemoryStream(response);
 
