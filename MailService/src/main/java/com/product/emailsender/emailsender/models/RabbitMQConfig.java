@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Configuration
 @NoArgsConstructor
-@ConfigurationProperties("mongo")
-public class MongoConfig {
+@ConfigurationProperties("rabbitmq")
+public class RabbitMQConfig {
     private String host;
 }
