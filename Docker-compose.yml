@@ -8,7 +8,7 @@ networks:
 services:
  mongodb:
    container_name: mongodb
-   image: mongo:latest
+   image: pdvservices.azurecr.io/mongo:latest
    restart: always
    ports:
    - "27017:27017"
@@ -16,6 +16,7 @@ services:
       netBackEnd:
         ipv4_address: 192.168.0.2
  products.api:
+  image: pdvservices.azurecr.io/products.api
   build: API/ProductsAPI
   restart: always
   container_name: products.api
@@ -23,33 +24,8 @@ services:
   - mongodb
   ports:
   - "5056:80"
+  environment:
+  - ASPNETCORE_URLS=http://+:80
   networks:
     netBackEnd:
       ipv4_address: 192.168.0.3
- rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
-    ports:
-        - 5672:5672
-        - 15672:15672
-    networks:
-      netBackEnd:
-        ipv4_address: 192.168.0.4
- mailservice:
-  build: MailService
-  restart: always
-  container_name: mailservice
-  depends_on:
-  - rabbitmq
-  networks:
-    netBackEnd:
-      ipv4_address: 192.168.0.5
- electronic_bill_service:
-  build: ElectronicBill_Service/src
-  restart: always
-  container_name: electronic_bill_service
-  depends_on:
-  - rabbitmq
-  networks:
-    netBackEnd:
-      ipv4_address: 192.168.0.6

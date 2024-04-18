@@ -1,6 +1,6 @@
 using RabbitMQHandler;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
     {
