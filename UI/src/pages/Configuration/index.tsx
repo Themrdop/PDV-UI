@@ -31,14 +31,14 @@ const Commerce: React.FC = () => {
 
     const handleChange = (event: { target: { name: any; value: any; }; }) => {
         const name = event.target.name;
-        console.log(name);
         const value = event.target.value;
-        console.log(value);
         setInputs(values => ({ ...values, [name]: value }));
     }
 
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
+
+        
 
         let response = await api.post<CommerceInfo>(
             '/UpdateCommerceInformation', {
@@ -117,7 +117,7 @@ const Commerce: React.FC = () => {
     }
 
     const fetchLogo = async (commersName: string) => {
-        const response = await fetch('http://localhost:5056/GetLogo?commersName=' + commersName);
+        const response = await fetch('https://pdvapiservice.thankfulocean-9b8c28e9.eastus.azurecontainerapps.io/GetLogo?commersName=' + commersName);
         if (response.status !== 200) {
             setLogoUrl(null);
             return;
@@ -197,7 +197,7 @@ const Commerce: React.FC = () => {
 
             try {
                 const buffer = await file.arrayBuffer();
-                const response = await fetch('http://localhost:5056/SaveCertificateForCommerce', {
+                const response = await fetch('https://pdvapiservice.thankfulocean-9b8c28e9.eastus.azurecontainerapps.io/SaveCertificateForCommerce', {
                     method: 'POST',
                     body: new Blob([buffer], { type: file.type }),
                     headers: {
@@ -223,7 +223,7 @@ const Commerce: React.FC = () => {
         if (e.target.files) {
             const file = e.target.files[0];
             const buffer = await file.arrayBuffer();
-            const response = await fetch('http://localhost:5056/SaveLogo', {
+            const response = await fetch('https://pdvapiservice.thankfulocean-9b8c28e9.eastus.azurecontainerapps.io/SaveLogo', {
                 method: 'POST',
                 body: new Blob([buffer], { type: file.type }),
                 headers: {

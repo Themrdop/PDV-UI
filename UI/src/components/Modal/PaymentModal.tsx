@@ -11,6 +11,7 @@ import { Button, Form, Tab, Tabs } from "react-bootstrap";
 import { BsCashCoin, BsPhone } from "react-icons/bs";
 import { MdPayment } from "react-icons/md";
 import { Toaster, toast } from 'react-hot-toast';
+import { ReactComponent as Loader } from '../../assets/icon/loader.svg'
 
 export interface Props {
   show: boolean;
@@ -46,6 +47,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [Cambio, setCambio] = useState<number>(0);
   const [Efectivo, setEfectivo] = useState<number>(0);
   const [Nombre, setNombre] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
   const handleSINPE = () => {
     setActive(!activeSINPE);
@@ -80,7 +82,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   };
 
   async function handlePay() {
-
+    setLoading(true);
     if (metodoPago.length === 0) {
       toast.error('Debe seleccionar al menos un metodo de pago');
       return;
@@ -133,9 +135,11 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     );
 
     if (response.status === 200) {
+      setLoading(false);
       clean();
       onClose(true);
     } else {
+      setLoading(false);
       toast.error('No se generar la factura');
     }
   }
@@ -345,8 +349,8 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
             </Tabs>
           </div>
           <div className="modal-footer">
-            <button onClick={handlePay} className="btn btn-primary">
-              Pagar
+            <button onClick={handlePay} className="btn btn-primary" disabled={loading}>
+            {!loading ? 'Pagar' : <Loader className="spinner" />}
             </button>
             <button onClick={() => { onClose(false); clean(); }} className="btn btn-primary">
               Cerrar
