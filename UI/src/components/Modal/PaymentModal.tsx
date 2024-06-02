@@ -82,7 +82,6 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   };
 
   async function handlePay() {
-    setLoading(true);
     if (metodoPago.length === 0) {
       toast.error('Debe seleccionar al menos un metodo de pago');
       return;
@@ -97,6 +96,8 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
       toast.error('Debe ingresar el monto de efectivo');
       return;
     }
+
+    setLoading(true);
 
     if (email !== '') {
       const emailRegex = /\S+@\S+\.\S+/;
@@ -118,27 +119,32 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
       );
     }
 
-    const response = await api.post<Product[]>(
-      '/SaveBill', {
-      products: products,
-      recipient: {
-        name: Nombre,
-        numeroIdentificacion: Cedula,
-        tipoIdentificacion: tipoIdentificacion,
-        telefono: telefono,
-        email: email
-      },
-      metodoPago: metodoPago,
-      numeroVoucher: Voucher,
-      efectivo: Efectivo
-    }
-    );
+    try {
+      const response = await api.post<Product[]>(
+        '/SaveBill', {
+        products: products,
+        recipient: {
+          name: Nombre,
+          numeroIdentificacion: Cedula,
+          tipoIdentificacion: tipoIdentificacion,
+          telefono: telefono,
+          email: email
+        },
+        metodoPago: metodoPago,
+        numeroVoucher: Voucher,
+        efectivo: Efectivo
+      }
+      );
 
-    if (response.status === 200) {
-      setLoading(false);
-      clean();
-      onClose(true);
-    } else {
+      if (response.status === 200) {
+        setLoading(false);
+        clean();
+        onClose(true);
+      } else {
+        setLoading(false);
+        toast.error('No se generar la factura');
+      }
+    } catch (error) {
       setLoading(false);
       toast.error('No se generar la factura');
     }
@@ -350,7 +356,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
           </div>
           <div className="modal-footer">
             <button onClick={handlePay} className="btn btn-primary" disabled={loading}>
-            {!loading ? 'Pagar' : <Loader className="spinner" />}
+              {!loading ? 'Pagar' : <Loader className="spinner" />}
             </button>
             <button onClick={() => { onClose(false); clean(); }} className="btn btn-primary">
               Cerrar
