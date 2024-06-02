@@ -1,5 +1,6 @@
 using System.Text.Json;
 using RabbitMQHandler;
+using AzureServiceBus;
 
 public class BillAPI
 {
@@ -8,7 +9,7 @@ public class BillAPI
                                               IProductsRepository productsRepository,
                                               ICommerceInformationRepository commerceInformationRepository,
                                               ILogger<Product> logger,
-                                              IMessageQueue messageQueue,
+                                              IAzureServicesBusHandler messageQueue,
                                               CancellationToken cancellationToken)
   {
     if (localBill is null || localBill.products is null || !localBill.products.Any())
@@ -16,25 +17,26 @@ public class BillAPI
 
     try
     {
-      var commers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
+      var comers = await commerceInformationRepository.GetCommerceInformation(cancellationToken);
 
       Bill bill = CreateBill(localBill, new Person()
-                             {
-                               name = commers.name,
-                               numeroIdentificacion = commers.cedula,
-                               tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
-                               phone = commers.phone,
-                               email = commers.email
-                             }, commers);
+      {
+        name = comers.name,
+        numeroIdentificacion = comers.cedula,
+        tipoIdentificacion = Person.TIPO_IDENTIFICACION_JURIDICA,
+        phone = comers.phone,
+        email = comers.email
+      }, comers);
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
       await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
 
-      if (!string.IsNullOrEmpty(localBill.recipient?.email) & 
-          !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion)){
+      if (!string.IsNullOrEmpty(localBill.recipient?.email) &
+          !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion))
+      {
         logger?.LogInformation("Enviando factura electronica");
-        messageQueue.PublishToMessageQueue(MessageQueue.QUEUE_SEND_ELECTRONIC_BILL, JsonSerializer.Serialize(bill));
+        await messageQueue.PublishToMessageQueue(JsonSerializer.Serialize(bill), AzureServiceBus.Queue.SendElectronicBill, logger);
       }
 
       logger?.LogInformation("Factura creada con exito, consecutivo: {consecutive}", bill.consecutive);

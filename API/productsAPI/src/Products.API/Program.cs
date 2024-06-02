@@ -1,6 +1,7 @@
+using AzureServiceBus;
 using RabbitMQHandler;
 
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
     {
@@ -21,6 +22,7 @@ builder.Services.AddSingleton<ICommerceInformationRepository, CommerceInformatio
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IComboRepository, ComboRepository>();
 builder.Services.AddSingleton<IClientRepository, ClientRepository>();
+builder.Services.AddSingleton<IAzureServicesBusHandler, AzureServicesBusHandler>();
 
 #if DEBUG 
 builder.Configuration.AddJsonFile("appsettings.Development.json", false, true);
