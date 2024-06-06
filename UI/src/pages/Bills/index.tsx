@@ -23,10 +23,6 @@ const BillScreen: React.FC = () => {
 
   const fileName = `Facturas_${startDate}-${endDate}`;
 
-  useEffect(() => {
-    RequestBills();
-  }, []);
-
   async function RequestBills() {
     setLoading(true);
     const response = await api.get<Bill[]>(
@@ -75,12 +71,12 @@ const BillScreen: React.FC = () => {
             bills.map((bill: Bill, index: number) => {
               let date = new Date(Date.parse(bill.date));
               return (
-                <tr key={index} onClick={() => handleRowClick(bill)}>
-                  <td>{bill.consecutive}</td>
-                  <td>{toReadible(bill.medioPago)}</td>
-                  <td>{date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()}</td>
-                  <td>{bill.total}</td>
-                  <td><Button onClick={() => setPaymentShow(true)} variant={bill.electronicBill.clave != '' ? 'secondary' : 'primary'}>{bill.electronicBill.clave != '' ? bill.electronicBill.clave.substring(0, 9) + '...' : 'Emitir factura'}</Button></td>
+                <tr key={index}>
+                  <td onClick={() => handleRowClick(bill)}>{bill.consecutive}</td>
+                  <td onClick={() => handleRowClick(bill)}>{toReadible(bill.medioPago)}</td>
+                  <td onClick={() => handleRowClick(bill)}>{date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()}</td>
+                  <td onClick={() => handleRowClick(bill)}>{bill.total}</td>
+                  <td onClick={() => { if (bill.electronicBill.clave == '') return; handleRowClick(bill); }}><Button onClick={() => setPaymentShow(true)} disabled={bill.electronicBill.clave != '' ? true : false} variant={bill.electronicBill.clave != '' ? 'secondary' : 'primary'}>{bill.electronicBill.clave != '' ? bill.electronicBill.clave.substring(0, 9) + '...' : 'Emitir factura'}</Button></td>
                 </tr>
               );
             })
@@ -95,7 +91,7 @@ const BillScreen: React.FC = () => {
         {footerTable(sumAmount)}
         <ElectronicBillModal onClose={(result: boolean) => { setPaymentShow(false) }
         } show={showPayment}
-        bill={selectedBill} />
+          bill={selectedBill} />
       </>
     );
   };

@@ -48,6 +48,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
   const [Efectivo, setEfectivo] = useState<number>(0);
   const [Nombre, setNombre] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [loadingPersona, setLoadingPersona] = useState(false);
 
   const handleSINPE = () => {
     setActive(!activeSINPE);
@@ -189,6 +190,8 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     let response = undefined;
     let response2 = undefined;
 
+    setLoadingPersona(true);
+
     try {
       response2 = await api.get<Person>(
         '/GetClient', { params: { numeroIdentificacion: Cedula } }
@@ -200,6 +203,8 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
       setEmail(response2.data.email);
       setTelefono(response2.data.phone);
       setNombre(response2.data.name);
+
+      setLoadingPersona(false);
 
       return;
     }
@@ -213,10 +218,15 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
     if (response !== undefined && response.status === 200) {
       setTipoIdentificacion(response.data.tipoIdentificacion);
       setNombre(response.data.nombre);
+
+      setLoadingPersona(false);
+
       return;
     }
 
-    toast.error('No se encontro el cliente');
+    setLoadingPersona(false);
+
+    toast.error('No se encontró el cliente');
   }
 
   return ReactDOM.createPortal(
@@ -340,7 +350,7 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
                   <label className="form-label">Cedula juridica:</label>
                   <div className='input-group' style={{ marginLeft: "-5px" }}>
                     <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value)} />
-                    <Button type="button" variant="primary" onClick={handleSearch}>Consultar</Button>
+                    <Button type="button" variant="primary" onClick={handleSearch}>{!loadingPersona ? 'Consultar' : <Loader className="spinner" />}</Button>
                   </div>
                 </Row>
                 <Row style={{ margin: "10px" }}>

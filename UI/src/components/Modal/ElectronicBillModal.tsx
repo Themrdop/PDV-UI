@@ -169,7 +169,7 @@ export const ElectronicBillModal: React.FC<Props> = ({ show, onClose, bill }) =>
                         </>
                     </div>
                     <div className="modal-footer">
-                        <button onClick={handleEmitir} className="btn btn-primary" disabled={loading}>
+                        <button onClick={(e) => {e.stopPropagation(); handleEmitir();}} className="btn btn-primary" disabled={loading}>
                             {!loading ? 'Emitir' : <Loader className="spinner" />}
                         </button>
                         <button onClick={() => { onClose(false); clean(); }} className="btn btn-primary">
