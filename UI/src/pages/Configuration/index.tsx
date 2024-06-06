@@ -117,13 +117,16 @@ const Commerce: React.FC = () => {
     }
 
     const fetchLogo = async (commersName: string) => {
-        const response = await fetch('https://pdvapiservice.thankfulocean-9b8c28e9.eastus.azurecontainerapps.io/GetLogo?commersName=' + commersName);
+        const response = await api.get('GetLogo?commersName=' + commersName,{
+            responseType:"blob"
+          });
+        //const response = await fetch('https://pdvapiservice.thankfulocean-9b8c28e9.eastus.azurecontainerapps.io/GetLogo?commersName=' + commersName);
         if (response.status !== 200) {
             setLogoUrl(null);
             return;
         }
-        const blob = await response.arrayBuffer();
-        const url = URL.createObjectURL(new Blob([blob]));
+        
+        const url = URL.createObjectURL(response.data);
         setLogoUrl(url);
     };
 

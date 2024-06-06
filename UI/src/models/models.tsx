@@ -124,3 +124,22 @@ export interface SaveOrder {
 export interface SavedOrders {
   saveOrder: SaveOrder[];
 }
+
+export interface Bill {
+  consecutive: number;
+  date: string;
+  total: number;
+  medioPago: number[];
+  products: Product[];
+  electronicBill: electronicBill;
+  recipient: Person,
+}
+
+export interface electronicBill {
+  clave: string
+  emitter: Person,
+  recipient: Person,
+  electronicBill: string,
+  location: string,
+  errorMessages: string,
+}

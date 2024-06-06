@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { CSSTransition } from "react-transition-group";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./PaymentModal.css";
-import { Bill } from "../../pages/Bills";
+import type { Bill } from "../../models/models";
 import { ProductList } from "../ProductList";
 import { ListGroup } from "react-bootstrap";
 
