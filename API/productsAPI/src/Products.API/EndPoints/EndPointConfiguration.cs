@@ -7,6 +7,7 @@ public static class EndPointConfiguration{
         app.MapPost("/SaveBill",BillAPI.Billing);
         app.MapGet("/GetAllBills", BillAPI.GetAllBills);
         app.MapPut("/AddElectronicBill", BillAPI.AddElectronicBill);
+        app.MapPost("/EmitElectronicBill", BillAPI.EmitElectronicBill);
         app.MapGet("/GetCommerceInformation", CommerceInformationAPI.getCommerceInformation);
         app.MapPost("/UpdateCommerceInformation", CommerceInformationAPI.updateCommerceInformation);
         app.MapPost("/SaveCertificateForCommerce", CommerceInformationAPI.SaveCertificateForCommerceAsync);

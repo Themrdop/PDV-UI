@@ -51,6 +51,39 @@ public class BillAPI
     }
   }
 
+  internal static async Task<IResult> EmitElectronicBill(LocalBill localBill,
+                                                        IBillRepository billRepository,
+                                                        ILogger<Product> logger,
+                                                        IAzureServicesBusHandler messageQueue,
+                                                        CancellationToken cancellationToken)
+  {
+
+    if (string.IsNullOrEmpty(localBill.recipient?.email) &
+        string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion))
+    {
+      return Results.BadRequest();
+    }
+
+    if (localBill.consecutive is null)
+    {
+      return Results.BadRequest();
+    }
+
+    var bill = await billRepository.GetElectronicBill(localBill.consecutive.Value, cancellationToken);
+
+    bill.electronicBill.recipient = localBill.recipient;
+
+    if (bill == null)
+    {
+      return Results.NotFound();
+    }
+
+    logger?.LogInformation("Enviando factura electronica");
+    await messageQueue.PublishToMessageQueue(JsonSerializer.Serialize(bill), AzureServiceBus.Queue.SendElectronicBill, logger);
+
+    return Results.Ok(bill);
+  }
+
   internal static async Task<IResult> AddElectronicBill(Bill bill,
                                                         IBillRepository billRepository,
                                                         ILogger<Product> logger,
@@ -68,9 +101,9 @@ public class BillAPI
                                                   CancellationToken cancellationToken)
   {
 
-        var bills = await billRepository
-        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue), 
-                                                   DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+    var bills = await billRepository
+    .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue),
+                                               DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
     logger?.LogInformation("Todos las facturas fueron consultados");
 
     return Results.Ok(bills);
@@ -83,9 +116,9 @@ public class BillAPI
                                                     CancellationToken cancellationToken)
   {
     var bills = await billRepository
-        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateBeginig ?? DateTime.MaxValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"))), 
+        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateBeginig ?? DateTime.MaxValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"))),
                                                    DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateEnd ?? DateTime.MinValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")))), cancellationToken);
-    
+
     logger?.LogInformation("Todos las facturas fueron consultados");
 
     var report = new Report().FromBills(bills);
@@ -118,6 +151,7 @@ public class BillAPI
 
   public class LocalBill
   {
+    public long? consecutive { get; set; } = null;
     public List<Product> products { get; set; } = new();
     public Person? recipient { get; set; } = new();
     public decimal descuento { get; set; } = 0M;
@@ -131,7 +165,8 @@ public class BillAPI
     public List<Line> products = new List<Line>();
     public DateTime date = new DateTime();
 
-    public Report FromBills(IEnumerable<Bill> bills){
+    public Report FromBills(IEnumerable<Bill> bills)
+    {
       var report = new Report();
       var products = new List<Product>();
 
@@ -143,12 +178,12 @@ public class BillAPI
       }
 
       this.products = (from product in products
-                      group product by product.id into g
-                      select new Line (products.First(x => x.id == g.Key), products.Where(x => x.id == g.Key).Sum(x => x.amount))).ToList(); 
+                       group product by product.id into g
+                       select new Line(products.First(x => x.id == g.Key), products.Where(x => x.id == g.Key).Sum(x => x.amount))).ToList();
 
       return this;
     }
   }
 
-  public record Line(Product product,int count);
+  public record Line(Product product, int count);
 }
