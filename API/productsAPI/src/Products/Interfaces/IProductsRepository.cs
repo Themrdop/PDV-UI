@@ -9,6 +9,6 @@ namespace Products.Interfaces
         Task<Product?> AddProduct(Product product, CancellationToken cancellationToken);
         Task<bool> DeleteProduct(string ProductId, CancellationToken cancellationToken);
         Task<Product> UpdateProduct(Product product, CancellationToken cancellationToken);
-        Task<bool> RemoveProductsFromInventary(IEnumerable<Product> products, CancellationToken cancellationToken);
+        Task<bool> RemoveProductsFromInventory(IEnumerable<Product> products, CancellationToken cancellationToken);
     }
 }

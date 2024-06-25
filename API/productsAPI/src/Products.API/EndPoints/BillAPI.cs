@@ -30,7 +30,7 @@ public class BillAPI
 
       bill = await billRepository.SaveBill(bill, cancellationToken);
 
-      await productsRepository.RemoveProductsFromInventary(localBill.products, cancellationToken);
+      await productsRepository.RemoveProductsFromInventory(localBill.products, cancellationToken);
 
       if (!string.IsNullOrEmpty(localBill.recipient?.email) &
           !string.IsNullOrEmpty(localBill.recipient?.numeroIdentificacion))
@@ -71,6 +71,15 @@ public class BillAPI
 
     var bill = await billRepository.GetElectronicBill(localBill.consecutive.Value, cancellationToken);
 
+    if (bill is null)
+    {
+      return Results.NotFound("Bill not found");
+    }
+
+    if(localBill.recipient == null){
+      return Results.BadRequest("Recipient is required");
+    }
+
     bill.electronicBill.recipient = localBill.recipient;
 
     if (bill == null)
@@ -94,7 +103,7 @@ public class BillAPI
     return Results.Ok(bill);
   }
 
-  internal static async Task<IResult> GetAllBills(DateTime? dateBeginig,
+  internal static async Task<IResult> GetAllBills(DateTime? dateBegging,
                                                   DateTime? dateEnd,
                                                   IBillRepository billRepository,
                                                   ILogger<Product> logger,
@@ -102,22 +111,23 @@ public class BillAPI
   {
 
     var bills = await billRepository
-    .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBeginig ?? DateTime.MaxValue),
+    .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBegging ?? DateTime.MaxValue),
                                                DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
     logger?.LogInformation("Todos las facturas fueron consultados");
 
     return Results.Ok(bills);
   }
 
-  internal static async Task<IResult> GetDaylyReport(DateTime? dateBeginig,
+  internal static async Task<IResult> GetDailyReport(DateTime? dateBegging,
                                                     DateTime? dateEnd,
                                                     IBillRepository billRepository,
                                                     ILogger<Product> logger,
                                                     CancellationToken cancellationToken)
   {
-    var bills = await billRepository
-        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateBeginig ?? DateTime.MaxValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time"))),
-                                                   DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(dateEnd ?? DateTime.MinValue, TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time")))), cancellationToken);
+var bills = await billRepository
+        .GetAllBills(new Tuple<DateOnly, DateOnly>(DateOnly.FromDateTime(dateBegging ?? DateTime.MaxValue),
+                                                   DateOnly.FromDateTime(dateEnd ?? DateTime.MinValue)), cancellationToken);
+
 
     logger?.LogInformation("Todos las facturas fueron consultados");
 
@@ -126,7 +136,7 @@ public class BillAPI
     return Results.Ok(report.products);
   }
 
-  private static Bill CreateBill(LocalBill localBill, Person? emmiter, CommerceInformation commerce)
+  private static Bill CreateBill(LocalBill localBill, Person? emitter, CommerceInformation commerce)
   {
     var bill = new Bill()
     {
@@ -138,11 +148,11 @@ public class BillAPI
       NumeroVoucher = localBill.numeroVoucher
     };
 
-    if (localBill.recipient is not null && emmiter is not null)
+    if (localBill.recipient is not null && emitter is not null)
       bill.electronicBill = new ElectronicBill()
       {
         recipient = localBill.recipient,
-        emitter = emmiter,
+        emitter = emitter,
         Comers = commerce
       };
 

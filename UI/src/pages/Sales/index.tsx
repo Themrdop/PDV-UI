@@ -1,4 +1,3 @@
-
 import Layout from '../../components/Layout';
 import Table from 'react-bootstrap/Table';
 import React, { useEffect, useState } from "react";
@@ -7,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import api from "../../service/api";
 import DatePicker from 'react-datepicker';
 import { ExportCSV } from '../../utils/excel/ExportCSV'
+import { Button } from 'react-bootstrap';
 
 export interface Product {
     id: string
@@ -35,7 +35,7 @@ const Sales: React.FC = () => {
 
     async function RequestSales(){
       const response = await api.get<Root[]>(
-        '/GetReport', { params: { dateBeginig: startDate, dateEnd: endDate } }
+        '/GetReport', { params: { dateBegging: startDate.toISOString(), dateEnd: endDate.toISOString() } }
       );
       if(response.status === 200){
         setRaiz(response.data)
@@ -50,7 +50,7 @@ const Sales: React.FC = () => {
         <div>
           <label>Fecha de inicio</label><DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> &nbsp;
           <label>Fecha de final</label><DatePicker selected={endDate} onChange={(date: Date) => setEndDate(date)} />&nbsp;&nbsp;
-          <button onClick={(_) => RequestSales()}>Consultar</button>
+          <Button onClick={(_) => RequestSales()}>Consultar</Button>
           <input placeholder="Buscar producto" value={filter} onChange={(event) => setFilter(event.target.value) } />
         </div>
         <Table striped={true} bordered={true} hover={true}>

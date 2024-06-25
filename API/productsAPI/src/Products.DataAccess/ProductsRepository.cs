@@ -71,7 +71,7 @@ namespace Products.DataAccess
       return product;
     }
 
-    public async Task<bool> RemoveProductsFromInventary(IEnumerable<Product> products, CancellationToken cancellationToken)
+    public async Task<bool> RemoveProductsFromInventory(IEnumerable<Product> products, CancellationToken cancellationToken)
     {
       foreach (var product in products)
       {

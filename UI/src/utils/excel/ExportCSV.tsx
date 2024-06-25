@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 
 import * as XLSX from "xlsx";
 
@@ -19,6 +20,6 @@ export const ExportCSV: React.FC<Props> = ({csvData, fileName}) => {
   };
 
   return (
-    <button onClick={(e) => exportToCSV(csvData, fileName)}>Exportar</button>
+    <Button onClick={(e) => exportToCSV(csvData, fileName)}>Exportar</Button>
   );
 };

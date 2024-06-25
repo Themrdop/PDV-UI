@@ -26,7 +26,7 @@ const BillScreen: React.FC = () => {
   async function RequestBills() {
     setLoading(true);
     const response = await api.get<Bill[]>(
-      '/GetAllBills', { params: { dateBeginig: startDate, dateEnd: endDate } }
+      '/GetAllBills', { params: { dateBegging: startDate.toISOString(), dateEnd: endDate.toISOString() } }
     );
     if (response.status === 200) {
       setBills(response.data);
