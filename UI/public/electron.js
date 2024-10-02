@@ -67,8 +67,6 @@ app.whenReady().then(() => {
     try {
       return callback(filePath);
     } catch (err) {
-      console.error(err);
-      console.log("Error loading media file: " + filePath);
       return callback(404);
     }
   });

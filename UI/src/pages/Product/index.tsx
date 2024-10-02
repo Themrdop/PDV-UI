@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../service/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,20 +21,19 @@ const ProductInput: React.FC = () => {
     borderTop: '2px solid #999',
   };
 
-  const buttonMargin = {
+  const buttonMargin = useMemo(() => ({
     marginLeft: '10px',
-  };
+  }), []);
 
   const [inputs, setInputs] = useState<Product>({} as Product);
   const [products, setProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState('');
 
-  const handleChange = (event: { target: { name: any; value: any; }; }) => {
+  const handleChange = useCallback((event: { target: { name: any; value: any; }; }) => {
     const name = event.target.name;
     const value = event.target.value;
-    console.log(name, value);
     setInputs(values => ({ ...values, [name]: value }));
-  }
+  }, []);
 
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
@@ -95,7 +94,7 @@ const ProductInput: React.FC = () => {
       return;
     }
 
-    const data = response.data.map((product) => ({
+    const data = response.data.map((product: Product) => ({
       ...product,
       priceFormatted: formatPrice(product.price),
     }));
@@ -115,10 +114,10 @@ const ProductInput: React.FC = () => {
     }
   }
 
-  async function handleDialog() {
+  const handleDialog = useCallback(async () => {
     let fileName = await ipcRenderer.invoke("showDialog");
     setInputs(values => ({ ...values, image: fileName }));
-  }
+  }, []);
 
   return (
     <Layout>

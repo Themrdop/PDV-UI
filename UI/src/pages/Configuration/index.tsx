@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../service/api';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -29,16 +29,14 @@ const Commerce: React.FC = () => {
 
     const [show, setShow] = useState(false);
 
-    const handleChange = (event: { target: { name: any; value: any; }; }) => {
+    const handleChange = useCallback((event: { target: { name: any; value: any; }; }) => {
         const name = event.target.name;
         const value = event.target.value;
         setInputs(values => ({ ...values, [name]: value }));
-    }
+    }, []);
 
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-
-        
 
         let response = await api.post<CommerceInfo>(
             '/UpdateCommerceInformation', {
@@ -130,7 +128,7 @@ const Commerce: React.FC = () => {
         setLogoUrl(url);
     };
 
-    const handleSelectChange = (event: { target: { name: any; value: any; }; }) => {
+    const handleSelectChange = useCallback((event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
         selectedProvincia.current = { provincia: value } as Provincia;
         const cantones = ubicaciones.filter((provincia: Provincia) => provincia.provincia === value)[0].cantones || [];
@@ -144,9 +142,9 @@ const Commerce: React.FC = () => {
                 }
             }));
         }
-    }
+    }, []);
 
-    const handleSelectChange2 = (event: { target: { name: any; value: any; }; }) => {
+    const handleSelectChange2 = useCallback((event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
         selectedCanton.current = { canton: value } as Canton;
         const canton = inputs.provincia.cantones.filter((canton: Canton) => canton.canton === value)[0];
@@ -159,9 +157,9 @@ const Commerce: React.FC = () => {
                 cantones: [{ canton: value, descripcion_Canton: '', distritos: distritos }]
             }
         }));
-    }
+    }, [inputs.provincia]);
 
-    const handleSelectChange3 = (event: { target: { name: any; value: any; }; }) => {
+    const handleSelectChange3 = useCallback((event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
         selectedDistrito.current = { distrito: value } as Distrito;
         const canton = cantones.filter((c: Canton) => c.canton === inputs.provincia.cantones[0].canton)[0];
@@ -175,9 +173,9 @@ const Commerce: React.FC = () => {
                 cantones: [{ canton: canton.canton, descripcion_Canton: '', distritos: [{ distrito: value, descripcion_Distrito: '', barrios: barrio }] }]
             }
         }));
-    }
+    }, [cantones, inputs.provincia]);
 
-    const handleSelectChange4 = (event: { target: { name: any; value: any; }; }) => {
+    const handleSelectChange4 = useCallback((event: { target: { name: any; value: any; }; }) => {
         const value = event.target.value;
         selectedBarrio.current = { barrio: value } as Barrio;
         const canton = cantones.filter((c: Canton) => c.canton === inputs.provincia.cantones[0].canton)[0];
@@ -191,9 +189,9 @@ const Commerce: React.FC = () => {
                 cantones: [{ canton: canton.canton, descripcion_Canton: '', distritos: [{ distrito: distritos.distrito, descripcion_Distrito: '', barrios: barrio }] }]
             }
         }));
-    }
+    }, [cantones, inputs.provincia]);
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             setFile(e.target.files[0]);
             const file = e.target.files[0];
@@ -220,9 +218,9 @@ const Commerce: React.FC = () => {
                 toast.error('Error al actualizar el certificado del comercio');
             }
         }
-    };
+    }, []);
 
-    const handlelogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlelogoChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const file = e.target.files[0];
             const buffer = await file.arrayBuffer();
@@ -236,13 +234,19 @@ const Commerce: React.FC = () => {
             });
 
             if (!response.ok) {
-                console.log('Logo upload failed' + response.statusText);
                 toast.error('Error al actualizar el logo del comercio');
             }
 
             toast.success('Se actualizo el logo del comercio');
         }
-    };
+    }, []);
+
+    // Memoize the Barrio options to avoid unnecessary re-renders
+    const barrioOptions = useMemo(() => {
+        return barrio.map((item: Barrio) => (
+            <option key={item.barrio} value={item.barrio}>{item.descripcion_Barrio}</option>
+        ));
+    }, [barrio]);
 
     return (
         <Layout>
@@ -297,7 +301,7 @@ const Commerce: React.FC = () => {
                         {
                             (ubicaciones as Provincias).map((item: Provincia) => {
                                 return (
-                                    <option value={item.provincia}>{item.descripcion_Provincion}</option>
+                                    <option key={item.provincia} value={item.provincia}>{item.descripcion_Provincion}</option>
                                 )
                             })}
                     </Form.Select>
@@ -312,7 +316,7 @@ const Commerce: React.FC = () => {
                             cantones.length > 0 ?
                             cantones?.map((item: Canton) => {
                                 return (
-                                    <option value={item.canton}>{item.descripcion_Canton}</option>
+                                    <option key={item.canton} value={item.canton}>{item.descripcion_Canton}</option>
                                 )
                             }) : <option value={1}>No hay cantones</option>}
                     </Form.Select>
@@ -325,7 +329,7 @@ const Commerce: React.FC = () => {
                         name="canton">
                         {distritos?.map((item: Distrito) => {
                             return (
-                                <option value={item.distrito}>{item.descripcion_Distrito}</option>
+                                <option key={item.distrito} value={item.distrito}>{item.descripcion_Distrito}</option>
                             )
                         })}
                     </Form.Select>
@@ -336,11 +340,7 @@ const Commerce: React.FC = () => {
                         onChange={handleSelectChange4}
                         value={selectedBarrio.current.barrio || 1}
                         name="barrio">
-                        {barrio?.map((item: Barrio) => {
-                            return (
-                                <option value={item.barrio}>{item.descripcion_Barrio}</option>
-                            )
-                        })}
+                        {barrioOptions}
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicEmail">

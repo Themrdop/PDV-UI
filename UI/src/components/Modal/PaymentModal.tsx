@@ -240,129 +240,108 @@ export const PaymentModal: React.FC<Props> = ({ show, onClose, products }) => {
             <h2 className="h2">Factura</h2>
           </div>
           <div className="App container" style={{ maxWidth: "100%" }}>
-            <Tabs defaultActiveKey="Pago">
-              <Tab eventKey="Pago" title="Pago">
+            <Row>
+              <Col>
                 <Row>
                   <Col>
-                    <Row>
-                      <Col>
-                        <table className="table table-borderless">
-                          <tbody>
-                            <tr className="add">
-                              <td>Producto</td>
-                              <td>Cantidad</td>
-                              <td>Precio</td>
-                              <td className="text-center">Total</td>
-                            </tr>
-                            {products.map((p, index) => {
-                              return <tr className="content" key={index}>
-                                <td>{p.name}</td>
-                                <td>{p.amount}</td>
-                                <td>{formatPrice(p.price)}</td>
-                                <td className="text-center">{formatPrice(p.price * p.amount)}</td>
-                              </tr>;
-                            })}
-                          </tbody>
-                        </table>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <table className="table table-borderless">
-                        <tbody>
-                          <tr className="add">
-                            <td>Descuento</td>
-                            <td className="text-center">Total</td>
-                          </tr>
-                          <tr className="content">
-                            <td><input type="text" onChange={(e) => handleDescuento(e)} /></td>
-                            <td className="text-center">{formatPrice(total.current)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </Row>
-                    <Row>
-                      <div>
-                        <label className="form-label">Metodo de pago:</label>
-                        <div className="ButtonWrapper">
-                          <button className="paymentMethodButton"
-                            style={{ backgroundColor: activeEfectivo ? "orange" : "transparent" }}
-                            onClick={() => handleEfectivo()}>
-                            <BsCashCoin size={35} />
-                            Efectivo
-                          </button>
-                          <button className="paymentMethodButton"
-                            style={{ backgroundColor: activeTarjeta ? "orange" : "transparent" }}
-                            onClick={() => handleTarjeta()}>
-                            <MdPayment size={35} />
-                            Tarjeta
-                          </button>
-                          <button className="paymentMethodButton"
-                            style={{ backgroundColor: activeSINPE ? "orange" : "transparent" }}
-                            onClick={() => handleSINPE()}>
-                            <BsPhone size={35} />
-                            SINPE
-                          </button>
-                        </div>
-                      </div>
-                    </Row>
-                    {activeEfectivo &&
-                      <div>
-                        <Row>
-                          <label className="form-label">Efectivo:</label>
-                          <input ref={function (input) {
-                            if (input != null) {
-                              input.focus();
-                            }
-                          }} type="text" value={Efectivo || ""} className="form-control space" onChange={(e) => {
-                            setEfectivo(Number.parseInt(e.target.value));
-                            setCambio(Number.parseInt(e.target.value) - total.current);
-                          }} />
-                        </Row>
-                      </div>}
-                    {activeTarjeta &&
+                    <table className="table table-borderless">
+                      <tbody>
+                        <tr className="add">
+                          <td>Producto</td>
+                          <td>Cantidad</td>
+                          <td>Precio</td>
+                          <td className="text-center">Total</td>
+                        </tr>
+                        {products.map((p, index) => {
+                          return <tr className="content" key={index}>
+                            <td>{p.name}</td>
+                            <td>{p.amount}</td>
+                            <td>{formatPrice(p.price)}</td>
+                            <td className="text-center">{formatPrice(p.price * p.amount)}</td>
+                          </tr>;
+                        })}
+                      </tbody>
+                    </table>
+                  </Col>
+                </Row>
+                <Row>
+                  <table className="table table-borderless">
+                    <tbody>
+                      <tr className="add">
+                        <td>Descuento</td>
+                        <td className="text-center">Total</td>
+                      </tr>
+                      <tr className="content">
+                        <td><input type="text" onChange={(e) => handleDescuento(e)} /></td>
+                        <td className="text-center">{formatPrice(total.current)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </Row>
+                <Row>
+                  <div>
+                    <label className="form-label">Metodo de pago:</label>
+                    <div className="ButtonWrapper">
+                      <button className="paymentMethodButton"
+                        style={{ backgroundColor: activeEfectivo ? "orange" : "transparent" }}
+                        onClick={() => handleEfectivo()}>
+                        <BsCashCoin size={35} />
+                        Efectivo
+                      </button>
+                      <button className="paymentMethodButton"
+                        style={{ backgroundColor: activeTarjeta ? "orange" : "transparent" }}
+                        onClick={() => handleTarjeta()}>
+                        <MdPayment size={35} />
+                        Tarjeta
+                      </button>
+                      <button className="paymentMethodButton"
+                        style={{ backgroundColor: activeSINPE ? "orange" : "transparent" }}
+                        onClick={() => handleSINPE()}>
+                        <BsPhone size={35} />
+                        SINPE
+                      </button>
+                    </div>
+                  </div>
+                </Row>
+                {activeEfectivo &&
+                  <>
+                    <div>
                       <Row>
-                        <label className="form-label">Numero voucher:</label>
-                        <input type="text" ref={function (input) {
+                        <label className="form-label">Efectivo:</label>
+                        <input ref={function (input) {
                           if (input != null) {
                             input.focus();
                           }
-                        }} value={Voucher || ""} className="form-control space" onChange={(e) => setVoucher(Number.parseInt(e.target.value))} />
-                      </Row>}
-                  </Col>
-                  {activeEfectivo &&
-                    <Col md={3}>
-                      <Row>
-                        <label className="form-label">Cambio:</label>
-                        <textarea readOnly value={Cambio || ""} style={{ width: "99%", border: "none", outline: "none", fontSize: "45px", color: "orange" }} />
+                        }} type="text" value={Efectivo || ""} className="form-control space" onChange={(e) => {
+                          setEfectivo(Number.parseInt(e.target.value));
+                          setCambio(Number.parseInt(e.target.value) - total.current);
+                        }} />
                       </Row>
-                    </Col>}
-                </Row>
-              </Tab>
-              <Tab eventKey="Factura" title="Factura electronica">
-                <Row style={{ margin: "10px" }}>
-                  <label className="form-label">Tipo Cedula:</label>
-                  <Form.Select onChange={(e) => setTipoIdentificacion(e.target.value)} value={tipoIdentificacion || ""}>
-                    <option value="02">Juridica</option>
-                    <option value="01">Fisica</option>
-                  </Form.Select>
-                </Row>
-                <Row style={{ marginTop: "10px", marginBottom: "10px", marginLeft: "5px", marginRight: "5px" }}>
-                  <label className="form-label">Cedula juridica:</label>
-                  <div className='input-group' style={{ marginLeft: "-5px" }}>
-                    <input value={Cedula || ""} type="text" className="form-control" onChange={(e) => setCedula(e.target.value)} />
-                    <Button type="button" variant="primary" onClick={handleSearch}>{!loadingPersona ? 'Consultar' : <Loader className="spinner" />}</Button>
-                  </div>
-                </Row>
-                <Row style={{ margin: "10px" }}>
-                  <label className="form-label">Nombre:</label>
-                  <input type="text" disabled={true} value={Nombre || ""} className="form-control" onChange={(e) => setNombre(e.target.value)} />
-                </Row>
-                <Row style={{ margin: "10px" }}>
-                  <label className="form-label">Correo electronico:</label>
-                  <input type="text" value={email || ""} className="form-control" onChange={(e) => setEmail(e.target.value)} />
-                </Row>
-              </Tab>
-            </Tabs>
+                    </div>
+                  </>
+                }
+                {activeTarjeta &&
+                  <>
+                    <Row>
+                      <label className="form-label">Numero voucher:</label>
+                      <input type="text" ref={function (input) {
+                        if (input != null) {
+                          input.focus();
+                        }
+                      }} value={Voucher || ""} className="form-control space" onChange={(e) => setVoucher(Number.parseInt(e.target.value))} />
+                    </Row>
+                  </>}
+              </Col>
+              {activeEfectivo &&
+                <>
+                  <Col md={3}>
+                    <Row>
+                      <label className="form-label">Cambio:</label>
+                      <textarea readOnly value={Cambio || ""} style={{ width: "99%", border: "none", outline: "none", fontSize: "45px", color: "orange" }} />
+                    </Row>
+                  </Col>
+                </>}
+            </Row>
           </div>
           <div className="modal-footer">
             <button onClick={handlePay} className="btn btn-primary" disabled={loading}>

@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { HashRouter } from 'react-router-dom';
-
 import { Provider } from 'react-redux';
-
-import AppRoutes from './routes';
 import store from './store';
-import Dashboard from './pages/Dashboard';
+
+// Use React.lazy to load AppRoutes lazily
+const AppRoutes = lazy(() => import('./routes'));
 
 function App() {
   return (
@@ -13,7 +12,10 @@ function App() {
       <Provider store={store}>
         <HashRouter>
           <div>
-            <AppRoutes />
+            {/* Use Suspense to handle the loading state while AppRoutes is being loaded */}
+            <Suspense fallback={<div>Loading...</div>}>
+              <AppRoutes />
+            </Suspense>
           </div>
         </HashRouter>
       </Provider>

@@ -9,7 +9,6 @@ export interface Action {
 export default function saveOrder(state = [] as SaveOrder[], action: Action) {
     switch (action.type) {
         case 'ADD_TO_ORDER':
-            console.log(action.payload);
             return produce(state, (draft: SaveOrder[]) => {
                 draft.push({
                     ...action.payload

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import {
   FiUser, FiSliders, FiBox, FiMonitor, FiInfo, FiSmile,
@@ -12,37 +12,49 @@ import LogoImg from '../../assets/logo.png';
 import * as s from './styled';
 import { BsFillEnvelopeFill } from 'react-icons/bs';
 
+// Memoize the MenuBarLink component to prevent unnecessary re-renders
+const MemoizedMenuBarLink = memo(s.MenuBarLink);
+
+// Memoize the FiSliders component to prevent unnecessary re-renders
+const MemoizedFiSliders = memo(FiSliders);
+
+// Memoize the FiBox component to prevent unnecessary re-renders
+const MemoizedFiBox = memo(FiBox);
+
+// Memoize the FiMonitor component to prevent unnecessary re-renders
+const MemoizedFiMonitor = memo(FiMonitor);
+
 const MenuBar: React.FC = () => (
   <s.MenuBarWrapper>
     <s.MenuBarLogo>
       <img src={LogoImg} alt="Logo" />
     </s.MenuBarLogo>
     <s.MenuBarGroup>
-      <s.MenuBarLink to="/" title="Home">
+      <MemoizedMenuBarLink to="/" title="Home">
         <s.MenuBarItem>
-          <FiMonitor size="1.6em" />
+          <MemoizedFiMonitor size="1.6em" />
         </s.MenuBarItem>
-      </s.MenuBarLink>
-      <s.MenuBarLink to="/product" title="Produtos">
+      </MemoizedMenuBarLink>
+      <MemoizedMenuBarLink to="/product" title="Produtos">
         <s.MenuBarItem>
-          <FiBox size="1.6em" />
+          <MemoizedFiBox size="1.6em" />
         </s.MenuBarItem>
-      </s.MenuBarLink>
-      <s.MenuBarLink to="/configuration" title="Configuración">
+      </MemoizedMenuBarLink>
+      <MemoizedMenuBarLink to="/configuration" title="Configuración">
         <s.MenuBarItem title="Configuración">
-          <FiSliders size="1.6em" />
+          <MemoizedFiSliders size="1.6em" />
         </s.MenuBarItem>
-      </s.MenuBarLink>
-      <s.MenuBarLink to="/bill" title="Facturas">
+      </MemoizedMenuBarLink>
+      <MemoizedMenuBarLink to="/bill" title="Facturas">
         <s.MenuBarItem>
           <RiBillLine size="1.6em" />
         </s.MenuBarItem>
-      </s.MenuBarLink>
-      <s.MenuBarLink to="/sales" title="Ventas">
+      </MemoizedMenuBarLink>
+      <MemoizedMenuBarLink to="/sales" title="Ventas">
         <s.MenuBarItem>
           <FiSmile size="1.6em" />
         </s.MenuBarItem>
-      </s.MenuBarLink>
+      </MemoizedMenuBarLink>
     </s.MenuBarGroup>
   </s.MenuBarWrapper>
 );

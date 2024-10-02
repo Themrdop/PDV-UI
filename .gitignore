@@ -427,3 +427,5 @@ FodyWeavers.xsd
 
 # compress files
 *.tar
+# Million Lint
+.million

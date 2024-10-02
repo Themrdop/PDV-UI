@@ -23,6 +23,9 @@ import { ProductList } from '../../components/ProductList';
 import { Toaster } from 'react-hot-toast';
 import { Combo, Product } from '../../models/models';
 
+// Optimize Toaster with React.memo
+const MemoizedToaster = React.memo(Toaster);
+
 function Dashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filter, setFilter] = useState('');
@@ -115,7 +118,7 @@ function Dashboard() {
           ))}
         </ProductList>
       </s.ProductItemContainer>
-      <Toaster />
+      <MemoizedToaster />
     </Layout>
   )};
 

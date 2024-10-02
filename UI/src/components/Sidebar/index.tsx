@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 import { MdPayment } from "react-icons/md";
 import { FcCancel, FcSafe } from "react-icons/fc";
 
@@ -19,6 +20,16 @@ export interface Props {
   isSmall?: boolean;
 }
 
+const selectCart = createSelector(
+  (state: Cart) => state.cart,
+  (cart) => cart.map((product) => ({ ...product }))
+);
+
+const selectOrders = createSelector(
+  (state: SavedOrders) => state.saveOrder,
+  (orders) => orders.map((order) => ({ ...order }))
+);
+
 const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
   const dispatch = useDispatch();
   const [showPayment, setPaymentShow] = useState(false);
@@ -26,23 +37,20 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
   const [showOrderProun, setShowOrderProun] = useState(false);
   const [CommerceInfo, setCommerceInfo] = useState<CommerceInfo>({} as CommerceInfo);
 
-  const cart = useSelector((state: Cart) => state.cart.map((product) => ({
-    ...product,
-  })));
+  const cart = useSelector(selectCart);
+  const order = useSelector(selectOrders);
 
-  const order = useSelector((state: SavedOrders) => state.saveOrder.map((order) => ({
-    ...order,
-  })));
+  const memoizedCart = useMemo(() => cart, [cart]);
 
   function handlerDelete(product: Product) {
     dispatch({ type: 'DELETE_FROM_CART', payload: product });
   }
 
-  async function handlePay() {
-    if (cart.length > 0) {
-      setPaymentShow(true)
+  const handlePay = () => {
+    if (memoizedCart.length > 0) {
+      setPaymentShow(true);
     }
-  }
+  };
 
   async function handlesavedOrders() {
     if (order.length > 0) {
@@ -73,11 +81,33 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
     loadCommerceInfo();
   }, []);
 
-  function addOrder(): void {
-    if (cart.length > 0) {
-      setShowOrderProun(true)
+  const addOrder = useCallback(() => {
+    if (memoizedCart.length > 0) {
+      setShowOrderProun(true);
     }
-  }
+  }, [memoizedCart]);
+
+  const handlePaymentModalClose = useCallback((result: boolean) => {
+    setPaymentShow(false);
+    showToastMessage(result);
+    if (result) {
+      clean();
+    }
+  }, [showToastMessage, clean]);
+
+  const handleOrderNameModalClose = useCallback((result: boolean) => {
+    setShowOrderProun(false);
+    if (result) {
+      clean();
+    }
+  }, [clean]);
+
+  const handleSavedOrdersListClose = useCallback(() => {
+    setSavedorderShow(false);
+  }, []);
+
+  const MemoizedPaymentModal = React.memo(PaymentModal);
+  const MemoizedSavedOrdersList = React.memo(SavedOrdersList);
 
   return (
     <s.SidebarWrapper>
@@ -91,7 +121,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
             <div>Cantidad</div>
             <div>Eliminar</div>
           </s.Item>
-          {cart.map((p, index) => (
+          {memoizedCart.map((p, index) => (
             <s.Item key={index}>
               <div>{p.name}</div>
               <span>{p.amount}</span>
@@ -101,7 +131,7 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
         </s.Receipt>
       </div>
       <s.Total>
-        Total <p>{cart.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0)}</p>
+        Total <p>{memoizedCart.reduce((partialSum, product) => partialSum + (product.price * product.amount), 0)}</p>
       </s.Total>
       <s.ButtonWrapper>
         <s.Button onClick={() => handlePay()}>
@@ -117,25 +147,9 @@ const Sidebar: React.FC<Props> = ({ isSmall }: Props) => {
           Cancelar
         </s.Button>
       </s.ButtonWrapper>
-      <PaymentModal products={cart} onClose={(result: boolean) => {
-        setPaymentShow(false);
-        showToastMessage(result);
-        if (result) {
-          clean();
-        }
-      }
-      } show={showPayment} />
-      <OrderNameModal products={cart} onClose={(result: boolean) => {
-        setShowOrderProun(false);
-        if (result) {
-          clean();
-        }
-      }} show={showOrderProun} />
-      <SavedOrdersList onClose={(result: boolean) => {
-        setSavedorderShow(false);
-      }} show={showSavedorder} />
+      <MemoizedPaymentModal products={memoizedCart} onClose={handlePaymentModalClose} show={showPayment} />
+      <OrderNameModal products={memoizedCart} onClose={handleOrderNameModalClose} show={showOrderProun} />
+      <MemoizedSavedOrdersList onClose={handleSavedOrdersListClose} show={showSavedorder} />
     </s.SidebarWrapper>
   );
-};
-
-export default Sidebar;
+};export default Sidebar;

@@ -27,7 +27,6 @@ const UserAdministration: React.FC = () => {
   
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-    console.log(inputs);
 
     let response = await api.post<Product>(
       '/AddUser', {name: inputs.name, lastname: inputs.lastname, email: inputs.email, password: inputs.password, role: inputs.role} as User

@@ -38,7 +38,6 @@ const ProductInput: React.FC = () => {
 
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-    console.log(inputs);
 
     let response;
 
@@ -95,7 +94,7 @@ const ProductInput: React.FC = () => {
       return;
     }
 
-    const data = response.data.map((product) => ({
+    const data = response.data.map((product: Product) => ({
       ...product,
       priceFormatted: formatPrice(product.price),
     }));
@@ -113,7 +112,7 @@ const ProductInput: React.FC = () => {
       return;
     }
 
-    const data = response.data.map((combo) => ({
+    const data = response.data.map((combo: Combo) => ({
       ...combo,
       priceFormatted: formatPrice(combo.price),
     }));
@@ -137,8 +136,6 @@ const ProductInput: React.FC = () => {
     const response = await api.get<Combo>(
       '/GetComboById', { params: { id: id } }
     );
-
-    console.log(response.data);
 
     if (response.status !== 200) {
       toast.error('Error al cargar el producto');

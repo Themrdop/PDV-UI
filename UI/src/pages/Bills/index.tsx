@@ -1,6 +1,6 @@
 import Layout from '../../components/Layout';
 import Table from 'react-bootstrap/Table';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import api from "../../service/api";
@@ -23,7 +23,7 @@ const BillScreen: React.FC = () => {
 
   const fileName = `Facturas_${startDate}-${endDate}`;
 
-  async function RequestBills() {
+  const RequestBills = useCallback(async () => {
     setLoading(true);
     const response = await api.get<Bill[]>(
       '/GetAllBills', { params: { dateBegging: startDate.toISOString(), dateEnd: endDate.toISOString() } }
@@ -32,7 +32,12 @@ const BillScreen: React.FC = () => {
       setBills(response.data);
     }
     setLoading(false);
-  }
+  }, [startDate, endDate]);
+
+  const handleRowClick = useCallback((bill: Bill): void => {
+    setSelectedBill(bill);
+    setShow(true);
+  }, []);
 
   return (
     <Layout>
@@ -42,7 +47,7 @@ const BillScreen: React.FC = () => {
       <div>
         <label>Fecha de inicio</label><DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> &nbsp;
         <label>Fecha de final</label><DatePicker selected={endDate} onChange={(date: Date) => setEndDate(date)} />&nbsp;&nbsp;
-        <Button disabled={loading} onClick={(_) => RequestBills()}>{!loading ? 'Consultar' : <Loader className="spinner" />}</Button>
+        <Button disabled={loading} onClick={RequestBills}>{!loading ? 'Consultar' : <Loader className="spinner" />}</Button>
       </div>
       <Table striped={true} bordered={true} hover={true}>
         <thead>
@@ -57,7 +62,7 @@ const BillScreen: React.FC = () => {
         {renderBills()}
       </Table>
       <ExportCSV csvData={bills} fileName={fileName} />
-      <BillReport onClose={(result: boolean) => { setShow(false); }} bill={selectedBill} show={show}></BillReport>
+      <BillReport onClose={() => { setShow(false); }} bill={selectedBill} show={show}></BillReport>
     </Layout>
   );
 
@@ -89,7 +94,7 @@ const BillScreen: React.FC = () => {
           )}
         </tbody>
         {footerTable(sumAmount)}
-        <ElectronicBillModal onClose={(result: boolean) => { setPaymentShow(false) }
+        <ElectronicBillModal onClose={() => { setPaymentShow(false) }
         } show={showPayment}
           bill={selectedBill} />
       </>
@@ -134,11 +139,6 @@ const BillScreen: React.FC = () => {
       }
     });
     return concat;
-  }
-
-  function handleRowClick(bill: Bill): void {
-    setSelectedBill(bill);
-    setShow(true);
   }
 }
 
